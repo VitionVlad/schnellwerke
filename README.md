@@ -1,2 +1,7 @@
 # Schnellwerke
-writing games or other 3d apps is a quite interesting process, until you realize some apsects, like porting, or bad performance, yoiu can write a web game, but it will work bad, you can write a standalone game, but porting can take a lot of time. i decided that i could combine incompatible things, my game engine is designed to be completly programable from rust, most of engine components are written in rust, and because of that the perfomance could be much higher that alternative in js/ts
+Writing games or other 3D apps is quite an interesting process, until you realize some aspects, like porting or bad performance. You can write a web game, but it might perform poorly. Alternatively, you can write a standalone game, but porting can be time-consuming. I decided to combine incompatible things. My game engine is designed to be completely programmable from Rust. Most of the engine components are written in Rust, which allows for much higher performance compared to alternatives in JavaScript/TypeScript. At the same time, it is an engine for the web, requiring nothing special to work on other platforms (currently more of a future prospect due to WebGPU API). It works on PC Chromium, tested on Windows and Linux, and works on Android with a specific flag enabled. Additionally, for many programmers, programming in Rust can be simply more comfortable. Currently, I am working on implementing:  
+1. A simple physics engine, mostly based on WebGPU compute shaders.  
+2. A parser for OBJ models.  
+3. Cubemaps.  
+4. Shadow mapping (partially implemented).  
+5. Advanced lighting: Physically Based Rendering (PBR).  
