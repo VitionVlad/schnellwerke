@@ -1,0 +1,2 @@
+# Schnellwerke
+writing games or other 3d apps is a quite interesting process, until you realize some apsects, like porting, or bad performance, yoiu can write a web game, but it will work bad, you can write a standalone game, but porting can take a lot of time. i decided that i could combine incompatible things, my game engine is designed to be completly programable from rust, most of engine components are written in rust, and because of that the perfomance could be much higher that alternative in js/ts
