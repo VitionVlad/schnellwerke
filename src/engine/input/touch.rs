@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::wasm_bindgen;
 
-#[wasm_bindgen(module = "/touch.js")]
+#[wasm_bindgen(module = "/src/engine/input/touch.js")]
 extern {
     fn jgettx() -> i32;
     fn jgetty() -> i32;

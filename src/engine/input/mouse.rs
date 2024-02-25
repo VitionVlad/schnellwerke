@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::wasm_bindgen;
 
-#[wasm_bindgen(module = "/mouse.js")]
+#[wasm_bindgen(module = "/src/engine/input/mouse.js")]
 extern {
     fn jgetx() -> i32;
     fn jgety() -> i32;

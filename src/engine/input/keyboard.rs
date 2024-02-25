@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::wasm_bindgen;
 
-#[wasm_bindgen(module = "/keyboard.js")]
+#[wasm_bindgen(module = "/src/engine/input/keyboard.js")]
 extern {
     fn getkeycode() -> i32;
 }

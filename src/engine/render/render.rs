@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen(module = "/gfx.js")]
+#[wasm_bindgen(module = "/src/engine/render/gfx.js")]
 extern {
     pub type Gfxrender;
     #[wasm_bindgen(constructor)]
