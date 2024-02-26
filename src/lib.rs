@@ -1,10 +1,12 @@
 use engine::engine::Engine;
+use engine::render::render::Gpucompute;
 use engine::math::uniformstruct::{createmvpmat, createsmvpmat, createvec4, Uniformstruct};
 use engine::math::vec4::Vec4;
 use engine::object::Object;
 use engine::input::keyboard::is_key_pressed;
 use engine::input::mouse::{get_mouse_x, get_mouse_y};
 use engine::input::touch::*;
+use js_sys::Float32Array;
 use wasm_bindgen::prelude::*;
 mod engine;
 
@@ -190,6 +192,23 @@ pub fn main() {
 
     let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "tex", "nearest", "nearest", true);
     let mut rd = 1.0f32;
+
+    let compute: &str = "
+    @group(0) @binding(0) var<storage> in: array<f32>;
+    @group(0) @binding(1) var<storage, read_write> out: array<f32>;
+
+    @compute @workgroup_size(1) fn computeMain() {
+        out[0] = 1.1;
+        out[1] = in[4] * in[5] * in[6] * in[7];
+        out[2] = in[8] * in[9] * in[10] * in[11];
+        out[3] = in[12] * in[13] * in[14] * in[15];
+    }";
+
+    let inbuf: Float32Array = Float32Array::new_with_length(16);
+    let outbuf: Float32Array = Float32Array::new_with_length(4);
+
+    let com: Gpucompute = Gpucompute::createcompute(16, 4, compute);
+    com.execute(&inbuf, &outbuf, 1);
 
     let drawloop = move || {
       eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;

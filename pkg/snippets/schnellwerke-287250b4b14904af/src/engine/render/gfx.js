@@ -632,26 +632,88 @@ export class Gfxmesh{
     }
 }
 
-export class gpucompute{
+export class Gpucompute{
     constructor(ibs, obs, code){
-        const module = device.createShaderModule({code});
+        this.is = ibs*4;
+        this.os = obs*4;
+        const module = device.createShaderModule({
+            code: code
+        });
+
+        const bindGroupLayout = device.createBindGroupLayout({
+            label: "compute group layout",
+            entries: [{
+              binding: 0,
+              visibility: GPUShaderStage.COMPUTE,
+              buffer: { type: "read-only-storage"}
+            }, {
+              binding: 1,
+              visibility: GPUShaderStage.COMPUTE,
+              buffer: { type: "storage"}
+            }]
+          });
+
         this.pipeline = device.createComputePipeline({
             label: 'compute pipeline',
-            layout: 'auto',
+            layout: device.createPipelineLayout({
+                bindGroupLayouts: [bindGroupLayout],
+            }),
             compute: {
-              module,
-              entryPoint: 'main',
+              module: module,
+              entryPoint: 'computeMain',
             },
         });
-        let usage = GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC;
-        this.workgroupBuffer = device.createBuffer({ibs, usage});
-        usage = GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST;
-        this.workgroupReadBuffer = device.createBuffer({obs, usage});
-        const bindGroup = device.createBindGroup({
-            layout: pipeline.getBindGroupLayout(0),
-            entries: [
-              { binding: 0, resource: { buffer: this.workgroupBuffer }},
+
+        this.inbuf = device.createBuffer({
+            size: ibs*4, 
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+        });
+
+        this.outbuf = device.createBuffer({
+            size: obs*4, 
+            usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
+        });
+
+        this.outbufcpu = device.createBuffer({
+            size: obs*4, 
+            mappedAtCreation: false,
+            usage: GPUBufferUsage.MAP_READ | GPUBufferUsage.COPY_DST
+        });
+
+        this.bindGroup = device.createBindGroup({
+            layout: this.pipeline.getBindGroupLayout(0),
+            entries: [{ 
+                binding: 0, 
+                resource: { 
+                    buffer: this.inbuf 
+                }
+            },{ 
+                binding: 1, 
+                resource: { 
+                    buffer: this.outbuf 
+                }
+            },
             ],
         });
+    }
+    execute(inbuf, outbuf, workgroupcount){
+        device.queue.writeBuffer(this.inbuf, 0, inbuf);
+        const encoder = device.createCommandEncoder();
+        const computePass = encoder.beginComputePass();
+
+        computePass.setPipeline(this.pipeline);
+        computePass.setBindGroup(0, this.bindGroup);
+        computePass.dispatchWorkgroups(1);
+        computePass.end();
+
+        encoder.copyBufferToBuffer(this.outbuf, 0, this.outbufcpu, 0, this.os);
+        const commandBuffer = encoder.finish();
+        device.queue.submit([commandBuffer]);
+
+        this.outbufcpu.mapAsync(GPUMapMode.READ).then(() => {
+            outbuf = new Float32Array(this.outbufcpu.getMappedRange(0, this.os).slice());
+            console.log(outbuf);
+            this.outbufcpu.unmap();
+        })
     }
 }
