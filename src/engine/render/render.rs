@@ -48,7 +48,13 @@ extern {
     pub fn createcompute(ibs: i32, obs: i32, code: &str) -> Gpucompute;
 
     #[wasm_bindgen(method)]
-    pub fn execute(this: &Gpucompute, ib: &Float32Array, ob: &Float32Array, workgroupsize: i32);
+    pub fn execute(this: &Gpucompute, ib: &Float32Array, workgroupsize: i32);
+
+    #[wasm_bindgen(method)]
+    pub fn getstate(this: &Gpucompute) -> bool;
+
+    #[wasm_bindgen(method)]
+    pub fn getresult(this: &Gpucompute) -> Float32Array;
 }
 
 pub struct Render{

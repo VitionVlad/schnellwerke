@@ -205,12 +205,16 @@ pub fn main() {
     }";
 
     let inbuf: Float32Array = Float32Array::new_with_length(16);
-    let outbuf: Float32Array = Float32Array::new_with_length(4);
 
     let com: Gpucompute = Gpucompute::createcompute(16, 4, compute);
-    com.execute(&inbuf, &outbuf, 1);
+    com.execute(&inbuf, 1);
 
     let drawloop = move || {
+      let state = com.getstate().to_string();
+      log(&state);
+      let outbuf = com.getresult();
+      let v1 = outbuf.get_index(0).to_string();
+      log(&v1);
       eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;
       eng.rot.y += get_mouse_x() as f32/eng.ren.get_canvas_size_x()as f32;
       if is_key_pressed(87){

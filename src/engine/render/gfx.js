@@ -695,25 +695,35 @@ export class Gpucompute{
             },
             ],
         });
+        this.rsoutbuf = new Float32Array(this.obs);
+        this.ended = true;
     }
-    execute(inbuf, outbuf, workgroupcount){
+    async execute(inbuf, workgroupcount){
+        this.ended = false;
         device.queue.writeBuffer(this.inbuf, 0, inbuf);
         const encoder = device.createCommandEncoder();
         const computePass = encoder.beginComputePass();
 
         computePass.setPipeline(this.pipeline);
         computePass.setBindGroup(0, this.bindGroup);
-        computePass.dispatchWorkgroups(1);
+        computePass.dispatchWorkgroups(workgroupcount);
         computePass.end();
 
         encoder.copyBufferToBuffer(this.outbuf, 0, this.outbufcpu, 0, this.os);
         const commandBuffer = encoder.finish();
         device.queue.submit([commandBuffer]);
 
-        this.outbufcpu.mapAsync(GPUMapMode.READ).then(() => {
-            outbuf = new Float32Array(this.outbufcpu.getMappedRange(0, this.os).slice());
-            console.log(outbuf);
-            this.outbufcpu.unmap();
-        })
+        await this.outbufcpu.mapAsync(GPUMapMode.READ);
+
+        this.rsoutbuf = new Float32Array(this.outbufcpu.getMappedRange(0, this.os).slice());
+        console.log(this.rsoutbuf[0]);
+        this.outbufcpu.unmap();
+        this.ended = true;
+    }
+    getstate(){
+        return this.ended;
+    }
+    getresult(){
+        return this.rsoutbuf;
     }
 }
