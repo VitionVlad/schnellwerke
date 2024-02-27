@@ -716,7 +716,6 @@ export class Gpucompute{
         await this.outbufcpu.mapAsync(GPUMapMode.READ);
 
         this.rsoutbuf = new Float32Array(this.outbufcpu.getMappedRange(0, this.os).slice());
-        console.log(this.rsoutbuf[0]);
         this.outbufcpu.unmap();
         this.ended = true;
     }

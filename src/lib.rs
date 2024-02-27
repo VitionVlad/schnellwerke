@@ -1,12 +1,11 @@
 use engine::engine::Engine;
-use engine::render::render::Gpucompute;
+use engine::render::compute::Compute;
 use engine::math::uniformstruct::{createmvpmat, createsmvpmat, createvec4, Uniformstruct};
 use engine::math::vec4::Vec4;
 use engine::object::Object;
 use engine::input::keyboard::is_key_pressed;
 use engine::input::mouse::{get_mouse_x, get_mouse_y};
 use engine::input::touch::*;
-use js_sys::Float32Array;
 use wasm_bindgen::prelude::*;
 mod engine;
 
@@ -198,23 +197,17 @@ pub fn main() {
     @group(0) @binding(1) var<storage, read_write> out: array<f32>;
 
     @compute @workgroup_size(1) fn computeMain() {
-        out[0] = 1.1;
+        out[0] = in[0];
         out[1] = in[4] * in[5] * in[6] * in[7];
         out[2] = in[8] * in[9] * in[10] * in[11];
         out[3] = in[12] * in[13] * in[14] * in[15];
     }";
-
-    let inbuf: Float32Array = Float32Array::new_with_length(16);
-
-    let com: Gpucompute = Gpucompute::createcompute(16, 4, compute);
-    com.execute(&inbuf, 1);
+    let inbuf: [f32; 16] = [1.2f32; 16];
+    let mut com: Compute = Compute::create(16, 4, compute);
 
     let drawloop = move || {
-      let state = com.getstate().to_string();
-      log(&state);
-      let outbuf = com.getresult();
-      let v1 = outbuf.get_index(0).to_string();
-      log(&v1);
+      com.execute(&inbuf);
+      log(&com.out_buf[0].to_string());
       eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;
       eng.rot.y += get_mouse_x() as f32/eng.ren.get_canvas_size_x()as f32;
       if is_key_pressed(87){
