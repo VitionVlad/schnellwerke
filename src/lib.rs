@@ -1,11 +1,12 @@
 use engine::engine::Engine;
-use engine::render::compute::Compute;
+//use engine::render::compute::Compute;
 use engine::math::uniformstruct::{createmvpmat, createsmvpmat, createvec4, Uniformstruct};
 use engine::math::vec4::Vec4;
 use engine::object::Object;
 use engine::input::keyboard::is_key_pressed;
 use engine::input::mouse::{get_mouse_x, get_mouse_y};
 use engine::input::touch::*;
+use engine::resourceloader::resourceloader::Jsrelod;
 use wasm_bindgen::prelude::*;
 mod engine;
 
@@ -19,6 +20,8 @@ extern {
 pub fn main() {
     const SPEED: f32 = 0.1f32;
     let mut eng: Engine = Engine::new("render", 1f32, 4000);
+
+    let reslod = Jsrelod::new("md1");
 
     let vertices: [f32; 24] = [
         -1.0, -1.0, -0.5, 1.0,
@@ -184,30 +187,26 @@ pub fn main() {
     uniforms.push(createvec4(Vec4::new()));
     uniforms.push(createvec4(Vec4::new()));
 
-    let mut mesh: Object = Object::new(&eng, &vertices, &uv, &normals, 6, vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
-    mesh.rot.x = 0.24f32;
-    mesh.pos.x = 0.5f32;
-    mesh.scale.y = 1.5f32;
+    let v = reslod.getvert().to_vec();
+    let u = reslod.getuv().to_vec();
+    let n = reslod.getnorm().to_vec();
+    let mut mesh: Object = Object::new(&eng, &v.as_slice(), &u.as_slice(), &n.as_slice(), reslod.getlen() as i32, vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
 
     let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "tex", "nearest", "nearest", true);
     let mut rd = 1.0f32;
 
-    let compute: &str = "
-    @group(0) @binding(0) var<storage> in: array<f32>;
-    @group(0) @binding(1) var<storage, read_write> out: array<f32>;
-
-    @compute @workgroup_size(1) fn computeMain() {
-        out[0] = in[0];
-        out[1] = in[4] * in[5] * in[6] * in[7];
-        out[2] = in[8] * in[9] * in[10] * in[11];
-        out[3] = in[12] * in[13] * in[14] * in[15];
-    }";
-    let inbuf: [f32; 16] = [1.2f32; 16];
-    let mut com: Compute = Compute::create(16, 4, compute);
+    //let compute: &str = "
+    //@group(0) @binding(0) var<storage> in: array<f32>;
+    //@group(0) @binding(1) var<storage, read_write> out: array<f32>;
+    //
+    //@compute @workgroup_size(1) fn computeMain() {
+    //    out[0] = in[0];
+    //    out[1] = in[4] * in[5] * in[6] * in[7];
+    //    out[2] = in[8] * in[9] * in[10] * in[11];
+    //    out[3] = in[12] * in[13] * in[14] * in[15];
+    //}";
 
     let drawloop = move || {
-      com.execute(&inbuf);
-      log(&com.out_buf[0].to_string());
       eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;
       eng.rot.y += get_mouse_x() as f32/eng.ren.get_canvas_size_x()as f32;
       if is_key_pressed(87){
