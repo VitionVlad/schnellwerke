@@ -14,6 +14,10 @@ and then use this element to create a Objreader class, it will conatin everythin
 let md = Objreader::new("md1");
 let mut mesh: Object = Object::new(&eng, &md.vert.as_slice(), &md.uv.as_slice(), &md.norm.as_slice(), md.size, vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
 ```
+or even easier:  
+```
+let mut mesh: Object = Object::new_from_obj(&eng, "md1", vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
+```
 and you are done!  
 ![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/3de30dca-cb6a-4b36-828a-87f1dea01fe8)  
 this model parsing takes less than a second, its size is 12 mb, i tried a 60 mb file, it is parsing in about 3 seconds, most of time is being spended on browser to load resource. by the way, before loading any data make sure you page with resources is completly loaded:
