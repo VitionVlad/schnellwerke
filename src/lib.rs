@@ -6,7 +6,7 @@ use engine::object::Object;
 use engine::input::keyboard::is_key_pressed;
 use engine::input::mouse::{get_mouse_x, get_mouse_y};
 use engine::input::touch::*;
-use engine::resourceloader::resourceloader::Jsrelod;
+use engine::resourceloader::resourceloader::Objreader;
 use wasm_bindgen::prelude::*;
 mod engine;
 
@@ -20,8 +20,6 @@ extern {
 pub fn main() {
     const SPEED: f32 = 0.1f32;
     let mut eng: Engine = Engine::new("render", 1f32, 4000);
-
-    let reslod = Jsrelod::new("md1");
 
     let vertices: [f32; 24] = [
         -1.0, -1.0, -0.5, 1.0,
@@ -74,7 +72,7 @@ pub fn main() {
     fn vertexMain(@location(0) pos: vec4f, @location(1) uv: vec2f, @location(2) n: vec3f) -> OUT {
       var out: OUT;
       out.position = ourStruct.mvp * vec4f(pos.xyz, 1);
-      out.uv = uv;
+      out.uv = vec2f(uv.x, 1.0-uv.y);
       out.norm = n;
       return out;
     }";
@@ -187,10 +185,8 @@ pub fn main() {
     uniforms.push(createvec4(Vec4::new()));
     uniforms.push(createvec4(Vec4::new()));
 
-    let v = reslod.getvert().to_vec();
-    let u = reslod.getuv().to_vec();
-    let n = reslod.getnorm().to_vec();
-    let mut mesh: Object = Object::new(&eng, &v.as_slice(), &u.as_slice(), &n.as_slice(), reslod.getlen() as i32, vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
+    let md = Objreader::new("md1");
+    let mut mesh: Object = Object::new(&eng, &md.vert.as_slice(), &md.uv.as_slice(), &md.norm.as_slice(), md.size, vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
 
     let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "tex", "nearest", "nearest", true);
     let mut rd = 1.0f32;
@@ -205,6 +201,8 @@ pub fn main() {
     //    out[2] = in[8] * in[9] * in[10] * in[11];
     //    out[3] = in[12] * in[13] * in[14] * in[15];
     //}";
+
+    eng.pos.y = -4.0f32;
 
     let drawloop = move || {
       eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;

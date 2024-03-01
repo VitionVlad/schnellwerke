@@ -1,6 +1,7 @@
 use super::render::*;
 use js_sys::Float32Array;
 
+#[allow(dead_code)]
 pub struct Compute{
     jsc: Gpucompute,
     workgroupsize: i32,

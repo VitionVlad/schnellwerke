@@ -19,3 +19,30 @@ extern {
     #[wasm_bindgen(method)]
     pub fn getlen(this: &Jsrelod) -> i32;
 }
+
+#[allow(dead_code)]
+pub struct Objreader{
+    load: Jsrelod,
+    pub vert: Vec<f32>,
+    pub uv: Vec<f32>,
+    pub norm: Vec<f32>,
+    pub size: i32,
+}
+
+impl Objreader{
+    #[allow(dead_code)]
+    pub fn new(id: &str) -> Objreader{
+        let t = Jsrelod::new(id);
+        let v = t.getvert().to_vec();
+        let u = t.getuv().to_vec();
+        let n = t.getnorm().to_vec();
+        let l = t.getlen();
+        Objreader{
+            load: t,
+            vert: v,
+            uv: u,
+            norm: n,
+            size: l,
+        }
+    }
+}
