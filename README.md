@@ -9,15 +9,19 @@ now, to load a model you just need, an element which contains obj file (only obj
 ```  
   <iframe src="assets/m.txt" type="text/plain" id="md1" style="display: none;"></iframe>
 ```
-and then use loaded and indexed model in mesh creation(still working on)  
+and then use this element to create a Objreader class, it will conatin everything necessery
 ```
-  let reslod = Jsrelod::new("md1");
-
-  let v = reslod.getvert().to_vec();
-  let u = reslod.getuv().to_vec();
-  let n = reslod.getnorm().to_vec();
-
-  let mut mesh: Object = Object::new(&eng, &v.as_slice(), &u.as_slice(), &n.as_slice(), reslod.getlen() as i32, vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
+let md = Objreader::new("md1");
+let mut mesh: Object = Object::new(&eng, &md.vert.as_slice(), &md.uv.as_slice(), &md.norm.as_slice(), md.size, vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
 ```
 and you are done!  
-![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/fdceb6be-8eb1-4d9b-8990-f7143341f397)
+![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/3de30dca-cb6a-4b36-828a-87f1dea01fe8)  
+this model parsing takes less than a second, its size is 12 mb, i tried a 60 mb file, it is parsing in about 3 seconds, most of time is being spended on browser to load resource. by the way, before loading any data make sure you page with resources is completly loaded:
+```
+import init, { main } from "./pkg/schnellwerke.js";
+      window.addEventListener("load", function (event) {
+        init().then(() => {
+          main();
+        });
+      });
+```  
