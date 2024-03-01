@@ -24,4 +24,6 @@ import init, { main } from "./pkg/schnellwerke.js";
           main();
         });
       });
-```  
+```
+by the way, here is demo of its working on mobile:  
+![Screenshot_20240301-195530](https://github.com/VitionVlad/schnellwerke/assets/48290199/d53c8fe9-b48d-472d-85b6-7dfd5e2edc64)
