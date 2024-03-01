@@ -6,7 +6,6 @@ use engine::object::Object;
 use engine::input::keyboard::is_key_pressed;
 use engine::input::mouse::{get_mouse_x, get_mouse_y};
 use engine::input::touch::*;
-use engine::resourceloader::resourceloader::Objreader;
 use wasm_bindgen::prelude::*;
 mod engine;
 
@@ -185,8 +184,7 @@ pub fn main() {
     uniforms.push(createvec4(Vec4::new()));
     uniforms.push(createvec4(Vec4::new()));
 
-    let md = Objreader::new("md1");
-    let mut mesh: Object = Object::new(&eng, &md.vert.as_slice(), &md.uv.as_slice(), &md.norm.as_slice(), md.size, vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
+    let mut mesh: Object = Object::new_from_obj(&eng, "md1", vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
 
     let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "tex", "nearest", "nearest", true);
     let mut rd = 1.0f32;

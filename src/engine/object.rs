@@ -1,4 +1,4 @@
-use super::{engine::Engine, math::{mat4::Mat4, uniformstruct::{getsize, Uniformstruct, Usages}, vec3::Vec3}, render::mesh::Mesh};
+use super::{engine::Engine, math::{mat4::Mat4, uniformstruct::{getsize, Uniformstruct, Usages}, vec3::Vec3}, render::mesh::Mesh, resourceloader::resourceloader::Objreader};
 use js_sys::Float32Array;
 
 #[allow(dead_code)]
@@ -27,6 +27,29 @@ impl Object {
         let ubol: i32 = getsize(unifroms);
         Object { 
             mesh: Mesh::create(&eng.ren, jsvert, jsuv, jsn, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost),
+            jsarr: Float32Array::new_with_length((ubol/4) as u32),
+            inuniform: 0,
+            pos: Vec3::new(),
+            rot: Vec3::new(),
+            scale: Vec3::newdefined(1f32, 1f32, 1f32),
+            mat: Mat4::new(),
+            smat: Mat4::new()
+        }
+    }
+    #[allow(dead_code)]
+    pub fn new_from_obj(eng: &Engine, modelid: &str, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, unifroms: &Vec<Uniformstruct>, texid: &str, magfilter: &str, minfilter: &str, forpost: bool) -> Object{
+        let md = Objreader::new(modelid);
+        let jsvert = js_sys::Float32Array::new_with_length((md.size*4) as u32);
+        jsvert.copy_from(&md.vert.as_slice());
+
+        let jsuv = js_sys::Float32Array::new_with_length((md.size*2) as u32);
+        jsuv.copy_from(&md.uv.as_slice());
+
+        let jsn = js_sys::Float32Array::new_with_length((md.size*3) as u32);
+        jsn.copy_from(&md.norm.as_slice());
+        let ubol: i32 = getsize(unifroms);
+        Object { 
+            mesh: Mesh::create(&eng.ren, jsvert, jsuv, jsn, md.size, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost),
             jsarr: Float32Array::new_with_length((ubol/4) as u32),
             inuniform: 0,
             pos: Vec3::new(),
