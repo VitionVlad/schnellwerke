@@ -1,4 +1,4 @@
-use super::{engine::Engine, math::{mat4::Mat4, uniformstruct::{getsize, Uniformstruct, Usages}, vec3::Vec3}, render::mesh::Mesh, resourceloader::resourceloader::Objreader};
+use super::{engine::Engine, math::{mat4::Mat4, uniformstruct::{getsize, Uniformstruct, Usages}, vec3::Vec3}, render::mesh::Mesh, resourceloader::resourceloader::Objreader, render::compute::Compute, physics::physics::PHYSICS_GPU};
 use js_sys::Float32Array;
 
 #[allow(dead_code)]
@@ -11,6 +11,10 @@ pub struct Object{
     pub scale: Vec3,
     mat: Mat4,
     smat: Mat4,
+    pub comp: Compute,
+    incomp: Vec<f32>,
+    pub collision_detect: bool,
+    modelvert: Vec<f32>,
 }
 
 impl Object {
@@ -33,7 +37,11 @@ impl Object {
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
             mat: Mat4::new(),
-            smat: Mat4::new()
+            smat: Mat4::new(),
+            comp: Compute::create((lenght*4+23) as u32, 4, PHYSICS_GPU),
+            incomp: Vec::with_capacity((lenght*4+23) as usize),
+            collision_detect: true,
+            modelvert: vertices.to_vec(),
         }
     }
     #[allow(dead_code)]
@@ -56,40 +64,60 @@ impl Object {
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
             mat: Mat4::new(),
-            smat: Mat4::new()
+            smat: Mat4::new(),
+            comp: Compute::create((md.size*4+26) as u32, 4, PHYSICS_GPU),
+            incomp: Vec::new(),
+            collision_detect: true,
+            modelvert: md.vert,
         }
     }
     #[allow(dead_code)]
-    pub fn draw(&mut self, eng: &Engine, unifroms: &Vec<Uniformstruct>){
+    pub fn draw(&mut self, eng: &mut Engine, unifroms: &Vec<Uniformstruct>){
         self.inuniform = 0;
+        let mut mmat = Mat4::new();
+        mmat.scale(self.scale);
+
+        let mut t: Mat4 = Mat4::new();
+        t.xrot(self.rot.x);
+        mmat.mul(&t);
+
+        t = Mat4::new();
+        t.yrot(self.rot.y);
+        mmat.mul(&t);
+
+        t = Mat4::new();
+        t.zrot(self.rot.z);
+        mmat.mul(&t);
+
+        t = Mat4::new();
+        t.trans(self.pos);
+        mmat.mul(&t);
+        if self.collision_detect && !eng.inshadow{
+            self.incomp.resize(self.comp.ibs as usize, 0f32);
+            for i in 0..16 {
+                self.incomp[i] = mmat.mat[i];
+            }
+            self.incomp[16] = eng.pos.x;
+            self.incomp[17] = eng.pos.y;
+            self.incomp[18] = eng.pos.z;
+            self.incomp[19] = eng.size.x;
+            self.incomp[20] = eng.size.y;
+            self.incomp[21] = eng.size.z;
+            self.incomp[22] = eng.speed.x;
+            self.incomp[23] = eng.speed.y;
+            self.incomp[24] = eng.speed.z;
+            self.incomp[25] = self.incomp.len() as f32;
+            for i in 26..self.modelvert.len()+26 {
+                self.incomp[i] = self.modelvert[i-26];
+            }
+            self.comp.execute(&self.incomp);
+        }
         for i in 0..unifroms.len(){
             self.mat = eng.projection;
             self.smat = eng.shadowprojection;
 
-            let mut t: Mat4 = Mat4::new();
-            t.scale(self.scale);
-            self.mat.mul(&t);
-            self.smat.mul(&t);
-
-            t = Mat4::new();
-            t.xrot(self.rot.x);
-            self.mat.mul(&t);
-            self.smat.mul(&t);
-
-            t = Mat4::new();
-            t.yrot(self.rot.y);
-            self.mat.mul(&t);
-            self.smat.mul(&t);
-
-            t = Mat4::new();
-            t.zrot(self.rot.z);
-            self.mat.mul(&t);
-            self.smat.mul(&t);
-
-            t = Mat4::new();
-            t.trans(self.pos);
-            self.mat.mul(&t);
-            self.smat.mul(&t);
+            self.mat.mul(&mmat);
+            self.smat.mul(&mmat);
 
             self.mat.transpose();
             self.smat.transpose();
@@ -142,6 +170,14 @@ impl Object {
                 },
             }
         }
-        self.mesh.draw(&eng.ren, self.jsarr.clone())
+        self.mesh.draw(&eng.ren, self.jsarr.clone());
+        if self.comp.out_buf[0] == 1f32 && !eng.inshadow{
+            eng.speed.y = 0f32;
+        }
+        if self.comp.out_buf[0] == 2f32 && !eng.inshadow{
+            eng.speed.y = 0f32;
+            eng.speed.x = 0f32;
+            eng.speed.z = 0f32;
+        }
     }
 }

@@ -5,8 +5,8 @@ use js_sys::Float32Array;
 pub struct Compute{
     jsc: Gpucompute,
     workgroupsize: i32,
-    ibs: u32,
-    obs: u32,
+    pub ibs: u32,
+    pub obs: u32,
     returnval: Float32Array,
     in_exec: bool,
     pub out_buf: Vec<f32>,

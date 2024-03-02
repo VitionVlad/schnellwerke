@@ -10,6 +10,8 @@ pub struct Engine{
     pub ren: Render,
     pub projection: math::mat4::Mat4,
     pub pos: math::vec3::Vec3,
+    pub size: math::vec3::Vec3,
+    pub speed: math::vec3::Vec3,
     pub rot: math::vec2::Vec2,
     pub shadowprojection: math::mat4::Mat4,
     pub shadowpos: math::vec3::Vec3,
@@ -22,6 +24,7 @@ pub struct Engine{
     pub z_far: f32,
     pub shadow_z_near: f32,
     pub shadow_z_far: f32,
+    pub inshadow: bool,
 }
 
 impl Engine{
@@ -31,6 +34,8 @@ impl Engine{
             ren: Render::init(canvasid, renderscale, shadowmapres),
             projection: Mat4::new(),
             pos: Vec3::new(),
+            size: Vec3::newdefined(1f32, 4f32, 1f32),
+            speed: Vec3::new(),
             rot: Vec2::new(),
             orthographic: false,
             fov: 90.0f32,
@@ -43,6 +48,7 @@ impl Engine{
             z_far: 100f32,
             shadow_z_near: 0.1f32,
             shadow_z_far: 100f32,
+            inshadow: false,
         }
     }
     #[allow(dead_code)]
@@ -90,18 +96,24 @@ impl Engine{
     pub fn begin_shadow(&mut self, loadop: &str){
         self.ren.begin_shadow_pass(loadop);
         self.calculate_shadow_projection();
+        self.inshadow = true;
     }
     #[allow(dead_code)]
     pub fn begin_main(&mut self, loadop: &str, depthloadop: &str){
         self.ren.begin_main_pass(loadop, depthloadop);
         self.calculate_projection();
+        self.inshadow = false;
     }
     #[allow(dead_code)]
     pub fn begin_post(&mut self, loadop: &str, depthloadop: &str){
         self.ren.begin_post_pass(loadop, depthloadop);
+        self.inshadow = false;
     }
     #[allow(dead_code)]
-    pub fn end(&self){
+    pub fn end(&mut self){
         self.ren.end_render();
+        self.pos.sum(self.speed);
+        self.speed = Vec3::new();
+        self.inshadow = false;
     }
 }

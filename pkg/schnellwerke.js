@@ -1,4 +1,4 @@
-import { Gfxrender, Gfxmesh } from './snippets/schnellwerke-287250b4b14904af/src/engine/render/gfx.js';
+import { Gfxrender, Gfxmesh, Gpucompute } from './snippets/schnellwerke-287250b4b14904af/src/engine/render/gfx.js';
 import { Jsrelod } from './snippets/schnellwerke-287250b4b14904af/src/engine/resourceloader/resloader.js';
 import * as __wbg_star0 from './snippets/schnellwerke-287250b4b14904af/src/engine/input/keyboard.js';
 import * as __wbg_star1 from './snippets/schnellwerke-287250b4b14904af/src/engine/input/mouse.js';
@@ -265,29 +265,31 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbg_create_2deb85f6039c0c86 = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18) {
-        const ret = new Gfxmesh(getObject(arg0), takeObject(arg1), takeObject(arg2), takeObject(arg3), arg4, getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10), arg11, getStringFromWasm0(arg12, arg13), getStringFromWasm0(arg14, arg15), getStringFromWasm0(arg16, arg17), arg18 !== 0);
-        return addHeapObject(ret);
+    imports.wbg.__wbindgen_cb_drop = function(arg0) {
+        const obj = takeObject(arg0).original;
+        if (obj.cnt-- == 1) {
+            obj.a = 0;
+            return true;
+        }
+        const ret = false;
+        return ret;
     };
-    imports.wbg.__wbg_draw_9e489f29fcec6afe = function(arg0, arg1, arg2) {
-        getObject(arg0).draw(getObject(arg1), takeObject(arg2));
+    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
+        takeObject(arg0);
     };
-    imports.wbg.__wbg_gfxendpass_9273b79b89bca130 = function(arg0) {
-        getObject(arg0).gfxendpass();
-    };
-    imports.wbg.__wbg_gfxbeginshadowpass_cefcccff6b67b503 = function(arg0, arg1, arg2) {
-        getObject(arg0).gfxbeginshadowpass(getStringFromWasm0(arg1, arg2));
-    };
-    imports.wbg.__wbg_gfxbeginmainpass_1203ad2c4fe79d82 = function(arg0, arg1, arg2, arg3, arg4) {
-        getObject(arg0).gfxbeginmainpass(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4));
+    imports.wbg.__wbg_gfxgetcanvassizey_904a5efc272220ac = function(arg0) {
+        const ret = getObject(arg0).gfxgetcanvassizey();
+        return ret;
     };
     imports.wbg.__wbg_gfxgetcanvassizex_9b1ca6f94fd2608f = function(arg0) {
         const ret = getObject(arg0).gfxgetcanvassizex();
         return ret;
     };
-    imports.wbg.__wbg_gfxgetcanvassizey_904a5efc272220ac = function(arg0) {
-        const ret = getObject(arg0).gfxgetcanvassizey();
-        return ret;
+    imports.wbg.__wbg_gfxsetrenderscale_a0d3a2a92141eb26 = function(arg0, arg1) {
+        getObject(arg0).gfxsetrenderscale(arg1);
+    };
+    imports.wbg.__wbg_gfxendpass_9273b79b89bca130 = function(arg0) {
+        getObject(arg0).gfxendpass();
     };
     imports.wbg.__wbg_gfxbeginpass_d8ce1f42db6d66b3 = function(arg0, arg1, arg2, arg3, arg4) {
         getObject(arg0).gfxbeginpass(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4));
@@ -299,20 +301,33 @@ function __wbg_get_imports() {
         const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
-        takeObject(arg0);
+    imports.wbg.__wbg_gfxbeginshadowpass_cefcccff6b67b503 = function(arg0, arg1, arg2) {
+        getObject(arg0).gfxbeginshadowpass(getStringFromWasm0(arg1, arg2));
     };
-    imports.wbg.__wbindgen_cb_drop = function(arg0) {
-        const obj = takeObject(arg0).original;
-        if (obj.cnt-- == 1) {
-            obj.a = 0;
-            return true;
-        }
-        const ret = false;
+    imports.wbg.__wbg_gfxbeginmainpass_1203ad2c4fe79d82 = function(arg0, arg1, arg2, arg3, arg4) {
+        getObject(arg0).gfxbeginmainpass(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4));
+    };
+    imports.wbg.__wbg_create_2deb85f6039c0c86 = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18) {
+        const ret = new Gfxmesh(getObject(arg0), takeObject(arg1), takeObject(arg2), takeObject(arg3), arg4, getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10), arg11, getStringFromWasm0(arg12, arg13), getStringFromWasm0(arg14, arg15), getStringFromWasm0(arg16, arg17), arg18 !== 0);
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_draw_9e489f29fcec6afe = function(arg0, arg1, arg2) {
+        getObject(arg0).draw(getObject(arg1), takeObject(arg2));
+    };
+    imports.wbg.__wbg_createcompute_a5c58f7651865e20 = function(arg0, arg1, arg2, arg3) {
+        const ret = new Gpucompute(arg0, arg1, getStringFromWasm0(arg2, arg3));
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_execute_dcb4d3f04b2f0e5c = function(arg0, arg1, arg2) {
+        getObject(arg0).execute(getObject(arg1), arg2);
+    };
+    imports.wbg.__wbg_getstate_ca3b9eeaa21e9b60 = function(arg0) {
+        const ret = getObject(arg0).getstate();
         return ret;
     };
-    imports.wbg.__wbg_gfxsetrenderscale_a0d3a2a92141eb26 = function(arg0, arg1) {
-        getObject(arg0).gfxsetrenderscale(arg1);
+    imports.wbg.__wbg_getresult_bdf3c989b861ea2d = function(arg0) {
+        const ret = getObject(arg0).getresult();
+        return addHeapObject(ret);
     };
     imports.wbg.__wbindgen_object_clone_ref = function(arg0) {
         const ret = getObject(arg0);
@@ -420,8 +435,8 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper76 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 5, __wbg_adapter_16);
+    imports.wbg.__wbindgen_closure_wrapper56 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 3, __wbg_adapter_16);
         return addHeapObject(ret);
     };
     imports['./snippets/schnellwerke-287250b4b14904af/src/engine/input/keyboard.js'] = __wbg_star0;

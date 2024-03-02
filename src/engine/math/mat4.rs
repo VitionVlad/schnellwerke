@@ -120,6 +120,13 @@ impl Mat4{
         self.mat[10] = 1.0f32;
     }
     #[allow(dead_code)]
+    pub fn identity(&mut self){
+        self.mat[0] = 1f32;
+        self.mat[5] = 1f32;
+        self.mat[10] = 1f32;
+        self.mat[15] = 1f32;
+    }
+    #[allow(dead_code)]
     pub fn transpose(&mut self){
         let t = self.clone();
         for x in 0..4 {

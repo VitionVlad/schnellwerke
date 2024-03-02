@@ -187,39 +187,30 @@ pub fn main() {
     let mut mesh: Object = Object::new_from_obj(&eng, "md1", vertc, vertsc, fragc, &uniforms, "tex;spec", "linear", "linear", false);
 
     let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "tex", "nearest", "nearest", true);
+    renquad.collision_detect = false;
     let mut rd = 1.0f32;
 
-    //let compute: &str = "
-    //@group(0) @binding(0) var<storage> in: array<f32>;
-    //@group(0) @binding(1) var<storage, read_write> out: array<f32>;
-    //
-    //@compute @workgroup_size(1) fn computeMain() {
-    //    out[0] = in[0];
-    //    out[1] = in[4] * in[5] * in[6] * in[7];
-    //    out[2] = in[8] * in[9] * in[10] * in[11];
-    //    out[3] = in[12] * in[13] * in[14] * in[15];
-    //}";
-
-    eng.pos.y = -4.0f32;
+    eng.pos.y = -20f32;
 
     let drawloop = move || {
+      eng.speed.y = 0.1;
       eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;
       eng.rot.y += get_mouse_x() as f32/eng.ren.get_canvas_size_x()as f32;
       if is_key_pressed(87){
-        eng.pos.z += f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * SPEED;
-        eng.pos.x -= f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * SPEED;
+        eng.speed.z = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * SPEED;
+        eng.speed.x = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * -SPEED;
       }
       if is_key_pressed(83){
-        eng.pos.z -= f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * SPEED;
-        eng.pos.x += f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * SPEED;
+        eng.speed.z = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * -SPEED;
+        eng.speed.x = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * SPEED;
       }
       if is_key_pressed(65){
-        eng.pos.x += f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * SPEED;
-        eng.pos.z += f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * SPEED;
+        eng.speed.x = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * SPEED;
+        eng.speed.z = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * SPEED;
       }
       if is_key_pressed(68){
-        eng.pos.x -= f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * SPEED;
-        eng.pos.z -= f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * SPEED;
+        eng.speed.x = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * -SPEED;
+        eng.speed.z = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * -SPEED;
       }
       if is_key_pressed(75){
         if rd > 0.1f32{
@@ -238,15 +229,15 @@ pub fn main() {
 
       eng.begin_shadow("clear");
 
-      mesh.draw(&eng, &uniforms);
+      mesh.draw(&mut eng, &uniforms);
 
       eng.begin_main("clear", "clear");
 
-      mesh.draw(&eng, &uniforms);
+      mesh.draw(&mut eng, &uniforms);
 
       eng.begin_post("clear", "clear");
 
-      renquad.draw(&eng, &uniforms);
+      renquad.draw(&mut eng, &uniforms);
 
       eng.end();
     };
