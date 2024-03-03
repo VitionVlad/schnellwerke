@@ -1,6 +1,5 @@
 # <p align="center"> <img src="https://github.com/VitionVlad/schnellwerke/blob/main/logo.png"> </p>
 Writing games or other 3D apps is quite an interesting process, until you realize some aspects, like porting or bad performance. You can write a web game, but it might perform poorly. Alternatively, you can write a standalone game, but porting can be time-consuming. I decided to combine incompatible things. My game engine is designed to be completely programmable from Rust. Most of the engine components are written in Rust, which allows for much higher performance compared to alternatives in JavaScript/TypeScript. At the same time, it is an engine for the web, requiring nothing special to work on other platforms (currently more of a future prospect due to WebGPU API). It works on PC Chromium, tested on Windows and Linux, and works on Android with a specific flag enabled. Additionally, for many programmers, programming in Rust can be simply more comfortable. Currently, I am working on implementing:  
-1. A simple physics engine, mostly based on WebGPU compute shaders (compute shaders implemented).  
 2. Cubemaps.  
 3. Shadow mapping (partially implemented).  
 4. Advanced lighting: Physically Based Rendering (PBR).  
@@ -31,3 +30,5 @@ import init, { main } from "./pkg/schnellwerke.js";
 ```
 by the way, here is demo of its working on mobile:  
 ![Screenshot_20240301-195530](https://github.com/VitionVlad/schnellwerke/assets/48290199/d53c8fe9-b48d-472d-85b6-7dfd5e2edc64)
+# <p align="center"> Physics </p>   
+More correctly, the collision detection system is notable for several reasons. Firstly, it calculates collisions per triangle, allowing for complex models where collision detection accounts for all small details. This means you can model your entire level intricately and seamlessly load it into the engine, ensuring collision detection functions accurately. Secondly, it operates entirely on the GPU using compute shaders, resulting in fast performance. This efficiency is particularly noteworthy considering the use of matrices for rotating, moving, and scaling meshes. Presently, it's only implemented for the player.
