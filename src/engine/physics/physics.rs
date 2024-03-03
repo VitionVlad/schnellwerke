@@ -3,6 +3,34 @@ pub static PHYSICS_GPU: &str = "
 @group(0) @binding(0) var<storage> in: array<f32>;
 @group(0) @binding(1) var<storage, read_write> out: array<f32>;
 
+fn bg3(v1: f32, v2: f32, v3: f32) -> f32{
+    var bg = 0f;
+    if v1 >= v2 && v1 >= v3{
+        bg = v1;
+    }
+    if v2 >= v1 && v2 >= v3{
+        bg = v2;
+    }
+    if v3 >= v1 && v3 >= v2{
+        bg = v3;
+    }
+    return bg;
+}
+
+fn sm3(v1: f32, v2: f32, v3: f32) -> f32{
+    var sm = 0f;
+    if v1 <= v2 && v1 <= v3{
+        sm = v1;
+    }
+    if v2 <= v1 && v2 <= v3{
+        sm = v2;
+    }
+    if v3 <= v1 && v3 <= v2{
+        sm = v3;
+    }
+    return sm;
+}
+
 @compute @workgroup_size(1) fn computeMain() {
     let mat = mat4x4f(
         in[0], in[1], in[2], in[3],
@@ -10,17 +38,36 @@ pub static PHYSICS_GPU: &str = "
         in[8], in[9], in[10], in[11],
         in[12], in[13], in[14], in[15],
     );
-    let pos = vec3f(in[16], in[17], in[18]);
+    var pos = vec3f(-in[16], -in[17], -in[18]);
     let aabb = vec3f(in[19], in[20], in[21]);
     let speed = vec3f(in[22], in[23], in[24]);
+    pos -= normalize(speed)*aabb;
+    pos.y = -in[17];
     var outval = 0f;
-    for(var i = 26u; i < u32(in[25]);i+=4){
-        var v = mat * vec4f(in[i], in[i+1], in[i+2], in[i+3]);
-        if (pos.x + aabb.x >= -v.x) && (pos.x - aabb.x <= -v.x) &&
-        (pos.z + aabb.z >= -v.z) && (pos.z - aabb.z <= -v.z) &&
-        (pos.y + aabb.y >= -v.y) && (pos.y <= -v.y) {
+    for(var i = 26u; i < u32(in[25]);i+=12){
+        var v1 = mat * vec4f(in[i], in[i+1], in[i+2], in[i+3]);
+        var v2 = mat * vec4f(in[i+4], in[i+5], in[i+6], in[i+7]);
+        var v3 = mat * vec4f(in[i+8], in[i+9], in[i+10], in[i+11]);
+
+        var bb = vec3f(
+            bg3(v1.x, v2.x, v3.x),
+            bg3(v1.y, v2.y, v3.y),
+            bg3(v1.z, v2.z, v3.z)
+        );
+
+        var sb = vec3f(
+            sm3(v1.x, v2.x, v3.x),
+            sm3(v1.y, v2.y, v3.y),
+            sm3(v1.z, v2.z, v3.z)
+        ); 
+
+        var v = (v1+v2+v3)/3;
+
+        if (pos.x >= sb.x-aabb.x) && (pos.x <= bb.x+aabb.x) &&
+            (pos.z >= sb.z-aabb.z) && (pos.z <= bb.z+aabb.z) &&
+            (pos.y - aabb.y <= bb.y){
             outval = 1.0f;
-            if (pos.y + aabb.y/2 >= -v.y) && (distance(pos+speed, vec3f(v.x, v.y, v.z)) >= distance(pos, vec3f(v.x, v.y, v.z))) {
+            if ((pos.y - aabb.y*0.8 < sb.y) || (pos.y - aabb.y*0.8 < bb.y)) && (pos.y >= sb.y){
                 outval = 2.0f;
             }
         }

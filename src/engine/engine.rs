@@ -34,7 +34,7 @@ impl Engine{
             ren: Render::init(canvasid, renderscale, shadowmapres),
             projection: Mat4::new(),
             pos: Vec3::new(),
-            size: Vec3::newdefined(1f32, 4f32, 1f32),
+            size: Vec3::newdefined(0.75f32, 4f32, 0.75f32),
             speed: Vec3::new(),
             rot: Vec2::new(),
             orthographic: false,

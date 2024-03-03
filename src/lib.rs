@@ -212,6 +212,11 @@ pub fn main() {
         eng.speed.x = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * -SPEED;
         eng.speed.z = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * -SPEED;
       }
+      if is_key_pressed(82){
+        eng.pos.y = -20f32;
+        eng.pos.x = 0f32;
+        eng.pos.z = 0f32;
+      }
       if is_key_pressed(75){
         if rd > 0.1f32{
           rd-=0.1;
