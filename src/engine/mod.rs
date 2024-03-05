@@ -5,3 +5,5 @@ pub mod engine;
 pub mod object;
 pub mod input;
 pub mod resourceloader;
+pub mod audio;
+pub mod audiosource3d;

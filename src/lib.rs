@@ -1,5 +1,4 @@
 use engine::engine::Engine;
-//use engine::render::compute::Compute;
 use engine::math::uniformstruct::{createmvpmat, createsmvpmat, createvec4, Uniformstruct};
 use engine::math::vec4::Vec4;
 use engine::object::Object;
@@ -7,6 +6,8 @@ use engine::input::keyboard::is_key_pressed;
 use engine::input::mouse::{get_mouse_x, get_mouse_y};
 use engine::input::touch::*;
 use wasm_bindgen::prelude::*;
+use crate::engine::audiosource3d::Audiosource3d;
+use crate::engine::math::vec3::Vec3;
 mod engine;
 
 #[wasm_bindgen]
@@ -192,6 +193,8 @@ pub fn main() {
 
     eng.pos.y = -20f32;
 
+    let mut as1 = Audiosource3d::new("assets/sample.mp3", Vec3::newdefined(0f32, -4f32, 0f32), 10f32);
+
     let drawloop = move || {
       eng.speed.y = 0.1;
       eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;
@@ -212,6 +215,10 @@ pub fn main() {
         eng.speed.x = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * -SPEED;
         eng.speed.z = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * -SPEED;
       }
+      if is_key_pressed(77){
+        as1.audsrc.playng = !as1.audsrc.playng;
+      }
+      as1.play(&eng);
       if is_key_pressed(82){
         eng.pos.y = -20f32;
         eng.pos.x = 0f32;

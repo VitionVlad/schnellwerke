@@ -25,6 +25,7 @@ pub struct Engine{
     pub shadow_z_near: f32,
     pub shadow_z_far: f32,
     pub inshadow: bool,
+    pub volume: f32,
 }
 
 impl Engine{
@@ -49,6 +50,7 @@ impl Engine{
             shadow_z_near: 0.1f32,
             shadow_z_far: 100f32,
             inshadow: false,
+            volume: 1.0f32,
         }
     }
     #[allow(dead_code)]
