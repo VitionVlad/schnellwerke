@@ -33,3 +33,9 @@ by the way, here is demo of its working on mobile:
 # <p align="center"> Physics </p>   
 More correctly, the collision detection system is notable for several reasons. Firstly, it calculates collisions per triangle, allowing for complex models where collision detection accounts for all small details. This means you can model your entire level intricately and seamlessly load it into the engine, ensuring collision detection functions accurately. Secondly, it operates entirely on the GPU using compute shaders, resulting in fast performance. This efficiency is particularly noteworthy considering the use of matrices for rotating, moving, and scaling meshes. Presently, it's only implemented for the player.  
 Now, players, alongside their positions, also have speed, which will modify their position at the end, or more, depending on whether they are colliding or not. The collision detection algorithm was completely written by me for my needs, and yes, I know about algorithms for detecting if a point is colliding with a triangle, but they are not applicable in my case because the player is not a point; it is a box. Because of that, I developed my own algorithm, which I named 'Triangle Box'. While many people use Axis-aligned bounding boxes to calculate collision, I decided to make one not for the whole model, but for each triangle, which may not result in ideal collision detection but considers the object's geometry.
+# <p align="center"> Audio </p>   
+Audio engine is based on Audio class in js which is based on html5 audio, nothing special here, except volume, which is influenced by distance of audio source to player, audio source is created like this:
+```
+let mut as1 = Audiosource3d::new("assets/sample.mp3", Vec3::newdefined(0f32, -4f32, 0f32), 10f32);
+```
+first is url, second is position, third is power, or max distance in which you still can hear someone  
