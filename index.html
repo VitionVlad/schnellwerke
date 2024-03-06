@@ -21,12 +21,13 @@
     <iframe src="assets/m.txt" type="text/plain" id="md1" style="display: none;"></iframe>
     <script type="module">
       import init, { main } from "./pkg/schnellwerke.js";
-      window.addEventListener("load", function (event) {
-        console.log("starting");
+      function mn(){
         init().then(() => {
           main();
         });
-      });
+      }
+      console.log("demo is started");
+      setTimeout(1000, mn());
     </script>
   </body>
 </html>
