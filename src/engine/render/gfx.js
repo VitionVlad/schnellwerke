@@ -15,7 +15,7 @@ export class Gfxrender{
         this.shadowr = shadowmapres;
         this.canvas = document.getElementById(canvasid);
         this.canvas.width = this.canvas.offsetWidth;
-        this.canvas.height = this.canvas.offsetHeight;
+        this.canvas.height = this.canvas.offsetHeight; 
         this.context = this.canvas.getContext("webgpu");
         this.canvasFormat = navigator.gpu.getPreferredCanvasFormat();
         this.context.configure({
@@ -252,7 +252,7 @@ export class Gfxmesh{
             ],
         });
     }
-    preparemainrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter){
+    preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter){
         this.vertexcode = device.createShaderModule({
             code: vertexcode
         });
@@ -286,6 +286,13 @@ export class Gfxmesh{
                     sampleType: 'depth',
                   },
               },
+              {
+                binding: 4,
+                visibility: GPUShaderStage.FRAGMENT,
+                texture: {
+                    viewDimension: "cube",
+                },
+              },
             ],
           });
         this.pipeline = device.createRenderPipeline({
@@ -300,6 +307,7 @@ export class Gfxmesh{
                 this.vertexBufferLayout,
                 this.uvBufferLayout,
                 this.nBufferLayout,
+                this.tBufferLayout,
             ]
             },
             fragment: {
@@ -311,10 +319,11 @@ export class Gfxmesh{
             },
             depthStencil: {
                 depthWriteEnabled: true,
-                depthCompare: 'less',
+                depthCompare: 'less-equal',
                 format: 'depth24plus',
             },
         });
+
         const ids = texid.split(";");
         this.colortex = device.createTexture({
             label: "colorTex",
@@ -340,6 +349,33 @@ export class Gfxmesh{
                 [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
             );
         }
+
+        const cds = cubeid.split(";");
+        this.cubemap = device.createTexture({
+            label: "cubeMap",
+            size: [document.getElementById(cds[0]).width, document.getElementById(cds[0]).height, cds.length],
+            dimension: "2d",
+            format: 'rgba8unorm',
+            usage:
+              GPUTextureUsage.TEXTURE_BINDING |
+              GPUTextureUsage.COPY_DST |
+              GPUTextureUsage.RENDER_ATTACHMENT,
+        });
+        this.sampler = device.createSampler({
+            magFilter: magfilter,
+            minFilter: minfilter,
+        });
+        for(let i = 0; i < cds.length; i++){
+            device.queue.copyExternalImageToTexture(
+                { source: document.getElementById(cds[i]) },
+                { 
+                    texture: this.cubemap,
+                    origin: [0, 0, i]
+                },
+                [document.getElementById(cds[i]).width, document.getElementById(cds[i]).height]
+            );
+        }
+
         this.bindGroup = device.createBindGroup({
             label: "mainBindGroup",
             layout: this.pipeline.getBindGroupLayout(0),
@@ -360,6 +396,12 @@ export class Gfxmesh{
                 {
                     binding: 3,
                     resource: gfx.shadowTexture[Number(gfx.currentworkingbufferssh)].createView()
+                },
+                {
+                    binding: 4,
+                    resource: this.cubemap.createView({
+                        dimension: 'cube',
+                    })
                 },
             ],
         });
@@ -411,6 +453,7 @@ export class Gfxmesh{
               },
             ],
           });
+
         const ids = texid.split(";");
         this.colortex = device.createTexture({
             label: "shaderposttexture",
@@ -434,8 +477,10 @@ export class Gfxmesh{
                     origin: [0, 0, i]
                 },
                 [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
+            
             );
         }
+
         this.postpipeline = device.createRenderPipeline({
             layout: device.createPipelineLayout({
                 bindGroupLayouts: [bindpostGroupLayout],
@@ -447,6 +492,7 @@ export class Gfxmesh{
                 this.vertexBufferLayout,
                 this.uvBufferLayout,
                 this.nBufferLayout,
+                this.tBufferLayout,
             ]
             },
             fragment: {
@@ -493,7 +539,7 @@ export class Gfxmesh{
             ],
         });
     }
-    constructor(gfx, vertices, uv, normals, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost){
+    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost){
         this.forpost = forpost;
         this.lenght = lenght;
         this.ubol = ubol;
@@ -513,9 +559,14 @@ export class Gfxmesh{
             size: 12*lenght,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
         });
+        this.tBuffer = device.createBuffer({
+            size: 12*lenght,
+            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+        });
         device.queue.writeBuffer(this.vertexBuffer, 0, vertices);
         device.queue.writeBuffer(this.uvBuffer, 0, uv);
         device.queue.writeBuffer(this.nBuffer, 0, normals);
+        device.queue.writeBuffer(this.tBuffer, 0, tang);
         this.vertexBufferLayout = {
             arrayStride: 16,
             attributes: [{
@@ -540,8 +591,16 @@ export class Gfxmesh{
               shaderLocation: 2,
             }],
         };
+        this.tBufferLayout = {
+            arrayStride: 12,
+            attributes: [{
+              format: "float32x3",
+              offset: 0,
+              shaderLocation: 3,
+            }],
+        };
         if(!forpost){
-            this.preparemainrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter);
+            this.preparemainrender(vertexcode, fragmentcode, texid, "right;left;top;bottom;front;back", gfx, magfilter, minfilter);
         }else{
             this.preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter);
         }
@@ -601,6 +660,12 @@ export class Gfxmesh{
                     binding: 3,
                     resource: gfx.shadowTexture[Number(gfx.currentworkingbufferssh)].createView()
                 },
+                {
+                    binding: 4,
+                    resource:this.cubemap.createView({
+                        dimension: 'cube',
+                    })
+                },
             ],
         });
     }
@@ -618,6 +683,7 @@ export class Gfxmesh{
                 gfx.pass.setVertexBuffer(0, this.vertexBuffer);
                 gfx.pass.setVertexBuffer(1, this.uvBuffer);
                 gfx.pass.setVertexBuffer(2, this.nBuffer);
+                gfx.pass.setVertexBuffer(3, this.tBuffer);
             }
             if (!gfx.inpost && !this.forpost){
                 this.recg(gfx);
@@ -626,6 +692,7 @@ export class Gfxmesh{
                 gfx.pass.setVertexBuffer(0, this.vertexBuffer);
                 gfx.pass.setVertexBuffer(1, this.uvBuffer);
                 gfx.pass.setVertexBuffer(2, this.nBuffer);
+                gfx.pass.setVertexBuffer(3, this.tBuffer);
             }
         }
         gfx.pass.draw(this.lenght);

@@ -3,32 +3,30 @@ pub static PHYSICS_GPU: &str = "
 @group(0) @binding(0) var<storage> in: array<f32>;
 @group(0) @binding(1) var<storage, read_write> out: array<f32>;
 
-fn bg3(v1: f32, v2: f32, v3: f32) -> f32{
-    var bg = 0f;
-    if v1 >= v2 && v1 >= v3{
-        bg = v1;
+fn bg3(a: f32, b: f32, c: f32) -> f32{
+    var max_value: f32;
+    if (a >= b) {
+        max_value = a;
+    } else {
+        max_value = b;
     }
-    if v2 >= v1 && v2 >= v3{
-        bg = v2;
+    if (max_value < c) {
+        max_value = c;
     }
-    if v3 >= v1 && v3 >= v2{
-        bg = v3;
-    }
-    return bg;
+    return max_value;
 }
 
-fn sm3(v1: f32, v2: f32, v3: f32) -> f32{
-    var sm = 0f;
-    if v1 <= v2 && v1 <= v3{
-        sm = v1;
+fn sm3(a: f32, b: f32, c: f32) -> f32{
+    var min_value: f32;
+    if (a <= b) {
+        min_value = a;
+    } else {
+        min_value = b;
     }
-    if v2 <= v1 && v2 <= v3{
-        sm = v2;
+    if (min_value > c) {
+        min_value = c;
     }
-    if v3 <= v1 && v3 <= v2{
-        sm = v3;
-    }
-    return sm;
+    return min_value;
 }
 
 @compute @workgroup_size(1) fn computeMain() {
@@ -40,8 +38,8 @@ fn sm3(v1: f32, v2: f32, v3: f32) -> f32{
     );
     var pos = vec3f(-in[16], -in[17], -in[18]);
     let aabb = vec3f(in[19], in[20], in[21]);
-    let speed = vec3f(in[22], in[23], in[24]);
-    pos -= normalize(speed)*aabb;
+    let speed = vec3f(-in[22], -in[23], -in[24]);
+    pos += normalize(speed)*aabb;
     pos.y = -in[17];
     var outval = 0f;
     for(var i = 26u; i < u32(in[25]);i+=12){
@@ -67,8 +65,9 @@ fn sm3(v1: f32, v2: f32, v3: f32) -> f32{
             (pos.z >= sb.z-aabb.z) && (pos.z <= bb.z+aabb.z) &&
             (pos.y - aabb.y <= bb.y){
             outval = 1.0f;
-            if ((pos.y - aabb.y*0.8 < sb.y) || (pos.y - aabb.y*0.8 < bb.y)) && (pos.y >= sb.y){
+            if ((pos.y - aabb.y*0.8 <= sb.y) || (pos.y - aabb.y*0.8 <= bb.y)) && (pos.y >= sb.y){
                 outval = 2.0f;
+                break;
             }
         }
     }

@@ -6,6 +6,7 @@ use super::render::render::Render;
 use super::math::{self, *};
 
 #[allow(dead_code)]
+
 pub struct Engine{
     pub ren: Render,
     pub projection: math::mat4::Mat4,
@@ -35,7 +36,7 @@ impl Engine{
             ren: Render::init(canvasid, renderscale, shadowmapres),
             projection: Mat4::new(),
             pos: Vec3::new(),
-            size: Vec3::newdefined(0.75f32, 4f32, 0.75f32),
+            size: Vec3::newdefined(0.6f32, 4f32, 0.6f32),
             speed: Vec3::new(),
             rot: Vec2::new(),
             orthographic: false,

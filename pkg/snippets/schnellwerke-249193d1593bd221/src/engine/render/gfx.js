@@ -15,7 +15,7 @@ export class Gfxrender{
         this.shadowr = shadowmapres;
         this.canvas = document.getElementById(canvasid);
         this.canvas.width = this.canvas.offsetWidth;
-        this.canvas.height = this.canvas.offsetHeight;
+        this.canvas.height = this.canvas.offsetHeight; 
         this.context = this.canvas.getContext("webgpu");
         this.canvasFormat = navigator.gpu.getPreferredCanvasFormat();
         this.context.configure({
@@ -300,6 +300,7 @@ export class Gfxmesh{
                 this.vertexBufferLayout,
                 this.uvBufferLayout,
                 this.nBufferLayout,
+                this.tBufferLayout,
             ]
             },
             fragment: {
@@ -447,6 +448,7 @@ export class Gfxmesh{
                 this.vertexBufferLayout,
                 this.uvBufferLayout,
                 this.nBufferLayout,
+                this.tBufferLayout,
             ]
             },
             fragment: {
@@ -493,7 +495,7 @@ export class Gfxmesh{
             ],
         });
     }
-    constructor(gfx, vertices, uv, normals, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost){
+    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost){
         this.forpost = forpost;
         this.lenght = lenght;
         this.ubol = ubol;
@@ -513,9 +515,14 @@ export class Gfxmesh{
             size: 12*lenght,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
         });
+        this.tBuffer = device.createBuffer({
+            size: 12*lenght,
+            usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
+        });
         device.queue.writeBuffer(this.vertexBuffer, 0, vertices);
         device.queue.writeBuffer(this.uvBuffer, 0, uv);
         device.queue.writeBuffer(this.nBuffer, 0, normals);
+        device.queue.writeBuffer(this.tBuffer, 0, tang);
         this.vertexBufferLayout = {
             arrayStride: 16,
             attributes: [{
@@ -538,6 +545,14 @@ export class Gfxmesh{
               format: "float32x3",
               offset: 0,
               shaderLocation: 2,
+            }],
+        };
+        this.tBufferLayout = {
+            arrayStride: 12,
+            attributes: [{
+              format: "float32x3",
+              offset: 0,
+              shaderLocation: 3,
             }],
         };
         if(!forpost){
@@ -618,6 +633,7 @@ export class Gfxmesh{
                 gfx.pass.setVertexBuffer(0, this.vertexBuffer);
                 gfx.pass.setVertexBuffer(1, this.uvBuffer);
                 gfx.pass.setVertexBuffer(2, this.nBuffer);
+                gfx.pass.setVertexBuffer(3, this.tBuffer);
             }
             if (!gfx.inpost && !this.forpost){
                 this.recg(gfx);
@@ -626,6 +642,7 @@ export class Gfxmesh{
                 gfx.pass.setVertexBuffer(0, this.vertexBuffer);
                 gfx.pass.setVertexBuffer(1, this.uvBuffer);
                 gfx.pass.setVertexBuffer(2, this.nBuffer);
+                gfx.pass.setVertexBuffer(3, this.tBuffer);
             }
         }
         gfx.pass.draw(this.lenght);

@@ -1,4 +1,4 @@
-use super::{engine::Engine, math::{mat4::Mat4, uniformstruct::{getsize, Uniformstruct, Usages}, vec3::Vec3}, render::mesh::Mesh, resourceloader::resourceloader::Objreader, render::compute::Compute, physics::physics::PHYSICS_GPU};
+use super::{engine::Engine, math::{mat4::Mat4, uniformstruct::{getsize, Uniformstruct, Usages}, vec2::Vec2, vec3::Vec3}, physics::physics::PHYSICS_GPU, render::{compute::Compute, mesh::Mesh}, resourceloader::resourceloader::Objreader};
 use js_sys::Float32Array;
 
 #[allow(dead_code)]
@@ -15,6 +15,9 @@ pub struct Object{
     incomp: Vec<f32>,
     pub collision_detect: bool,
     modelvert: Vec<f32>,
+    pub speed: Vec3,
+    pub camera_collision_interact: bool,
+    pub is_interacting: f32,
 }
 
 impl Object {
@@ -29,8 +32,43 @@ impl Object {
         let jsn = js_sys::Float32Array::new_with_length((lenght*3) as u32);
         jsn.copy_from(&normals);
         let ubol: i32 = getsize(unifroms);
+
+        let mut tang: Vec<f32> = Vec::new();
+        let mut vcnt: usize = 0;
+        for i in (0..vertices.len()).step_by(12){
+            let v0 = Vec3::newdefined(vertices[i], vertices[i+1], vertices[i+2]);
+            let v1 = Vec3::newdefined(vertices[i+3], vertices[i+4], vertices[i+5]);
+            let v2 = Vec3::newdefined(vertices[i+6], vertices[i+7], vertices[i+8]);
+
+            let uv0 = Vec2::newdefined(uv[vcnt], uv[vcnt+1]+1.0);
+            let uv1 = Vec2::newdefined(uv[vcnt+2], uv[vcnt+3]+1.0);
+            let uv2 = Vec2::newdefined(uv[vcnt+4], uv[vcnt+5]+1.0);
+
+            let deltapos1 = Vec3::newdefined(v1.x-v0.x, v1.y-v0.y, v1.z-v0.z);
+            let deltapos2 = Vec3::newdefined(v2.x-v0.x, v2.y-v0.y, v2.z-v0.z);
+
+            let delta_uv1 = Vec2::newdefined(uv1.x-uv0.x, uv1.y-uv0.y);
+            let delta_uv2 = Vec2::newdefined(uv2.x-uv0.x, uv2.y-uv0.y);
+
+            let r = 1.0f32 / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
+
+            tang.push((deltapos1.x * delta_uv2.y - deltapos2.x * delta_uv1.y)*r);
+            tang.push((deltapos1.y * delta_uv2.y - deltapos2.y * delta_uv1.y)*r);
+            tang.push((deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
+
+            tang.push((deltapos1.x * delta_uv2.y - deltapos2.x * delta_uv1.y)*r);
+            tang.push((deltapos1.y * delta_uv2.y - deltapos2.y * delta_uv1.y)*r);
+            tang.push((deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
+
+            tang.push((deltapos1.x * delta_uv2.y - deltapos2.x * delta_uv1.y)*r);
+            tang.push((deltapos1.y * delta_uv2.y - deltapos2.y * delta_uv1.y)*r);
+            tang.push((deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
+            vcnt+=6
+        }
+        let jst = js_sys::Float32Array::new_with_length((lenght*3) as u32);
+        jst.copy_from(&tang.as_slice());
         Object { 
-            mesh: Mesh::create(&eng.ren, jsvert, jsuv, jsn, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost),
+            mesh: Mesh::create(&eng.ren, &jsvert, &jsuv, &jsn, &jst, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost),
             jsarr: Float32Array::new_with_length((ubol/4) as u32),
             inuniform: 0,
             pos: Vec3::new(),
@@ -42,6 +80,9 @@ impl Object {
             incomp: Vec::with_capacity((lenght*4+23) as usize),
             collision_detect: true,
             modelvert: vertices.to_vec(),
+            speed: Vec3::new(),
+            camera_collision_interact: true,
+            is_interacting: 0.0f32,
         }
     }
     #[allow(dead_code)]
@@ -56,8 +97,43 @@ impl Object {
         let jsn = js_sys::Float32Array::new_with_length((md.size*3) as u32);
         jsn.copy_from(&md.norm.as_slice());
         let ubol: i32 = getsize(unifroms);
+
+        let mut tang: Vec<f32> = Vec::new();
+        let mut vcnt: usize = 0;
+        for i in (0..md.vert.len()).step_by(12){
+            let v0 = Vec3::newdefined(md.vert[i], md.vert[i+1], md.vert[i+2]);
+            let v1 = Vec3::newdefined(md.vert[i+3], md.vert[i+4], md.vert[i+5]);
+            let v2 = Vec3::newdefined(md.vert[i+6], md.vert[i+7], md.vert[i+8]);
+
+            let uv0 = Vec2::newdefined(md.uv[vcnt], 1.0f32-md.uv[vcnt+1]);
+            let uv1 = Vec2::newdefined(md.uv[vcnt+2], 1.0f32-md.uv[vcnt+3]);
+            let uv2 = Vec2::newdefined(md.uv[vcnt+4], 1.0f32-md.uv[vcnt+5]);
+
+            let deltapos1 = Vec3::newdefined(v1.x-v0.x, v1.y-v0.y, v1.z-v0.z);
+            let deltapos2 = Vec3::newdefined(v2.x-v0.x, v2.y-v0.y, v2.z-v0.z);
+
+            let delta_uv1 = Vec2::newdefined(uv1.x-uv0.x, uv1.y-uv0.y);
+            let delta_uv2 = Vec2::newdefined(uv2.x-uv0.x, uv2.y-uv0.y);
+
+            let r = 1.0f32 / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
+
+            tang.push((deltapos1.x * delta_uv2.y - deltapos2.x * delta_uv1.y)*r);
+            tang.push((deltapos1.y * delta_uv2.y - deltapos2.y * delta_uv1.y)*r);
+            tang.push((deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
+
+            tang.push((deltapos1.x * delta_uv2.y - deltapos2.x * delta_uv1.y)*r);
+            tang.push((deltapos1.y * delta_uv2.y - deltapos2.y * delta_uv1.y)*r);
+            tang.push((deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
+
+            tang.push((deltapos1.x * delta_uv2.y - deltapos2.x * delta_uv1.y)*r);
+            tang.push((deltapos1.y * delta_uv2.y - deltapos2.y * delta_uv1.y)*r);
+            tang.push((deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
+            vcnt+=6
+        }
+        let jst = js_sys::Float32Array::new_with_length((tang.len()) as u32);
+        jst.copy_from(&tang.as_slice());
         Object { 
-            mesh: Mesh::create(&eng.ren, jsvert, jsuv, jsn, md.size, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost),
+            mesh: Mesh::create(&eng.ren, &jsvert, &jsuv, &jsn, &jst, md.size, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost),
             jsarr: Float32Array::new_with_length((ubol/4) as u32),
             inuniform: 0,
             pos: Vec3::new(),
@@ -69,6 +145,9 @@ impl Object {
             incomp: Vec::new(),
             collision_detect: true,
             modelvert: md.vert,
+            speed: Vec3::new(),
+            camera_collision_interact: true,
+            is_interacting: 0.0f32,
         }
     }
     #[allow(dead_code)]
@@ -171,13 +250,16 @@ impl Object {
             }
         }
         self.mesh.draw(&eng.ren, self.jsarr.clone());
-        if self.comp.out_buf[0] == 1f32 && !eng.inshadow{
+        self.is_interacting = self.comp.out_buf[0];
+        if self.comp.out_buf[0] == 1f32 && !eng.inshadow && self.camera_collision_interact{
             eng.speed.y = 0f32;
         }
-        if self.comp.out_buf[0] == 2f32 && !eng.inshadow{
+        if self.comp.out_buf[0] == 2f32 && !eng.inshadow && self.camera_collision_interact{
             eng.speed.y = 0f32;
             eng.speed.x = 0f32;
             eng.speed.z = 0f32;
         }
+        self.pos.sum(self.speed);
+        self.speed = Vec3::new();
     }
 }
