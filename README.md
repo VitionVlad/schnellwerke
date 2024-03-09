@@ -59,9 +59,36 @@ To create an object, you need the following components:
 8. IDs for cubemap faces, also delimited with a semicolon  
 If no image is passed or there aren't enough faces, the engine will automatically generate a texture  
 9. Specifications for min and mag filters  
-10. If "forpost" is true, the mesh will be prepared to be rendered in the final pass, typically used for UI elements or post proccesing.  
+10. If "forpost" is true, the mesh will be prepared to be rendered in the final pass, typically used for UI elements or post proccesing.
+
+and finally rendering:
+```
+//begin pass for shadow mapping
+eng.begin_shadow("clear");
+
+//draw mesh, first argument is engine handle, second is reference to uniform buffer, dont forget to modify it with values you need!
+mesh.draw(&mut eng, &uniforms);
+
+//begin main pass
+eng.begin_main("clear", "clear");
+
+//same as in shadow pass
+mesh.draw(&mut eng, &uniforms);
+
+skybox.draw(&mut eng, &uniforms);
+
+//begin post pass, here you render ui and applying post effects
+eng.begin_post("clear", "clear");
+
+renquad.draw(&mut eng, &uniforms);
+//end render
+eng.end();
+```
+by the way, if you dont use shadowmapping, you can skip shadow pass, it will not affect rest of the render.  
 ![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/3de30dca-cb6a-4b36-828a-87f1dea01fe8)  
-this model parsing takes less than a second, its size is 12 mb, i tried a 60 mb file, it is parsing in about 3 seconds, most of time is being spended on browser to load resource. by the way, before loading any data make sure you page with resources is completly loaded:
+![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/3448ef8e-ed25-4916-a608-e7bdb3c2fed3)
+  
+by the way, before loading any data make sure you page with resources is completly loaded:
 ```
 import init, { main } from "./pkg/schnellwerke.js";
       window.addEventListener("load", function (event) {
@@ -76,7 +103,8 @@ by the way, here is demo of its working on mobile:
 Firstly, each object has the following flags:  
 1. collision_detect: If set to true, collision detection will be calculated.
 2. camera_collision_interact: If set to true, the camera will be prevented from falling inside the object and from passing through it.
-3. is_interacting: This is intended to be read-only. A value of 0 indicates no interaction at all, 1 means the camera is on the object, and 2 means it is inside the object.  
+3. is_interacting: This is intended to be read-only. A value of 0 indicates no interaction at all, 1 means the camera is on the object, and 2 means it is inside the object.
+ 
 Both the camera and object have a speed property which modifies their positions.  
 Currently, only interactions between the camera and objects are available.  
 Several important considerations:  
