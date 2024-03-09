@@ -241,12 +241,12 @@ pub fn main() {
     uniforms.push(createvec4(Vec4::new()));
     uniforms.push(createvec4(Vec4::new()));
 
-    let mut mesh: Object = Object::new_from_obj(&eng, "md1", vertc, vertsc, fragc, &uniforms, "tex;spec;norm", "linear", "linear", false);
-    let mut skybox: Object = Object::new_from_obj(&eng, "cube", vertsk, vertsc, fragsk, &uniforms, "tex;spec;norm", "linear", "linear", false);
+    let mut mesh: Object = Object::new_from_obj(&eng, "md1", vertc, vertsc, fragc, &uniforms, "tex;spec;norm", "", "linear", "linear", false);
+    let mut skybox: Object = Object::new_from_obj(&eng, "cube", vertsk, vertsc, fragsk, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", false);
     skybox.collision_detect = false;
     skybox.scale = Vec3::newdefined(1000f32, 1000f32, 1000f32);
 
-    let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "tex", "nearest", "nearest", true);
+    let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "", "", "nearest", "nearest", true);
     renquad.collision_detect = false;
     let mut rd = 1.0f32;
 

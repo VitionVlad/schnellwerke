@@ -22,7 +22,7 @@ pub struct Object{
 
 impl Object {
     #[allow(dead_code)]
-    pub fn new(eng: &Engine, vertices: &[f32], uv: &[f32], normals: &[f32], lenght: i32, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, unifroms: &Vec<Uniformstruct>, texid: &str, magfilter: &str, minfilter: &str, forpost: bool) -> Object{
+    pub fn new(eng: &Engine, vertices: &[f32], uv: &[f32], normals: &[f32], lenght: i32, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, unifroms: &Vec<Uniformstruct>, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, forpost: bool) -> Object{
         let jsvert = js_sys::Float32Array::new_with_length((lenght*4) as u32);
         jsvert.copy_from(&vertices);
 
@@ -68,7 +68,7 @@ impl Object {
         let jst = js_sys::Float32Array::new_with_length((lenght*3) as u32);
         jst.copy_from(&tang.as_slice());
         Object { 
-            mesh: Mesh::create(&eng.ren, &jsvert, &jsuv, &jsn, &jst, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost),
+            mesh: Mesh::create(&eng.ren, &jsvert, &jsuv, &jsn, &jst, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, forpost),
             jsarr: Float32Array::new_with_length((ubol/4) as u32),
             inuniform: 0,
             pos: Vec3::new(),
@@ -86,7 +86,7 @@ impl Object {
         }
     }
     #[allow(dead_code)]
-    pub fn new_from_obj(eng: &Engine, modelid: &str, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, unifroms: &Vec<Uniformstruct>, texid: &str, magfilter: &str, minfilter: &str, forpost: bool) -> Object{
+    pub fn new_from_obj(eng: &Engine, modelid: &str, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, unifroms: &Vec<Uniformstruct>, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, forpost: bool) -> Object{
         let md = Objreader::new(modelid);
         let jsvert = js_sys::Float32Array::new_with_length((md.size*4) as u32);
         jsvert.copy_from(&md.vert.as_slice());
@@ -133,7 +133,7 @@ impl Object {
         let jst = js_sys::Float32Array::new_with_length((tang.len()) as u32);
         jst.copy_from(&tang.as_slice());
         Object { 
-            mesh: Mesh::create(&eng.ren, &jsvert, &jsuv, &jsn, &jst, md.size, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost),
+            mesh: Mesh::create(&eng.ren, &jsvert, &jsuv, &jsn, &jst, md.size, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, forpost),
             jsarr: Float32Array::new_with_length((ubol/4) as u32),
             inuniform: 0,
             pos: Vec3::new(),

@@ -7,9 +7,9 @@ pub struct Mesh{
 
 impl Mesh{
     #[allow(dead_code)]
-    pub fn create(gfx: &Render, vertices: &Float32Array, uv: &Float32Array, normals: &Float32Array, tang: &Float32Array, lenght: i32, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, magfilter: &str, minfilter: &str, forpost: bool) -> Mesh{
+    pub fn create(gfx: &Render, vertices: &Float32Array, uv: &Float32Array, normals: &Float32Array, tang: &Float32Array, lenght: i32, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, forpost: bool) -> Mesh{
         Mesh{
-            jsmesh: Gfxmesh::create(&gfx.jsren, &vertices, &uv, &normals, &tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost)
+            jsmesh: Gfxmesh::create(&gfx.jsren, &vertices, &uv, &normals, &tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, forpost)
         }
     }
     #[allow(dead_code)]

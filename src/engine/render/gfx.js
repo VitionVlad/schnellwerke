@@ -324,56 +324,113 @@ export class Gfxmesh{
             },
         });
 
-        const ids = texid.split(";");
-        this.colortex = device.createTexture({
-            label: "colorTex",
-            size: [document.getElementById(ids[0]).width, document.getElementById(ids[0]).height, ids.length+1],
-            dimension: "2d",
-            format: 'rgba8unorm',
-            usage:
-              GPUTextureUsage.TEXTURE_BINDING |
-              GPUTextureUsage.COPY_DST |
-              GPUTextureUsage.RENDER_ATTACHMENT,
-        });
         this.sampler = device.createSampler({
             magFilter: magfilter,
             minFilter: minfilter,
         });
-        for(let i = 0; i < ids.length; i++){
-            device.queue.copyExternalImageToTexture(
-                { source: document.getElementById(ids[i]) },
-                { 
-                    texture: this.colortex,
-                    origin: [0, 0, i]
-                },
-                [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
-            );
+
+        const ids = texid.split(";");
+        if(ids.length <= 1 && ids[0].length === 0){
+            this.colortex = device.createTexture({
+                label: "colorTex",
+                size: [2, 2, 2],
+                dimension: "2d",
+                format: 'rgba8unorm',
+                usage:
+                  GPUTextureUsage.TEXTURE_BINDING |
+                  GPUTextureUsage.COPY_DST |
+                  GPUTextureUsage.RENDER_ATTACHMENT,
+            });
+            const textureData = new Uint8Array([
+                160, 32, 240, 256,
+                0, 0, 0, 256,
+                0, 0, 0, 256,
+                160, 32, 240, 256
+              ].flat());
+            for(let i = 0; i < 2; i++){
+                device.queue.writeTexture(
+                    {
+                        origin: [0, 0, i],
+                        texture: this.colortex,
+                    },
+                    textureData,
+                    { bytesPerRow: 8 },
+                    { width: 2, height: 2 },
+                );
+            }
+        }else{
+            this.colortex = device.createTexture({
+                label: "colorTex",
+                size: [document.getElementById(ids[0]).width, document.getElementById(ids[0]).height, ids.length+1],
+                dimension: "2d",
+                format: 'rgba8unorm',
+                usage:
+                  GPUTextureUsage.TEXTURE_BINDING |
+                  GPUTextureUsage.COPY_DST |
+                  GPUTextureUsage.RENDER_ATTACHMENT,
+            });
+            for(let i = 0; i < ids.length; i++){
+                device.queue.copyExternalImageToTexture(
+                    { source: document.getElementById(ids[i]) },
+                    { 
+                        texture: this.colortex,
+                        origin: [0, 0, i]
+                    },
+                    [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
+                );
+            }
         }
 
         const cds = cubeid.split(";");
-        this.cubemap = device.createTexture({
-            label: "cubeMap",
-            size: [document.getElementById(cds[0]).width, document.getElementById(cds[0]).height, cds.length],
-            dimension: "2d",
-            format: 'rgba8unorm',
-            usage:
-              GPUTextureUsage.TEXTURE_BINDING |
-              GPUTextureUsage.COPY_DST |
-              GPUTextureUsage.RENDER_ATTACHMENT,
-        });
-        this.sampler = device.createSampler({
-            magFilter: magfilter,
-            minFilter: minfilter,
-        });
-        for(let i = 0; i < cds.length; i++){
-            device.queue.copyExternalImageToTexture(
-                { source: document.getElementById(cds[i]) },
-                { 
-                    texture: this.cubemap,
-                    origin: [0, 0, i]
-                },
-                [document.getElementById(cds[i]).width, document.getElementById(cds[i]).height]
-            );
+        if(cds.length != 6){
+            this.cubemap = device.createTexture({
+                label: "cubeMap",
+                size: [2, 2, 6],
+                dimension: "2d",
+                format: 'rgba8unorm',
+                usage:
+                  GPUTextureUsage.TEXTURE_BINDING |
+                  GPUTextureUsage.COPY_DST |
+                  GPUTextureUsage.RENDER_ATTACHMENT,
+            });
+            const textureData = new Uint8Array([
+                160, 32, 240, 256,
+                0, 0, 0, 256,
+                0, 0, 0, 256,
+                160, 32, 240, 256
+              ].flat());
+            for(let i = 0; i < 6; i++){
+                device.queue.writeTexture(
+                    {
+                        origin: [0, 0, i],
+                        texture: this.cubemap,
+                    },
+                    textureData,
+                    { bytesPerRow: 8 },
+                    { width: 2, height: 2 },
+                );
+            }
+        }else{
+            this.cubemap = device.createTexture({
+                label: "cubeMap",
+                size: [document.getElementById(cds[0]).width, document.getElementById(cds[0]).height, cds.length],
+                dimension: "2d",
+                format: 'rgba8unorm',
+                usage:
+                  GPUTextureUsage.TEXTURE_BINDING |
+                  GPUTextureUsage.COPY_DST |
+                  GPUTextureUsage.RENDER_ATTACHMENT,
+            });
+            for(let i = 0; i < cds.length; i++){
+                device.queue.copyExternalImageToTexture(
+                    { source: document.getElementById(cds[i]) },
+                    { 
+                        texture: this.cubemap,
+                        origin: [0, 0, i]
+                    },
+                    [document.getElementById(cds[i]).width, document.getElementById(cds[i]).height]
+                );
+            }
         }
 
         this.bindGroup = device.createBindGroup({
@@ -452,34 +509,64 @@ export class Gfxmesh{
                   },
               },
             ],
-          });
-
-        const ids = texid.split(";");
-        this.colortex = device.createTexture({
-            label: "shaderposttexture",
-            size: [document.getElementById(ids[0]).width, document.getElementById(ids[0]).height, ids.length+1],
-            dimension: "2d",
-            format: 'rgba8unorm',
-            usage:
-              GPUTextureUsage.TEXTURE_BINDING |
-              GPUTextureUsage.COPY_DST |
-              GPUTextureUsage.RENDER_ATTACHMENT,
         });
+
         this.sampler = device.createSampler({
             magFilter: magfilter,
             minFilter: minfilter,
         });
-        for(let i = 0; i < ids.length; i++){
-            device.queue.copyExternalImageToTexture(
-                { source: document.getElementById(ids[i]) },
-                { 
-                    texture: this.colortex,
-                    origin: [0, 0, i]
-                },
-                [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
-            
-            );
-        }
+
+          const ids = texid.split(";");
+          if(ids.length <= 1 && ids[0].length === 0){
+              this.colortex = device.createTexture({
+                  label: "colorTex",
+                  size: [2, 2, 2],
+                  dimension: "2d",
+                  format: 'rgba8unorm',
+                  usage:
+                    GPUTextureUsage.TEXTURE_BINDING |
+                    GPUTextureUsage.COPY_DST |
+                    GPUTextureUsage.RENDER_ATTACHMENT,
+              });
+              const textureData = new Uint8Array([
+                  160, 32, 240, 256,
+                  0, 0, 0, 256,
+                  0, 0, 0, 256,
+                  160, 32, 240, 256
+                ].flat());
+              for(let i = 0; i < 2; i++){
+                  device.queue.writeTexture(
+                      {
+                          origin: [0, 0, i],
+                          texture: this.colortex,
+                      },
+                      textureData,
+                      { bytesPerRow: 8 },
+                      { width: 2, height: 2 },
+                  );
+              }
+          }else{
+              this.colortex = device.createTexture({
+                  label: "colorTex",
+                  size: [document.getElementById(ids[0]).width, document.getElementById(ids[0]).height, ids.length+1],
+                  dimension: "2d",
+                  format: 'rgba8unorm',
+                  usage:
+                    GPUTextureUsage.TEXTURE_BINDING |
+                    GPUTextureUsage.COPY_DST |
+                    GPUTextureUsage.RENDER_ATTACHMENT,
+              });
+              for(let i = 0; i < ids.length; i++){
+                  device.queue.copyExternalImageToTexture(
+                      { source: document.getElementById(ids[i]) },
+                      { 
+                          texture: this.colortex,
+                          origin: [0, 0, i]
+                      },
+                      [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
+                  );
+              }
+          }
 
         this.postpipeline = device.createRenderPipeline({
             layout: device.createPipelineLayout({
@@ -539,7 +626,7 @@ export class Gfxmesh{
             ],
         });
     }
-    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, magfilter, minfilter, forpost){
+    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, forpost){
         this.forpost = forpost;
         this.lenght = lenght;
         this.ubol = ubol;
@@ -600,7 +687,7 @@ export class Gfxmesh{
             }],
         };
         if(!forpost){
-            this.preparemainrender(vertexcode, fragmentcode, texid, "right;left;top;bottom;front;back", gfx, magfilter, minfilter);
+            this.preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter);
         }else{
             this.preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter);
         }
