@@ -71,9 +71,9 @@ impl Mat4{
         self.mat[5] = 2f32/(t-b);
         self.mat[10] = -2f32/(z_far-z_near);
         self.mat[15] = 1f32;
-        self.mat[12] = -(r+l)/(r-l);
-        self.mat[13] = -(t+b)/(t-b);
-        self.mat[14] = -(z_far+z_near)/(z_far-z_near);
+        self.mat[3] = -(r+l)/(r-l);
+        self.mat[7] = -(t+b)/(t-b);
+        self.mat[11] = -(z_far+z_near)/(z_far-z_near);
     }
     #[allow(dead_code)]
     pub fn trans(&mut self, pos: Vec3){

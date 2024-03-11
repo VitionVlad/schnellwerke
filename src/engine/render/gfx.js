@@ -70,13 +70,13 @@ export class Gfxrender{
         this.shadowTexture = [
             device.createTexture({
                 label: "shadow1",
-                format: "depth24plus",
+                format: "depth32float",
                 size: [this.shadowr, this.shadowr],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             }),
             device.createTexture({
                 label: "shadow2",
-                format: "depth24plus",
+                format: "depth32float",
                 size: [this.shadowr, this.shadowr],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             })
@@ -103,7 +103,7 @@ export class Gfxrender{
     gfxsetshadowmapres(shadowmapres){
         this.shadowr = shadowmapres;
         this.shadowTexture[Number(!this.currentworkingbufferssh)] = device.createTexture({
-            format: "depth24plus",
+            format: "depth32float",
             size: [this.shadowr, this.shadowr],
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
         });
@@ -210,7 +210,7 @@ export class Gfxrender{
 }
 
 export class Gfxmesh{
-    preparesh(shadowvertexcode){
+    preparesh(shadowvertexcode, cullmode){
         this.vertexshadercode = device.createShaderModule({
             code: shadowvertexcode
         });
@@ -236,8 +236,11 @@ export class Gfxmesh{
             },
             depthStencil: {
                 depthWriteEnabled: true,
-                depthCompare: 'less',
-                format: 'depth24plus',
+                depthCompare: 'less-equal',
+                format: 'depth32float',
+            },
+            primitive: {
+                cullMode: cullmode
             },
         });
         this.sbindGroup = device.createBindGroup({
@@ -252,7 +255,7 @@ export class Gfxmesh{
             ],
         });
     }
-    preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter){
+    preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullmode){
         this.vertexcode = device.createShaderModule({
             code: vertexcode
         });
@@ -293,6 +296,13 @@ export class Gfxmesh{
                     viewDimension: "cube",
                 },
               },
+              {
+                binding: 5,
+                visibility: GPUShaderStage.FRAGMENT,
+                sampler: {
+                    type: 'comparison',
+                },
+              },
             ],
           });
         this.pipeline = device.createRenderPipeline({
@@ -322,11 +332,17 @@ export class Gfxmesh{
                 depthCompare: 'less-equal',
                 format: 'depth24plus',
             },
+            primitive: {
+                cullMode: cullmode
+            },
         });
 
         this.sampler = device.createSampler({
             magFilter: magfilter,
             minFilter: minfilter,
+            addressModeU: "repeat",
+            addressModeV: "repeat",
+            addressModeW: "repeat",
         });
 
         const ids = texid.split(";");
@@ -460,6 +476,12 @@ export class Gfxmesh{
                         dimension: 'cube',
                     })
                 },
+                {
+                    binding: 5,
+                    resource: device.createSampler({
+                      compare: 'less',
+                    }),
+                },
             ],
         });
     }
@@ -508,12 +530,22 @@ export class Gfxmesh{
                     sampleType: 'depth',
                   },
               },
+              {
+                binding: 6,
+                visibility: GPUShaderStage.FRAGMENT,
+                sampler: {
+                    type: 'comparison',
+                },
+              },
             ],
         });
 
         this.sampler = device.createSampler({
             magFilter: magfilter,
             minFilter: minfilter,
+            addressModeU: "repeat",
+            addressModeV: "repeat",
+            addressModeW: "repeat",
         });
 
           const ids = texid.split(";");
@@ -623,10 +655,16 @@ export class Gfxmesh{
                     binding: 5,
                     resource: gfx.mainPassDepthTexture[Number(gfx.currentworkingbuffers)].createView()
                 },
+                {
+                    binding: 6,
+                    resource: device.createSampler({
+                      compare: 'less',
+                    }),
+                },
             ],
         });
     }
-    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, forpost){
+    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, cullMode, shcullMode, forpost){
         this.forpost = forpost;
         this.lenght = lenght;
         this.ubol = ubol;
@@ -687,11 +725,11 @@ export class Gfxmesh{
             }],
         };
         if(!forpost){
-            this.preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter);
+            this.preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullMode);
         }else{
             this.preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter);
         }
-        this.preparesh(shadowvertexcode);
+        this.preparesh(shadowvertexcode, shcullMode);
     }
     recpostg(gfx){
         this.postbindGroup = device.createBindGroup({
@@ -721,6 +759,12 @@ export class Gfxmesh{
                 {
                     binding: 5,
                     resource: gfx.mainPassDepthTexture[Number(gfx.currentworkingbuffers)].createView()
+                },
+                {
+                    binding: 6,
+                    resource: device.createSampler({
+                      compare: 'less',
+                    }),
                 },
             ],
         });
@@ -752,6 +796,12 @@ export class Gfxmesh{
                     resource:this.cubemap.createView({
                         dimension: 'cube',
                     })
+                },
+                {
+                    binding: 5,
+                    resource: device.createSampler({
+                      compare: 'less',
+                    }),
                 },
             ],
         });

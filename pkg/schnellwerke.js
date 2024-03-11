@@ -266,8 +266,8 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbg_create_721c6a51aab9e7f0 = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21) {
-        const ret = new Gfxmesh(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3), getObject(arg4), arg5, getStringFromWasm0(arg6, arg7), getStringFromWasm0(arg8, arg9), getStringFromWasm0(arg10, arg11), arg12, getStringFromWasm0(arg13, arg14), getStringFromWasm0(arg15, arg16), getStringFromWasm0(arg17, arg18), getStringFromWasm0(arg19, arg20), arg21 !== 0);
+    imports.wbg.__wbg_create_721c6a51aab9e7f0 = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24, arg25) {
+        const ret = new Gfxmesh(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3), getObject(arg4), arg5, getStringFromWasm0(arg6, arg7), getStringFromWasm0(arg8, arg9), getStringFromWasm0(arg10, arg11), arg12, getStringFromWasm0(arg13, arg14), getStringFromWasm0(arg15, arg16), getStringFromWasm0(arg17, arg18), getStringFromWasm0(arg19, arg20), getStringFromWasm0(arg21, arg22), getStringFromWasm0(arg23, arg24), arg25 !== 0);
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_createcompute_f30b1af589e64d47 = function(arg0, arg1, arg2, arg3) {
@@ -283,10 +283,6 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_draw_9013d2f8e5e68eb2 = function(arg0, arg1, arg2) {
         getObject(arg0).draw(getObject(arg1), takeObject(arg2));
-    };
-    imports.wbg.__wbg_new_20449fd755374905 = function(arg0, arg1, arg2, arg3) {
-        const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
-        return addHeapObject(ret);
     };
     imports.wbg.__wbg_gfxendpass_5921cb07c8aa1c93 = function(arg0) {
         getObject(arg0).gfxendpass();
@@ -311,15 +307,13 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_gfxfinishrender_1121e3c6063fd91a = function(arg0) {
         getObject(arg0).gfxfinishrender();
     };
+    imports.wbg.__wbg_new_20449fd755374905 = function(arg0, arg1, arg2, arg3) {
+        const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbg_new_9404a2d1d6bd0dda = function(arg0, arg1) {
         const ret = new Jsaudio(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_setvolume_50919530e762f930 = function(arg0, arg1) {
-        getObject(arg0).setvolume(arg1);
-    };
-    imports.wbg.__wbg_play_037794cb1327463b = function(arg0) {
-        getObject(arg0).play();
     };
     imports.wbg.__wbindgen_cb_drop = function(arg0) {
         const obj = takeObject(arg0).original;
@@ -329,6 +323,12 @@ function __wbg_get_imports() {
         }
         const ret = false;
         return ret;
+    };
+    imports.wbg.__wbg_setvolume_50919530e762f930 = function(arg0, arg1) {
+        getObject(arg0).setvolume(arg1);
+    };
+    imports.wbg.__wbg_play_037794cb1327463b = function(arg0) {
+        getObject(arg0).play();
     };
     imports.wbg.__wbg_gfxsetrenderscale_78712ac0ad5b640a = function(arg0, arg1) {
         getObject(arg0).gfxsetrenderscale(arg1);
@@ -446,7 +446,7 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper71 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper68 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 3, __wbg_adapter_16);
         return addHeapObject(ret);
     };

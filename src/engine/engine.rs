@@ -76,8 +76,8 @@ impl Engine{
     }
     #[allow(dead_code)]
     pub fn calculate_shadow_projection(&mut self){
-        self.projection = Mat4::new();
-        if !self.orthographic{
+        self.shadowprojection = Mat4::new();
+        if !self.shadoworthographic{
             self.shadowprojection.perspective(self.shadowfov, self.shadow_z_far, self.shadow_z_near, 1f32);
         }else{
             self.shadowprojection.orthographic(self.shadowfov, -self.shadowfov, self.shadowfov, -self.shadowfov, self.shadow_z_near, self.shadow_z_far);
