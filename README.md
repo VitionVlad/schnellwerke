@@ -44,9 +44,9 @@ uniforms.push(createvec4(Vec4::new()));
 ```  
 and use all this to create object:  
 ```
-let mut mesh: Object = Object::new_from_obj(&eng, "md1", vertc, vertsc, fragc, &uniforms, "tex;spec;norm", "", "linear", "linear", false);
-let mut skybox: Object = Object::new_from_obj(&eng, "cube", vertsk, vertsc, fragsk, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", false);
-let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "", "", "nearest", "nearest", true);
+let mut mesh: Object = Object::new_from_obj(&eng, "md1", vertc, vertsc, fragc, &uniforms, "tex;spec;norm", "", "linear", "linear", "none", "none", false);
+let mut skybox: Object = Object::new_from_obj(&eng, "cube", vertsk, vertsc, fragsk, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "none", "none", false);
+let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "", "", "nearest", "nearest", "none", "none", true);
 ```  
 To create an object, you need the following components:  
 1. An engine handle  
@@ -58,8 +58,10 @@ To create an object, you need the following components:
 7. IDs of images, delimited with a semicolon  
 8. IDs for cubemap faces, also delimited with a semicolon  
 If no image is passed or there aren't enough faces, the engine will automatically generate a texture  
-9. Specifications for min and mag filters  
-10. If "forpost" is true, the mesh will be prepared to be rendered in the final pass, typically used for UI elements or post proccesing.
+9. Specifications for min and mag filters
+10. Culling mode while rendering in main pass
+11. Culling mode while rendering in shadowmap pass
+12. If "forpost" is true, the mesh will be prepared to be rendered in the final pass, typically used for UI elements or post proccesing.
 
 and finally rendering:
 ```
