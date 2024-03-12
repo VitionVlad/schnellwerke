@@ -216,7 +216,7 @@ export class Gfxmesh{
         canvas.width = document.getElementById(id).width;
         canvas.height = document.getElementById(id).height;
         context.drawImage(document.getElementById(id), 0, 0);
-        return context.getImageData(0, 0, document.getElementById(id).width-1, document.getElementById(id).height-1).data;
+        return context.getImageData(0, 0, document.getElementById(id).width, document.getElementById(id).height).data;
     }
     genMips(id){
         this.mippsres = [
@@ -225,7 +225,7 @@ export class Gfxmesh{
         this.mipimages = [
             new Uint8Array(this.getPixels(id)),
         ];
-        for(var i = 1; this.mippsres[i-1][0] -1 != 1 || this.mippsres[i-1][1] -1 != 1; i+=1){
+        for(var i = 1; this.mippsres[i-1][0] != 1 || this.mippsres[i-1][1] != 1; i+=1){
             this.mippsres.push(
                 [Math.floor(this.mippsres[i-1][0]/2), Math.floor(this.mippsres[i-1][1]/2)],
             );
@@ -428,8 +428,8 @@ export class Gfxmesh{
                             mipLevel: m,
                         },
                         this.mipimages[m],
-                        { bytesPerRow: this.mippsres[m][0]*4-4 },
-                        { width: this.mippsres[m][0]-1, height: this.mippsres[m][1]-1 },
+                        { bytesPerRow: this.mippsres[m][0]*4 },
+                        { width: this.mippsres[m][0], height: this.mippsres[m][1] },
                     );
                 }
                 this.mipimages = [];

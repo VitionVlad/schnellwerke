@@ -21,7 +21,7 @@ pub struct Uniformstruct{
     pub vec2: Vec2,
     pub vec3: Vec3,
     pub vec4: Vec4,
-    pub mat: Mat4
+    pub mat: Mat4,
 }
 
 #[allow(dead_code)]

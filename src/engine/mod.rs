@@ -7,3 +7,4 @@ pub mod input;
 pub mod resourceloader;
 pub mod audio;
 pub mod audiosource3d;
+pub mod shader_builder;
