@@ -87,8 +87,7 @@ renquad.draw(&mut eng, &uniforms);
 eng.end();
 ```
 by the way, if you dont use shadowmapping, you can skip shadow pass, it will not affect rest of the render.  
-![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/3de30dca-cb6a-4b36-828a-87f1dea01fe8)  
-![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/3448ef8e-ed25-4916-a608-e7bdb3c2fed3)
+![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/1cd36afc-a62b-47f8-8d6e-74c469568e36)  
   
 by the way, before loading any data make sure you page with resources is completly loaded:
 ```
@@ -99,8 +98,6 @@ import init, { main } from "./pkg/schnellwerke.js";
         });
       });
 ```
-by the way, here is demo of its working on mobile:  
-![Screenshot_20240301-195530](https://github.com/VitionVlad/schnellwerke/assets/48290199/d53c8fe9-b48d-472d-85b6-7dfd5e2edc64)
 # <p align="center"> Physics </p>   
 Firstly, each object has the following flags:  
 1. collision_detect: If set to true, collision detection will be calculated.
