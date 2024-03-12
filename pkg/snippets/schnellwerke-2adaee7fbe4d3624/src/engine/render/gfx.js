@@ -210,6 +210,36 @@ export class Gfxrender{
 }
 
 export class Gfxmesh{
+    getPixels(id) {
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        canvas.width = document.getElementById(id).width;
+        canvas.height = document.getElementById(id).height;
+        context.drawImage(document.getElementById(id), 0, 0);
+        return context.getImageData(0, 0, document.getElementById(id).width-1, document.getElementById(id).height-1).data;
+    }
+    genMips(id){
+        this.mippsres = [
+            [document.getElementById(id).width, document.getElementById(id).height],
+        ];
+        this.mipimages = [
+            new Uint8Array(this.getPixels(id)),
+        ];
+        for(var i = 1; this.mippsres[i-1][0] -1 != 1 || this.mippsres[i-1][1] -1 != 1; i+=1){
+            this.mippsres.push(
+                [Math.floor(this.mippsres[i-1][0]/2), Math.floor(this.mippsres[i-1][1]/2)],
+            );
+            this.mipimages.push(new Uint8Array(this.mippsres[i][0]*this.mippsres[i][1]*4));
+            for(var y = 0; y != this.mippsres[i][1]; y+=1){
+                for(var x = 0; x != this.mippsres[i][0]*4; x+=4){
+                    this.mipimages[i][y*this.mippsres[i][0]*4+x] =   (this.mipimages[i-1][(y*2)*this.mippsres[i-1][0]*4+(x*2)] + this.mipimages[i-1][(y*2)*this.mippsres[i-1][0]*4+(x*2+4)] + this.mipimages[i-1][(y*2+1)*this.mippsres[i-1][0]*4+(x*2)] + this.mipimages[i-1][(y*2+1)*this.mippsres[i-1][0]*4+(x*2+4)])/4;
+                    this.mipimages[i][y*this.mippsres[i][0]*4+x+1] = (this.mipimages[i-1][(y*2)*this.mippsres[i-1][0]*4+(x*2+1)] + this.mipimages[i-1][(y*2)*this.mippsres[i-1][0]*4+(x*2+5)] + this.mipimages[i-1][(y*2+1)*this.mippsres[i-1][0]*4+(x*2+1)] + this.mipimages[i-1][(y*2+1)*this.mippsres[i-1][0]*4+(x*2+5)])/4;
+                    this.mipimages[i][y*this.mippsres[i][0]*4+x+2] = (this.mipimages[i-1][(y*2)*this.mippsres[i-1][0]*4+(x*2+2)] + this.mipimages[i-1][(y*2)*this.mippsres[i-1][0]*4+(x*2+6)] + this.mipimages[i-1][(y*2+1)*this.mippsres[i-1][0]*4+(x*2+2)] + this.mipimages[i-1][(y*2+1)*this.mippsres[i-1][0]*4+(x*2+6)])/4;
+                    this.mipimages[i][y*this.mippsres[i][0]*4+x+3] = (this.mipimages[i-1][(y*2)*this.mippsres[i-1][0]*4+(x*2+3)] + this.mipimages[i-1][(y*2)*this.mippsres[i-1][0]*4+(x*2+7)] + this.mipimages[i-1][(y*2+1)*this.mippsres[i-1][0]*4+(x*2+3)] + this.mipimages[i-1][(y*2+1)*this.mippsres[i-1][0]*4+(x*2+7)])/4;
+                }
+            }
+        }
+    }
     preparesh(shadowvertexcode, cullmode){
         this.vertexshadercode = device.createShaderModule({
             code: shadowvertexcode
@@ -340,6 +370,7 @@ export class Gfxmesh{
         this.sampler = device.createSampler({
             magFilter: magfilter,
             minFilter: minfilter,
+            mipmapFilter: magfilter,
             addressModeU: "repeat",
             addressModeV: "repeat",
             addressModeW: "repeat",
@@ -375,9 +406,11 @@ export class Gfxmesh{
                 );
             }
         }else{
+            this.genMips(ids[0]);
             this.colortex = device.createTexture({
                 label: "colorTex",
                 size: [document.getElementById(ids[0]).width, document.getElementById(ids[0]).height, ids.length+1],
+                mipLevelCount: this.mippsres.length,
                 dimension: "2d",
                 format: 'rgba8unorm',
                 usage:
@@ -386,14 +419,21 @@ export class Gfxmesh{
                   GPUTextureUsage.RENDER_ATTACHMENT,
             });
             for(let i = 0; i < ids.length; i++){
-                device.queue.copyExternalImageToTexture(
-                    { source: document.getElementById(ids[i]) },
-                    { 
-                        texture: this.colortex,
-                        origin: [0, 0, i]
-                    },
-                    [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
-                );
+                this.genMips(ids[i]);
+                for(var m = 0; m < this.mippsres.length; m+=1){
+                    device.queue.writeTexture(
+                        {
+                            origin: [0, 0, i],
+                            texture: this.colortex,
+                            mipLevel: m,
+                        },
+                        this.mipimages[m],
+                        { bytesPerRow: this.mippsres[m][0]*4-4 },
+                        { width: this.mippsres[m][0]-1, height: this.mippsres[m][1]-1 },
+                    );
+                }
+                this.mipimages = [];
+                this.mippsres = [];
             }
         }
 
