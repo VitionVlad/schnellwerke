@@ -110,7 +110,7 @@ pub fn main() {
     let mut uniforms: Vec<Uniformstruct> = vec![];
     uniforms.push(createmvpmat("mvp"));
     uniforms.push(createsmvpmat("smvp"));
-    uniforms.push(createvec4(Vec4::newdefined(-0.2f32, -1.0f32, -0.3f32, 0.0f32), "lightpos"));
+    uniforms.push(createvec4(Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32), "lightpos"));
     uniforms.push(createvec4(Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32), "lightcolor"));
     uniforms.push(createvec4(Vec4::newdefined(0f32, 0f32, 0f32, 0.0f32), "playerpos"));
 
