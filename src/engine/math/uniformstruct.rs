@@ -3,6 +3,7 @@ use self::{mat4::Mat4, vec2::Vec2, vec3::Vec3, vec4::Vec4};
 use super::*;
 
 #[derive(Clone, Copy)]
+#[derive(PartialEq)]
 pub enum Usages{
     Float,
     Vec2,
@@ -14,7 +15,6 @@ pub enum Usages{
 }
 
 #[allow(dead_code)]
-#[derive(Clone, Copy)]
 pub struct Uniformstruct{
     pub usage: Usages,
     pub float: f32,
@@ -22,10 +22,11 @@ pub struct Uniformstruct{
     pub vec3: Vec3,
     pub vec4: Vec4,
     pub mat: Mat4,
+    pub label: String,
 }
 
 #[allow(dead_code)]
-pub fn createfloat(value: f32) -> Uniformstruct{
+pub fn createfloat(value: f32, label: &str) -> Uniformstruct{
     Uniformstruct{
         usage: Usages::Float,
         float: value,
@@ -33,11 +34,12 @@ pub fn createfloat(value: f32) -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: Vec4::new(),
         mat: Mat4::new(),
+        label: label.to_string()
     }
 }
 
 #[allow(dead_code)]
-pub fn createvec2(value: Vec2) -> Uniformstruct{
+pub fn createvec2(value: Vec2, label: &str) -> Uniformstruct{
     Uniformstruct{
         usage: Usages::Vec2,
         float: 0.0f32,
@@ -45,11 +47,12 @@ pub fn createvec2(value: Vec2) -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: Vec4::new(),
         mat: Mat4::new(),
+        label: label.to_string()
     }
 }
 
 #[allow(dead_code)]
-pub fn createvec3(value: Vec3) -> Uniformstruct{
+pub fn createvec3(value: Vec3, label: &str) -> Uniformstruct{
     Uniformstruct{
         usage: Usages::Vec3,
         float: 0.0f32,
@@ -57,11 +60,12 @@ pub fn createvec3(value: Vec3) -> Uniformstruct{
         vec3: value,
         vec4: Vec4::new(),
         mat: Mat4::new(),
+        label: label.to_string()
     }
 }
 
 #[allow(dead_code)]
-pub fn createvec4(value: Vec4) -> Uniformstruct{
+pub fn createvec4(value: Vec4, label: &str) -> Uniformstruct{
     Uniformstruct{
         usage: Usages::Vec4,
         float: 0.0f32,
@@ -69,11 +73,12 @@ pub fn createvec4(value: Vec4) -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: value,
         mat: Mat4::new(),
+        label: label.to_string()
     }
 }
 
 #[allow(dead_code)]
-pub fn createmat(value: Mat4) -> Uniformstruct{
+pub fn createmat(value: Mat4, label: &str) -> Uniformstruct{
     Uniformstruct{
         usage: Usages::Mat,
         float: 0.0f32,
@@ -81,11 +86,12 @@ pub fn createmat(value: Mat4) -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: Vec4::new(),
         mat: value,
+        label: label.to_string()
     }
 }
 
 #[allow(dead_code)]
-pub fn createmvpmat() -> Uniformstruct{
+pub fn createmvpmat(label: &str) -> Uniformstruct{
     Uniformstruct{
         usage: Usages::Mvpmat,
         float: 0.0f32,
@@ -93,11 +99,12 @@ pub fn createmvpmat() -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: Vec4::new(),
         mat: Mat4::new(),
+        label: label.to_string()
     }
 }
 
 #[allow(dead_code)]
-pub fn createsmvpmat() -> Uniformstruct{
+pub fn createsmvpmat(label: &str) -> Uniformstruct{
     Uniformstruct{
         usage: Usages::Smvpmat,
         float: 0.0f32,
@@ -105,6 +112,7 @@ pub fn createsmvpmat() -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: Vec4::new(),
         mat: Mat4::new(),
+        label: label.to_string()
     }
 }
 
@@ -118,7 +126,7 @@ pub fn getsize(uniforms: &Vec<Uniformstruct>) -> i32{
             Usages::Vec3 => size += 12,
             Usages::Vec4 => size += 16,
             Usages::Mat => size += 64,
-            Usages::Mvpmat => size += 64,
+            Usages::Mvpmat => size += 128,
             Usages::Smvpmat => size += 64,
         }
     }

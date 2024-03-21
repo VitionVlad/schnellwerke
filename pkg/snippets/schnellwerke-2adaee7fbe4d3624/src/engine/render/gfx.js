@@ -663,7 +663,7 @@ export class Gfxmesh{
             },
             depthStencil: {
                 depthWriteEnabled: true,
-                depthCompare: 'less',
+                depthCompare: 'less-equal',
                 format: 'depth24plus',
             },
         });

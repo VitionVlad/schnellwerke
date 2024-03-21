@@ -44,7 +44,9 @@ impl ShaderBuilder {
                 },
                 Usages::Mvpmat => {
                     inst += &uniformbuffer[i].label.to_string();
-                    inst += ": mat4x4<f32>,";
+                    inst += "_proj: mat4x4<f32>,";
+                    inst += &uniformbuffer[i].label.to_string();
+                    inst += "_mod: mat4x4<f32>,";
                     mvl = uniformbuffer[i].label.clone();
                     mve = true;
                 },
@@ -102,13 +104,17 @@ impl ShaderBuilder {
             var out: OUT;
             out.position = in.".to_string();
             vertex_code += &mvl.to_string();
-            vertex_code += &" * vec4f(pos.xyz, 1);
+            vertex_code += &"_proj * in.";
+            vertex_code += &mvl.to_string();
+            vertex_code += "_mod * vec4f(pos.xyz, 1);
             out.uv = vec2f(uv.x, 1.0-uv.y);
             out.norm = n;
             out.tangent = t;
             out.bitangent = cross(n, t);
-            out.vertex = pos;
-            out.smv = in.".to_string();
+            out.vertex = in.";
+            vertex_code += &mvl.to_string();
+            vertex_code += "_mod * pos;
+            out.smv = in.";
             vertex_code += &smvl.to_string();
             vertex_code += &" * vec4f(pos.xyz, 1);
             return out;
@@ -136,15 +142,19 @@ impl ShaderBuilder {
             var out: OUT;
             out.position = in.".to_string();
             vertex_code += &mvl.to_string();
-            vertex_code += &" * vec4f(pos.xyz, 1);
+            vertex_code += &"_proj * in.";
+            vertex_code += &mvl.to_string();
+            vertex_code += "_mod * vec4f(pos.xyz, 1);
             out.uv = vec2f(uv.x, 1.0-uv.y);
             out.norm = n;
             out.tangent = t;
             out.bitangent = cross(n, t);
             out.smv = vec4f(pos.xyz, 1);
-            out.vertex = pos;
+            out.vertex = in.";
+            vertex_code += &mvl.to_string();
+            vertex_code += "_mod * pos;
             return out;
-            }".to_string();
+            }";
         }
 
         ShaderBuilder { 
@@ -187,7 +197,9 @@ impl ShaderBuilder {
                 },
                 Usages::Mvpmat => {
                     inst += &uniformbuffer[i].label.to_string();
-                    inst += ": mat4x4<f32>,";
+                    inst += "_proj: mat4x4<f32>,";
+                    inst += &uniformbuffer[i].label.to_string();
+                    inst += "_mod: mat4x4<f32>,";
                     mvl = uniformbuffer[i].label.clone();
                     mve = true;
                 },
@@ -225,16 +237,20 @@ impl ShaderBuilder {
             var out: OUT;
             out.position = in.".to_string();
             vertex_code += &mvl.to_string();
-            vertex_code += &" * vec4f(pos.xyz, 1);
+            vertex_code += &"_proj * in.";
+            vertex_code += &mvl.to_string();
+            vertex_code += "_mod * vec4f(pos.xyz, 1);
             out.position.z = out.position.w;
             out.uv = vec2f(uv.x, 1.0-uv.y);
             out.norm = n;
             out.tangent = t;
             out.bitangent = cross(n, t);
             out.smv = vec4f(pos.xyz, 1);
-            out.vertex = pos;
+            out.vertex = in.";
+            vertex_code += &mvl.to_string();
+            vertex_code += "_mod * pos;
             return out;
-            }".to_string();
+            }";
         }
 
         ShaderBuilder { 
@@ -297,7 +313,9 @@ impl ShaderBuilder {
                 },
                 Usages::Mvpmat => {
                     inst += &uniformbuffer[i].label.to_string();
-                    inst += ": mat4x4<f32>,";
+                    inst += "_proj: mat4x4<f32>,";
+                    inst += &uniformbuffer[i].label.to_string();
+                    inst += "_mod: mat4x4<f32>,";
                 },
                 Usages::Smvpmat => {
                     inst += &uniformbuffer[i].label.to_string();

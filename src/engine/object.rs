@@ -195,11 +195,11 @@ impl Object {
             self.mat = eng.projection;
             self.smat = eng.shadowprojection;
 
-            self.mat.mul(&mmat);
             self.smat.mul(&mmat);
 
             self.mat.transpose();
             self.smat.transpose();
+            mmat.transpose();
             match unifroms[i].usage {
                 Usages::Float => {
                     self.jsarr.set_index(self.inuniform, unifroms[i].float);
@@ -238,6 +238,10 @@ impl Object {
                 Usages::Mvpmat => {
                     for b in 0..16{
                         self.jsarr.set_index(b+self.inuniform, self.mat.mat[b as usize]);
+                    }
+                    self.inuniform+=16;
+                    for b in 0..16{
+                        self.jsarr.set_index(b+self.inuniform, mmat.mat[b as usize]);
                     }
                     self.inuniform+=16;
                 },
