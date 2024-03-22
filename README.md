@@ -87,7 +87,7 @@ renquad.draw(&mut eng, &uniforms);
 eng.end();
 ```
 by the way, if you dont use shadowmapping, you can skip shadow pass, it will not affect rest of the render.  
-![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/1cd36afc-a62b-47f8-8d6e-74c469568e36)  
+![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/bbb95a36-50f0-4a85-8f1e-caf8b2d9eeaa)  
   
 by the way, before loading any data make sure you page with resources is completly loaded:
 ```
