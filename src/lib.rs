@@ -201,10 +201,73 @@ pub fn main() {
           }
           return col;
         }
+
+        fn edged(uv: vec2f, off: f32) -> vec3f{
+          let offset = 1.0 / off;
+          let offsets = array<vec2f, 9>( 
+            vec2f(-offset,  offset),
+            vec2f( 0.0f,    offset),
+            vec2f( offset,  offset),
+            vec2f(-offset,  0.0f),  
+            vec2f( 0.0f,    0.0f),  
+            vec2f( offset,  0.0f),  
+            vec2f(-offset, -offset),
+            vec2f( 0.0f,   -offset),
+            vec2f( offset, -offset) 
+          );
+          let kernel1 = array<f32, 9>( 
+            0.0, -2.5, 0.0,
+            -2.5, 10.0, -2.5,
+            0.0, -2.5, 0.0  
+          );
+          var col = vec3f(0.0, 0.0, 0.0);
+          for(var i = 0; i < 9; i+=1){
+            col += vec3f(textureSample(mainDepthMap, mySampler, uv + offsets[i]) * kernel1[i]);
+          }
+          if col.x > 0.003 {
+            col = vec3f(1.0);
+          }else{
+            col = vec3f(0.0);
+          }
+          return col;
+        }
+        fn edge(uv: vec2f, off: f32) -> vec3f{
+          let offset = 1.0 / off;
+          let offsets = array<vec2f, 9>( 
+            vec2f(-offset,  offset),
+            vec2f( 0.0f,    offset),
+            vec2f( offset,  offset),
+            vec2f(-offset,  0.0f),  
+            vec2f( 0.0f,    0.0f),  
+            vec2f( offset,  0.0f),  
+            vec2f(-offset, -offset),
+            vec2f( 0.0f,   -offset),
+            vec2f( offset, -offset) 
+          );
+          let kernel1 = array<f32, 9>( 
+            0.0, -2.5, 0.0,
+            -2.5, 10.0, -2.5,
+            0.0, -2.5, 0.0  
+          );
+          var col = vec3f(0.0, 0.0, 0.0);
+          for(var i = 0; i < 9; i+=1){
+            col += vec3f(textureSample(mainDepthMap, mySampler, uv + offsets[i]) * kernel1[i]);
+          }
+          col *= 100.0;
+          if col.x > 0.005 {
+            col = vec3f(1.0);
+          }else{
+            col = vec3f(0.0);
+          }
+          return col;
+        }
+        fn kbao(uv: vec2f, offset: f32) -> vec3f{
+          return edge(uv, offset)-edged(uv, offset);
+        }
     ";
     shaders.fragment_begin_main();
     shaders.fragment_code += "
-      return vec4f(textureSample(mainMap, mySampler, in.uv).rgb + bloom(in.uv, 50.0), 1);
+      return vec4f(textureSample(mainMap, mySampler, in.uv).rgb - kbao(in.uv, 500.0)/20 + bloom(in.uv, 50.0), 1);
     ";
     shaders.fragment_end_main();
 
