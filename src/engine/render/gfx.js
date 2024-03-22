@@ -42,13 +42,13 @@ export class Gfxrender{
         this.mainPassTexture = [
             device.createTexture({
                 label: "main1",
-                format: navigator.gpu.getPreferredCanvasFormat(),
+                format: "rgba16float",
                 size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             }),
             device.createTexture({
                 label: "main2",
-                format: navigator.gpu.getPreferredCanvasFormat(),
+                format: "rgba16float",
                 size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             })
@@ -185,7 +185,7 @@ export class Gfxrender{
             this.mainPassTexture[Number(this.currentworkingbuffers)].destroy();
             this.mainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "m",
-                format: navigator.gpu.getPreferredCanvasFormat(),
+                format: "rgba16float",
                 size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             });
@@ -354,7 +354,17 @@ export class Gfxmesh{
               module: this.fragmentcode,
               entryPoint: "fragmentMain",
               targets: [{
-                format: gfx.canvasFormat
+                format: "rgba16float",
+                blend: {
+                    color: {
+                      srcFactor: 'one',
+                      dstFactor: 'one-minus-src-alpha'
+                    },
+                    alpha: {
+                      srcFactor: 'one',
+                      dstFactor: 'one-minus-src-alpha'
+                    },
+                },
               }]
             },
             depthStencil: {
@@ -583,9 +593,9 @@ export class Gfxmesh{
         this.sampler = device.createSampler({
             magFilter: magfilter,
             minFilter: minfilter,
-            addressModeU: "repeat",
-            addressModeV: "repeat",
-            addressModeW: "repeat",
+            //addressModeU: "repeat",
+            //addressModeV: "repeat",
+            //addressModeW: "repeat",
         });
 
           const ids = texid.split(";");

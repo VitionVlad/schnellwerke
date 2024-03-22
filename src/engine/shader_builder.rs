@@ -8,6 +8,7 @@ pub struct ShaderBuilder{
     mvpl: String,
     smvpl: String,
     instr: String,
+    inpostuse: bool,
 }
 
 impl ShaderBuilder {
@@ -164,6 +165,7 @@ impl ShaderBuilder {
             mvpl: mvl,
             smvpl: smvl,
             instr: inst,
+            inpostuse: false,
         }
     }
     #[allow(dead_code)]
@@ -282,6 +284,7 @@ impl ShaderBuilder {
             mvpl: mvl,
             smvpl: "".to_string(),
             instr: inst,
+            inpostuse: false,
         }
     }
     #[allow(dead_code)]
@@ -375,6 +378,99 @@ impl ShaderBuilder {
             mvpl: "".to_string(),
             smvpl: "".to_string(),
             instr: inst,
+            inpostuse: true,
         }
+    }
+    #[allow(dead_code)]
+    pub fn new_fragment_shader(&mut self){
+        self.fragment_code = String::new();
+        self.fragment_code += &self.instr.to_string();
+        if self.inpostuse {
+            self.fragment_code += &"
+            @group(0) @binding(1) var mySampler: sampler;
+
+            @group(0) @binding(2) var myTexture: texture_2d_array<f32>;
+
+            @group(0) @binding(3) var shadowMap: texture_depth_2d;
+
+            @group(0) @binding(4) var mainMap: texture_2d<f32>;
+
+            @group(0) @binding(5) var mainDepthMap: texture_depth_2d;
+
+            struct OUT{
+              @location(0) uv: vec2f,
+              @location(1) vertex: vec4f,
+            }";
+        }else{
+            self.fragment_code += &"
+            @group(0) @binding(1) var mySampler: sampler;
+
+            @group(0) @binding(2) var myTexture: texture_2d_array<f32>;
+
+            @group(0) @binding(3) var shadowMap: texture_depth_2d;
+
+            @group(0) @binding(4) var mycube: texture_cube<f32>;
+
+            @group(0) @binding(5) var shadowSampler: sampler_comparison;
+
+            struct OUT{
+              @location(0) uv: vec2f,
+              @location(1) smv: vec4f,
+              @location(2) norm: vec3f,
+              @location(3) tangent: vec3f,
+              @location(4) bitangent: vec3f,
+              @location(5) vertex: vec4f,
+            }";
+        }
+    }
+    #[allow(dead_code)]
+    pub fn fragment_begin_main(&mut self){
+        self.fragment_code += &"
+        @fragment
+        fn fragmentMain(in: OUT) -> @location(0) vec4f {
+        ".to_string();
+    }
+    #[allow(dead_code)]
+    pub fn fragment_end_main(&mut self){
+        self.fragment_code += &"
+        }
+        ".to_string();
+    }
+    #[allow(dead_code)]
+    pub fn fragment_add_shadowmapping(&mut self){
+        self.fragment_code += &"
+        fn shadowmapping(smv: vec4f) -> f32{
+            let proj = vec3f((smv.x / smv.w)*0.5+0.5, (smv.y / smv.w)*-0.5+0.5, smv.z / smv.w);
+            return 1.0-textureSampleCompare(shadowMap, shadowSampler, proj.xy, proj.z-0.001);
+        }
+        ".to_string();
+    }
+    //indev
+    #[allow(dead_code)]
+    pub fn fragment_add_directional_light(&mut self){
+        self.fragment_code += &"
+        fn DirectionalLight(in: OUT) -> vec3f{
+            let TBN = mat3x3<f32>(
+              normalize(in.tangent),
+              normalize(in.bitangent),
+                normalize(in.norm),
+            );
+            let albedo = textureSample(myTexture, mySampler, in.uv, 0).rgb;
+            let specularpower = textureSample(myTexture, mySampler, in.uv, 1).r;
+            let normal = normalize(TBN * (textureSample(myTexture, mySampler, in.uv, 2).rgb * 2.0 - 1.0));
+            let ambient = ubo.lightcolor.a * ubo.lightcolor.rgb;
+      
+            let lightdir = normalize(-ubo.lightpos.xyz);
+            let diff = max(dot(normal, lightdir), 0.0);
+            let diffuse = diff * ubo.lightcolor.rgb;
+      
+            let viewDir = normalize(-ubo.playerpos.xyz - in.vertex.xyz);
+            let reflectDir = reflect(-lightdir, normal); 
+            let spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+            let specular = specularpower * spec * albedo;  
+      
+            return (ambient + (1.0 - shadowmapping(in.smv)) * (diffuse + specular)) * albedo;
+          }
+        ".to_string();
     }
 }

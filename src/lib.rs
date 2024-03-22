@@ -155,12 +155,58 @@ pub fn main() {
     mesh11.collision_detect = false;
 
     shaders = ShaderBuilder::new_skybox(&uniforms);
+    shaders.new_fragment_shader();
+    shaders.fragment_begin_main();
+    shaders.fragment_code += "
+      return vec4f(textureSample(mycube, mySampler, in.vertex.xyz).rgb+1.0, 1);
+    ";
+    shaders.fragment_end_main();
 
     let mut skybox: Object = Object::new_from_obj(&eng, "cube", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", false);
     skybox.collision_detect = false;
     skybox.scale = Vec3::newdefined(1000f32, 1000f32, 1000f32);
 
     shaders = ShaderBuilder::new_post_procces(&uniforms);
+    shaders.new_fragment_shader();
+    shaders.fragment_code += "
+        fn separateh(uv: vec2f) -> vec3f{
+          var tor: vec3f = vec3f(0.0, 0.0, 0.0);
+          let alb = textureSample(mainMap, mySampler, uv).rgb;
+          if alb.r >= 1.0 || alb.g >= 1.0 || alb.b >= 1.0 {
+              tor = alb-1.0;
+          }
+          return tor;
+        }
+        fn bloom(uv: vec2f, off: f32) -> vec3f{
+          let offset = 1.0 / off;
+          let offsets = array<vec2f, 9>( 
+            vec2f(-offset,  offset),
+            vec2f( 0.0f,    offset),
+            vec2f( offset,  offset),
+            vec2f(-offset,  0.0f),  
+            vec2f( 0.0f,    0.0f),  
+            vec2f( offset,  0.0f),  
+            vec2f(-offset, -offset),
+            vec2f( 0.0f,   -offset),
+            vec2f( offset, -offset) 
+          );
+          let kernel = array<f32, 9>( 
+            1.0 / 16, 2.0 / 16, 1.0 / 16,
+            2.0 / 16, 4.0 / 16, 2.0 / 16,
+            1.0 / 16, 2.0 / 16, 1.0 / 16  
+          );
+          var col = vec3f(0.0, 0.0, 0.0);
+          for(var i = 0; i < 9; i+=1){
+            col += separateh(uv + offsets[i]) * kernel[i];
+          }
+          return col;
+        }
+    ";
+    shaders.fragment_begin_main();
+    shaders.fragment_code += "
+      return vec4f(textureSample(mainMap, mySampler, in.uv).rgb + bloom(in.uv, 50.0), 1);
+    ";
+    shaders.fragment_end_main();
 
     let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", true);
     renquad.collision_detect = false;
