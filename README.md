@@ -98,6 +98,12 @@ import init, { main } from "./pkg/schnellwerke.js";
         });
       });
 ```
+# <p align="center"> Graphics </p>  
+In order to provide quality graphics, my engine uses:  
+1. Basic Phong lighting algorithm with included normal maps.  
+2. Shadow maps.  
+3. Post-processing effects such as bloom and an ambient occlusion algorithm.  
+The ambient occlusion algorithm is completely my own development, which I named "KBAO" (Kernel-Based Ambient Occlusion). Technically, it doesn't have anything to do with lighting. Instead, it calculates the difference between nearby texels and the center one using a depth texture and a kernel. If the difference is small, the texel is marked as not illuminated enough. While it may not produce the best results, it still looks decent, is simple to implement, and is fast. The same goes for bloom; I simply detect which texels have a color value higher than 1.0. The result of this operation is then blurred and added to the final image.
 # <p align="center"> Physics </p>   
 Firstly, each object has the following flags:  
 1. collision_detect: If set to true, collision detection will be calculated.
