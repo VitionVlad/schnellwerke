@@ -266,4 +266,10 @@ impl Object {
         self.pos.sum(self.speed);
         self.speed = Vec3::new();
     }
+    #[allow(dead_code)]
+    pub fn replace_vertices(&mut self, vertices: &[f32], lenght: i32){
+        let jsvert = js_sys::Float32Array::new_with_length((lenght*4) as u32);
+        jsvert.copy_from(&vertices);
+        self.mesh.replace_vertices(&jsvert);
+    }
 }

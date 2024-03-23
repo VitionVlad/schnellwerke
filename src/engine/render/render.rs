@@ -43,6 +43,9 @@ extern {
     #[wasm_bindgen(method)]
     pub fn draw(this: &Gfxmesh, gfx: &Gfxrender, uniformValues: Float32Array);
 
+    #[wasm_bindgen(method)]
+    pub fn writenewvertices(this: &Gfxmesh, vertices: &Float32Array);
+
     pub type Gpucompute;
     #[wasm_bindgen(constructor)]
     pub fn createcompute(ibs: i32, obs: i32, code: &str) -> Gpucompute;

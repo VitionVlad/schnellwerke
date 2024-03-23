@@ -16,4 +16,8 @@ impl Mesh{
     pub fn draw(&self, gfx: &Render, uniform_values: Float32Array){
         self.jsmesh.draw(&gfx.jsren, uniform_values);
     }
+    #[allow(dead_code)]
+    pub fn replace_vertices(&self, vertices: &Float32Array){
+        self.jsmesh.writenewvertices(vertices);
+    }
 }

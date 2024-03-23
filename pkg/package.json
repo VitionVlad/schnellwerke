@@ -1,6 +1,6 @@
 {
   "name": "schnellwerke",
-  "version": "0.1.36",
+  "version": "0.7.75",
   "files": [
     "schnellwerke_bg.wasm",
     "schnellwerke.js",
