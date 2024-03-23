@@ -285,7 +285,7 @@ export class Gfxmesh{
             ],
         });
     }
-    preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullmode){
+    preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullmode, repeatmode){
         this.vertexcode = device.createShaderModule({
             code: vertexcode
         });
@@ -381,9 +381,9 @@ export class Gfxmesh{
             magFilter: magfilter,
             minFilter: minfilter,
             mipmapFilter: magfilter,
-            addressModeU: "repeat",
-            addressModeV: "repeat",
-            addressModeW: "repeat",
+            addressModeU: repeatmode,
+            addressModeV: repeatmode,
+            addressModeW: repeatmode,
         });
 
         const ids = texid.split(";");
@@ -535,7 +535,7 @@ export class Gfxmesh{
             ],
         });
     }
-    preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter){
+    preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter, repeatmode){
         this.vertexcode = device.createShaderModule({
             code: vertexcode
         });
@@ -593,9 +593,9 @@ export class Gfxmesh{
         this.sampler = device.createSampler({
             magFilter: magfilter,
             minFilter: minfilter,
-            //addressModeU: "repeat",
-            //addressModeV: "repeat",
-            //addressModeW: "repeat",
+            addressModeU: repeatmode,
+            addressModeV: repeatmode,
+            addressModeW: repeatmode,
         });
 
           const ids = texid.split(";");
@@ -714,7 +714,7 @@ export class Gfxmesh{
             ],
         });
     }
-    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, cullMode, shcullMode, forpost){
+    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, cullMode, shcullMode, repeatmode, forpost){
         this.forpost = forpost;
         this.lenght = lenght;
         this.ubol = ubol;
@@ -775,9 +775,9 @@ export class Gfxmesh{
             }],
         };
         if(!forpost){
-            this.preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullMode);
+            this.preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullMode, repeatmode);
         }else{
-            this.preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter);
+            this.preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter, repeatmode);
         }
         this.preparesh(shadowvertexcode, shcullMode);
     }

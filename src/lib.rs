@@ -58,41 +58,41 @@ pub fn main() {
     shaders.fragment_add_light(true, "lightcolor", "lightpos", "playerpos");
     shaders.fragment_end_main();
 
-    let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", false);
+    let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", "repeat", false);
     mesh.scale = Vec3::newdefined(0.025, 0.025, 0.025);
 
-    let mut mesh2: Object = Object::new_from_obj(&eng, "md2", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex2;stex2;ntex2", "", "linear", "linear", "none", "none", false);
+    let mut mesh2: Object = Object::new_from_obj(&eng, "md2", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex2;stex2;ntex2", "", "linear", "linear", "none", "none", "repeat", false);
     mesh2.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-    let mut mesh3: Object = Object::new_from_obj(&eng, "md3", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex3;stex3;ntex3", "", "linear", "linear", "none", "none", false);
+    let mut mesh3: Object = Object::new_from_obj(&eng, "md3", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex3;stex3;ntex3", "", "linear", "linear", "none", "none", "repeat", false);
     mesh3.scale = Vec3::newdefined(0.025, 0.025, 0.025); 
     mesh3.collision_detect = false;
 
-    let mut mesh4: Object = Object::new_from_obj(&eng, "md4", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex4;stex4;ntex4", "", "linear", "linear", "none", "none", false);
+    let mut mesh4: Object = Object::new_from_obj(&eng, "md4", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex4;stex4;ntex4", "", "linear", "linear", "none", "none", "repeat", false);
     mesh4.scale = Vec3::newdefined(0.025, 0.025, 0.025);
     mesh4.collision_detect = false;
 
-    let mut mesh5: Object = Object::new_from_obj(&eng, "md5", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex5;stex5;ntex5", "", "linear", "linear", "none", "none", false);
+    let mut mesh5: Object = Object::new_from_obj(&eng, "md5", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex5;stex5;ntex5", "", "linear", "linear", "none", "none", "repeat", false);
     mesh5.scale = Vec3::newdefined(0.025, 0.025, 0.025);
     
-    let mut mesh6: Object = Object::new_from_obj(&eng, "md6", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex6;stex6;ntex6", "", "linear", "linear", "none", "none", false);
+    let mut mesh6: Object = Object::new_from_obj(&eng, "md6", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex6;stex6;ntex6", "", "linear", "linear", "none", "none", "repeat", false);
     mesh6.scale = Vec3::newdefined(0.025, 0.025, 0.025);
     mesh6.collision_detect = false;
 
-    let mut mesh7: Object = Object::new_from_obj(&eng, "md7", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex7;stex7;ntex7", "", "linear", "linear", "none", "none", false);
+    let mut mesh7: Object = Object::new_from_obj(&eng, "md7", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex7;stex7;ntex7", "", "linear", "linear", "none", "none", "repeat", false);
     mesh7.scale = Vec3::newdefined(0.025, 0.025, 0.025);
     mesh7.collision_detect = false;
 
-    let mut mesh8: Object = Object::new_from_obj(&eng, "md8", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex8;stex8;ntex8", "", "linear", "linear", "none", "none", false);
+    let mut mesh8: Object = Object::new_from_obj(&eng, "md8", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex8;stex8;ntex8", "", "linear", "linear", "none", "none", "repeat", false);
     mesh8.scale = Vec3::newdefined(0.025, 0.025, 0.025);
 
-    let mut mesh9: Object = Object::new_from_obj(&eng, "md9", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex9;stex9;ntex9", "", "linear", "linear", "none", "none", false);
+    let mut mesh9: Object = Object::new_from_obj(&eng, "md9", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex9;stex9;ntex9", "", "linear", "linear", "none", "none", "repeat", false);
     mesh9.scale = Vec3::newdefined(0.025, 0.025, 0.025);
     mesh9.collision_detect = false;
 
-    let mut mesh10: Object = Object::new_from_obj(&eng, "md10", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex10;stex10;ntex10", "", "linear", "linear", "none", "none", false);
+    let mut mesh10: Object = Object::new_from_obj(&eng, "md10", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex10;stex10;ntex10", "", "linear", "linear", "none", "none", "repeat", false);
     mesh10.scale = Vec3::newdefined(0.025, 0.025, 0.025);
 
-    let mut mesh11: Object = Object::new_from_obj(&eng, "md11", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex11;stex11;ntex11", "", "linear", "linear", "none", "none", false);
+    let mut mesh11: Object = Object::new_from_obj(&eng, "md11", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex11;stex11;ntex11", "", "linear", "linear", "none", "none", "repeat", false);
     mesh11.scale = Vec3::newdefined(0.025, 0.025, 0.025);
     mesh11.collision_detect = false;
 
@@ -104,7 +104,7 @@ pub fn main() {
     ";
     shaders.fragment_end_main();
 
-    let mut skybox: Object = Object::new_from_obj(&eng, "cube", &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", false);
+    let mut skybox: Object = Object::new_from_obj(&eng, "cube", &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", "repeat", false);
     skybox.collision_detect = false;
     skybox.scale = Vec3::newdefined(1000f32, 1000f32, 1000f32);
 
@@ -116,7 +116,7 @@ pub fn main() {
     shaders.fragment_add_mainframebuffer();
     shaders.fragment_end_main();
 
-    let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", true);
+    let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
     renquad.collision_detect = false;
     let mut rd = 1.0f32;
 
