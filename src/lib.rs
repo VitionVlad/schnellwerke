@@ -55,7 +55,7 @@ pub fn main() {
     let mut shaders = ShaderBuilder::new(&uniforms);
     shaders.new_fragment_shader();
     shaders.fragment_begin_main();
-    shaders.fragment_add_light();
+    shaders.fragment_add_light(true, "lightcolor", "lightpos", "playerpos");
     shaders.fragment_end_main();
 
     let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", false);

@@ -557,10 +557,20 @@ impl ShaderBuilder {
         ".to_string();
     }
     #[allow(dead_code)]
-    pub fn fragment_add_light(&mut self){
+    pub fn fragment_add_light(&mut self, useshadows: bool, lightcolorlabel: &str, lightposlabel: &str, playerposlabel: &str){
         self.fragment_code += &"
-          col += light(in, true, ubo.lightcolor, ubo.lightpos, ubo.playerpos.xyz);
-        ".to_string();
+          col += light(in, ";
+          if useshadows {
+            self.fragment_code += "true, ubo.";
+          }else{
+            self.fragment_code += "false, ubo.";
+          }
+          self.fragment_code += lightcolorlabel;
+          self.fragment_code += ", ubo.";
+          self.fragment_code += lightposlabel;
+          self.fragment_code += ", ubo.";
+          self.fragment_code += playerposlabel;
+          self.fragment_code += ".xyz);";
     }
     #[allow(dead_code)]
     pub fn fragment_add_bloom(&mut self){
