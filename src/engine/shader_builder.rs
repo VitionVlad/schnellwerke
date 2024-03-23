@@ -591,6 +591,14 @@ impl ShaderBuilder {
         ".to_string();
     }
     #[allow(dead_code)]
+    pub fn fragment_add_texure(&mut self, layer: u32){
+        self.fragment_code += &"
+        col += vec4f(textureSample(myTexture, mySampler, in.uv,";
+        self.fragment_code += &layer.to_string();
+        self.fragment_code += ").rgb, 1);
+        ";
+    }
+    #[allow(dead_code)]
     pub fn fragment_add_cubemap(&mut self){
         self.fragment_code += &"
           col += vec4f(textureSample(mycube, mySampler, in.vertex.xyz).rgb, 1);
