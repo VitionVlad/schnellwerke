@@ -50,12 +50,12 @@ shaders.fragment_begin_main();
 shaders.fragment_add_light(true, "lightcolor", "lightpos", "playerpos");
 shaders.fragment_end_main();
 
-let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", false);
+let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", "repeat", false);
 mesh.scale = Vec3::newdefined(0.025, 0.025, 0.025);
 
 shaders = ShaderBuilder::new_skybox(&uniforms);
 
-let mut skybox: Object = Object::new_from_obj(&eng, "cube", &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", false);
+let mut skybox: Object = Object::new_from_obj(&eng, "cube", &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", "repeat", false);
 skybox.collision_detect = false;
 skybox.scale = Vec3::newdefined(1000f32, 1000f32, 1000f32);
 
@@ -67,7 +67,7 @@ shaders.fragment_add_kbao();
 shaders.fragment_add_mainframebuffer();
 shaders.fragment_end_main();
 
-let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", true);
+let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
 renquad.collision_detect = false;
 ```  
 To create an object, you need the following components:  
@@ -83,7 +83,8 @@ If no image is passed or there aren't enough faces, the engine will automaticall
 9. Specifications for min and mag filters
 10. Culling mode while rendering in main pass
 11. Culling mode while rendering in shadowmap pass
-12. If "forpost" is true, the mesh will be prepared to be rendered in the final pass, typically used for UI elements or post proccesing.
+12. Repeat mode
+13. If "forpost" is true, the mesh will be prepared to be rendered in the final pass, typically used for UI elements or post proccesing.
 
 and finally rendering:
 ```
