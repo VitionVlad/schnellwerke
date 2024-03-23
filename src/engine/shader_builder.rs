@@ -60,7 +60,7 @@ impl ShaderBuilder {
             }
         }
         inst += " }; 
-        @group(0) @binding(0) var<uniform> in: uniforms;";
+        @group(0) @binding(0) var<uniform> ubo: uniforms;";
         let mut vertex_shadow_code: String = "
         @vertex
         fn vertexMain(@location(0) pos: vec4f) -> @builtin(position) vec4f {
@@ -73,7 +73,7 @@ impl ShaderBuilder {
             vertex_shadow_code += &"
             @vertex
             fn vertexMain(@location(0) pos: vec4f) -> @builtin(position) vec4f {
-              return in.".to_string();
+              return ubo.".to_string();
             vertex_shadow_code += &smvl.to_string();
             vertex_shadow_code += &" * vec4f(pos.xyz, 1);
             }
@@ -103,19 +103,19 @@ impl ShaderBuilder {
             @vertex
             fn vertexMain(@location(0) pos: vec4f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
             var out: OUT;
-            out.position = in.".to_string();
+            out.position = ubo.".to_string();
             vertex_code += &mvl.to_string();
-            vertex_code += &"_proj * in.";
+            vertex_code += &"_proj * ubo.";
             vertex_code += &mvl.to_string();
             vertex_code += "_mod * vec4f(pos.xyz, 1);
             out.uv = vec2f(uv.x, 1.0-uv.y);
             out.norm = n;
             out.tangent = t;
             out.bitangent = cross(n, t);
-            out.vertex = in.";
+            out.vertex = ubo.";
             vertex_code += &mvl.to_string();
             vertex_code += "_mod * pos;
-            out.smv = in.";
+            out.smv = ubo.";
             vertex_code += &smvl.to_string();
             vertex_code += &" * vec4f(pos.xyz, 1);
             return out;
@@ -141,9 +141,9 @@ impl ShaderBuilder {
             @vertex
             fn vertexMain(@location(0) pos: vec4f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
             var out: OUT;
-            out.position = in.".to_string();
+            out.position = ubo.".to_string();
             vertex_code += &mvl.to_string();
-            vertex_code += &"_proj * in.";
+            vertex_code += &"_proj * ubo.";
             vertex_code += &mvl.to_string();
             vertex_code += "_mod * vec4f(pos.xyz, 1);
             out.uv = vec2f(uv.x, 1.0-uv.y);
@@ -151,7 +151,7 @@ impl ShaderBuilder {
             out.tangent = t;
             out.bitangent = cross(n, t);
             out.smv = vec4f(pos.xyz, 1);
-            out.vertex = in.";
+            out.vertex = ubo.";
             vertex_code += &mvl.to_string();
             vertex_code += "_mod * pos;
             return out;
@@ -212,7 +212,7 @@ impl ShaderBuilder {
             }
         }
         inst += " }; 
-        @group(0) @binding(0) var<uniform> in: uniforms;";
+        @group(0) @binding(0) var<uniform> ubo: uniforms;";
 
         let mut vertex_code: String = "
         @vertex
@@ -237,9 +237,9 @@ impl ShaderBuilder {
             @vertex
             fn vertexMain(@location(0) pos: vec4f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
             var out: OUT;
-            out.position = in.".to_string();
+            out.position = ubo.".to_string();
             vertex_code += &mvl.to_string();
-            vertex_code += &"_proj * in.";
+            vertex_code += &"_proj * ubo.";
             vertex_code += &mvl.to_string();
             vertex_code += "_mod * vec4f(pos.xyz, 1);
             out.position.z = out.position.w;
@@ -248,7 +248,7 @@ impl ShaderBuilder {
             out.tangent = t;
             out.bitangent = cross(n, t);
             out.smv = vec4f(pos.xyz, 1);
-            out.vertex = in.";
+            out.vertex = ubo.";
             vertex_code += &mvl.to_string();
             vertex_code += "_mod * pos;
             return out;
@@ -327,7 +327,7 @@ impl ShaderBuilder {
             }
         }
         inst += " }; 
-        @group(0) @binding(0) var<uniform> in: uniforms;";
+        @group(0) @binding(0) var<uniform> ubo: uniforms;";
 
         let mut vertex_code = String::new();
         vertex_code += &inst.to_string();
@@ -400,7 +400,71 @@ impl ShaderBuilder {
             struct OUT{
               @location(0) uv: vec2f,
               @location(1) vertex: vec4f,
-            }";
+            }
+            
+            fn separateh(uv: vec2f) -> vec3f{
+                var tor: vec3f = vec3f(0.0, 0.0, 0.0);
+                let alb = textureSample(mainMap, mySampler, uv).rgb;
+                if alb.r >= 1.0 || alb.g >= 1.0 || alb.b >= 1.0 {
+                    tor = alb-1.0;
+                }
+                return tor;
+              }
+              fn bloom(uv: vec2f, off: f32) -> vec3f{
+                let offset = 1.0 / off;
+                let offsets = array<vec2f, 9>( 
+                  vec2f(-offset,  offset),
+                  vec2f( 0.0f,    offset),
+                  vec2f( offset,  offset),
+                  vec2f(-offset,  0.0f),  
+                  vec2f( 0.0f,    0.0f),  
+                  vec2f( offset,  0.0f),  
+                  vec2f(-offset, -offset),
+                  vec2f( 0.0f,   -offset),
+                  vec2f( offset, -offset) 
+                );
+                let kernel = array<f32, 9>( 
+                  1.0 / 16, 2.0 / 16, 1.0 / 16,
+                  2.0 / 16, 4.0 / 16, 2.0 / 16,
+                  1.0 / 16, 2.0 / 16, 1.0 / 16  
+                );
+                var col = vec3f(0.0, 0.0, 0.0);
+                for(var i = 0; i < 9; i+=1){
+                  col += separateh(uv + offsets[i]) * kernel[i];
+                }
+                return col;
+              }
+              fn kbao(uv: vec2f, off: f32) -> vec3f{
+                let offset = 1.0 / off;
+                let offsets = array<vec2f, 9>( 
+                  vec2f(-offset,  offset),
+                  vec2f( 0.0f,    offset),
+                  vec2f( offset,  offset),
+                  vec2f(-offset,  0.0f),  
+                  vec2f( 0.0f,    0.0f),  
+                  vec2f( offset,  0.0f),  
+                  vec2f(-offset, -offset),
+                  vec2f( 0.0f,   -offset),
+                  vec2f( offset, -offset) 
+                );
+                let kernel1 = array<f32, 9>( 
+                  0.0, -2.5, 0.0,
+                  -2.5, 10.0, -2.5,
+                  0.0, -2.5, 0.0  
+                );
+                var col = vec3f(0.0, 0.0, 0.0);
+                for(var i = 0; i < 9; i+=1){
+                  col += vec3f(textureSample(mainDepthMap, mySampler, uv + offsets[i]) * kernel1[i]);
+                }
+                col *= 100.0;
+                if col.x > 0.005 && col.x < 0.3 {
+                  col = vec3f(1.0);
+                }else{
+                  col = vec3f(0.0);
+                }
+                return col;
+              }
+            ";
         }else{
             self.fragment_code += &"
             @group(0) @binding(1) var mySampler: sampler;
@@ -420,6 +484,60 @@ impl ShaderBuilder {
               @location(3) tangent: vec3f,
               @location(4) bitangent: vec3f,
               @location(5) vertex: vec4f,
+            }
+            
+            fn shadowmapping(smv: vec4f) -> f32{
+                let proj = vec3f((smv.x / smv.w)*0.5+0.5, (smv.y / smv.w)*-0.5+0.5, smv.z / smv.w);
+                return 1.0-textureSampleCompare(shadowMap, shadowSampler, proj.xy, proj.z-0.001);
+              }
+          
+              fn light(in: OUT, useshadows: bool, lightcolor: vec4f, lightpos: vec4f, playerpos: vec3f) -> vec4f{
+                let TBN = mat3x3<f32>(
+                  normalize(in.tangent),
+                  normalize(in.bitangent),
+                    normalize(in.norm),
+                );
+                let albedo = textureSample(myTexture, mySampler, in.uv, 0).rgb;
+                let specularpower = textureSample(myTexture, mySampler, in.uv, 1).r;
+                let normal = normalize(TBN * (textureSample(myTexture, mySampler, in.uv, 2).rgb * 2.0 - 1.0));
+                var ambient = lightcolor.a * lightcolor.rgb;
+          
+                if lightpos.w >= 1.0{
+                  const constant = 1.0f;
+                  const linear = 0.09f;
+                  const quadratic = 0.032f; 
+                  let dist = length(lightpos.xyz - in.vertex.xyz);
+                  let attenuation = 1.0 / (constant + linear * dist + quadratic * (dist * dist));    
+
+                  let lightdir = normalize(lightpos.xyz - in.vertex.xyz);
+                  let diff = max(dot(normal, lightdir), 0.0);
+                  let diffuse = diff * lightcolor.rgb * attenuation;
+          
+                  let viewDir = normalize(-playerpos.xyz - in.vertex.xyz);
+                  let reflectDir = reflect(-lightdir, normal); 
+                  let spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+                  let specular = specularpower * spec * albedo * attenuation;  
+
+                  ambient *= attenuation;
+                  if !useshadows{
+                    return vec4f((ambient + diffuse + specular) * albedo, textureSample(myTexture, mySampler, in.uv, 0).a);
+                  }
+                  return vec4f((ambient + (1.0 - shadowmapping(in.smv)) * (diffuse + specular)) * albedo, textureSample(myTexture, mySampler, in.uv, 0).a);
+                }
+          
+                let lightdir = normalize(-lightpos.xyz);
+                let diff = max(dot(normal, lightdir), 0.0);
+                let diffuse = diff * lightcolor.rgb;
+          
+                let viewDir = normalize(-playerpos.xyz - in.vertex.xyz);
+                let reflectDir = reflect(-lightdir, normal); 
+                let spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+                let specular = specularpower * spec * albedo;  
+          
+                if !useshadows{
+                  return vec4f((ambient + diffuse + specular) * albedo, textureSample(myTexture, mySampler, in.uv, 0).a);
+                }
+                return vec4f((ambient + (1.0 - shadowmapping(in.smv)) * (diffuse + specular)) * albedo, textureSample(myTexture, mySampler, in.uv, 0).a);
             }";
         }
     }
@@ -428,49 +546,44 @@ impl ShaderBuilder {
         self.fragment_code += &"
         @fragment
         fn fragmentMain(in: OUT) -> @location(0) vec4f {
+            var col = vec4f(0.0);
         ".to_string();
     }
     #[allow(dead_code)]
     pub fn fragment_end_main(&mut self){
         self.fragment_code += &"
+          return col;
         }
         ".to_string();
     }
     #[allow(dead_code)]
-    pub fn fragment_add_shadowmapping(&mut self){
+    pub fn fragment_add_light(&mut self){
         self.fragment_code += &"
-        fn shadowmapping(smv: vec4f) -> f32{
-            let proj = vec3f((smv.x / smv.w)*0.5+0.5, (smv.y / smv.w)*-0.5+0.5, smv.z / smv.w);
-            return 1.0-textureSampleCompare(shadowMap, shadowSampler, proj.xy, proj.z-0.001);
-        }
+          col += light(in, true, ubo.lightcolor, ubo.lightpos, ubo.playerpos.xyz);
         ".to_string();
     }
-    //indev
     #[allow(dead_code)]
-    pub fn fragment_add_directional_light(&mut self){
+    pub fn fragment_add_bloom(&mut self){
         self.fragment_code += &"
-        fn DirectionalLight(in: OUT) -> vec3f{
-            let TBN = mat3x3<f32>(
-              normalize(in.tangent),
-              normalize(in.bitangent),
-                normalize(in.norm),
-            );
-            let albedo = textureSample(myTexture, mySampler, in.uv, 0).rgb;
-            let specularpower = textureSample(myTexture, mySampler, in.uv, 1).r;
-            let normal = normalize(TBN * (textureSample(myTexture, mySampler, in.uv, 2).rgb * 2.0 - 1.0));
-            let ambient = ubo.lightcolor.a * ubo.lightcolor.rgb;
-      
-            let lightdir = normalize(-ubo.lightpos.xyz);
-            let diff = max(dot(normal, lightdir), 0.0);
-            let diffuse = diff * ubo.lightcolor.rgb;
-      
-            let viewDir = normalize(-ubo.playerpos.xyz - in.vertex.xyz);
-            let reflectDir = reflect(-lightdir, normal); 
-            let spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-            let specular = specularpower * spec * albedo;  
-      
-            return (ambient + (1.0 - shadowmapping(in.smv)) * (diffuse + specular)) * albedo;
-          }
+          col += vec4f(bloom(in.uv, 50.0), 0);
+        ".to_string();
+    }
+    #[allow(dead_code)]
+    pub fn fragment_add_kbao(&mut self){
+        self.fragment_code += &"
+          col -= vec4f(kbao(in.uv, 500.0)/20, 0);
+        ".to_string();
+    }
+    #[allow(dead_code)]
+    pub fn fragment_add_mainframebuffer(&mut self){
+        self.fragment_code += &"
+          col += vec4f(textureSample(mainMap, mySampler, in.uv).rgb, 1);
+        ".to_string();
+    }
+    #[allow(dead_code)]
+    pub fn fragment_add_cubemap(&mut self){
+        self.fragment_code += &"
+          col += vec4f(textureSample(mycube, mySampler, in.vertex.xyz).rgb, 1);
         ".to_string();
     }
 }
