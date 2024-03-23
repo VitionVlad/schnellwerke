@@ -42,11 +42,33 @@ uniforms.push(createvec4(Vec4::new()));
 uniforms.push(createvec4(Vec4::new()));
 uniforms.push(createvec4(Vec4::new()));
 ```  
-and use all this to create object:  
+and use all this to create shaders and object:  
 ```
-let mut mesh: Object = Object::new_from_obj(&eng, "md1", vertc, vertsc, fragc, &uniforms, "tex;spec;norm", "", "linear", "linear", "none", "none", false);
-let mut skybox: Object = Object::new_from_obj(&eng, "cube", vertsk, vertsc, fragsk, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "none", "none", false);
-let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, pvertc, vertsc, pfragc, &uniforms, "", "", "nearest", "nearest", "none", "none", true);
+let mut shaders = ShaderBuilder::new(&uniforms);
+shaders.new_fragment_shader();
+shaders.fragment_begin_main();
+shaders.fragment_add_light(true, "lightcolor", "lightpos", "playerpos");
+shaders.fragment_end_main();
+
+let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", false);
+mesh.scale = Vec3::newdefined(0.025, 0.025, 0.025);
+
+shaders = ShaderBuilder::new_skybox(&uniforms);
+
+let mut skybox: Object = Object::new_from_obj(&eng, "cube", &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", false);
+skybox.collision_detect = false;
+skybox.scale = Vec3::newdefined(1000f32, 1000f32, 1000f32);
+
+shaders = ShaderBuilder::new_post_procces(&uniforms);
+shaders.new_fragment_shader();
+shaders.fragment_begin_main();
+shaders.fragment_add_bloom();
+shaders.fragment_add_kbao();
+shaders.fragment_add_mainframebuffer();
+shaders.fragment_end_main();
+
+let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", true);
+renquad.collision_detect = false;
 ```  
 To create an object, you need the following components:  
 1. An engine handle  
@@ -97,13 +119,7 @@ import init, { main } from "./pkg/schnellwerke.js";
           main();
         });
       });
-```
-# <p align="center"> Graphics </p>  
-In order to provide quality graphics, my engine uses:  
-1. Basic Phong lighting algorithm with included normal maps.  
-2. Shadow maps.  
-3. Post-processing effects such as bloom and an ambient occlusion algorithm.  
-The ambient occlusion algorithm is completely my own development, which I named "KBAO" (Kernel-Based Ambient Occlusion). Technically, it doesn't have anything to do with lighting. Instead, it calculates the difference between nearby texels and the center one using a depth texture and a kernel. If the difference is small, the texel is marked as not illuminated enough. While it may not produce the best results, it still looks decent, is simple to implement, and is fast. The same goes for bloom; I simply detect which texels have a color value higher than 1.0. The result of this operation is then blurred and added to the final image.
+```  
 # <p align="center"> Physics </p>   
 Firstly, each object has the following flags:  
 1. collision_detect: If set to true, collision detection will be calculated.
