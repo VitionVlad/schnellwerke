@@ -14,7 +14,7 @@ pub struct Object{
     pub comp: Compute,
     incomp: Vec<f32>,
     pub collision_detect: bool,
-    modelvert: Vec<f32>,
+    pub modelvert: Vec<f32>,
     pub speed: Vec3,
     pub camera_collision_interact: bool,
     pub is_interacting: f32,
@@ -151,6 +151,176 @@ impl Object {
         }
     }
     #[allow(dead_code)]
+    pub fn new_plane(eng: &Engine, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, unifroms: &Vec<Uniformstruct>, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, cull_mode: &str, shcull_mode: &str, repeat_mode: &str, forpost: bool) -> Object{
+        let vertices: [f32; 24] = [
+        -1.0, -1.0, 1.0, 1.0,
+        -1.0, 1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+
+        -1.0, -1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0, 1.0,
+        1.0, -1.0, 1.0, 1.0
+    ];
+    let uv: [f32; 12] = [
+        0.0, 1.0,
+        0.0, 0.0,
+        1.0, 0.0,
+
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0,
+    ];
+    let normals: [f32; 18] = [
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0,
+
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0,
+        0.0, 0.0, 1.0
+    ];
+    Object::new(eng, &vertices, &uv, &normals, 6, vertexcode, shadowvertexcode, fragmentcode, unifroms, texid, cubeid, magfilter, minfilter, cull_mode, shcull_mode, repeat_mode, forpost)
+    }
+    #[allow(dead_code)]
+    pub fn new_cube(eng: &Engine, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, unifroms: &Vec<Uniformstruct>, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, cull_mode: &str, shcull_mode: &str, repeat_mode: &str, forpost: bool) -> Object{
+        let vertices: [f32; 144] = [
+            -1f32, 1f32, -1f32, 1.0f32,
+            1f32, 1f32, 1f32, 1.0f32,
+            1f32, 1f32, -1f32, 1.0f32,
+            1f32, 1f32, 1f32, 1.0f32,
+            -1f32, -1f32, 1f32, 1.0f32,
+            1f32, -1f32, 1f32, 1.0f32,
+            -1f32, 1f32, 1f32, 1.0f32,
+            -1f32, -1f32, -1f32, 1.0f32,
+            -1f32, -1f32, 1f32, 1.0f32,
+            1f32, -1f32, -1f32, 1.0f32,
+            -1f32, -1f32, 1f32, 1.0f32,
+            -1f32, -1f32, -1f32, 1.0f32,
+            1f32, 1f32, -1f32, 1.0f32,
+            1f32, -1f32, 1f32, 1.0f32,
+            1f32, -1f32, -1f32, 1.0f32,
+            -1f32, 1f32, -1f32, 1.0f32,
+            1f32, -1f32, -1f32, 1.0f32,
+            -1f32, -1f32, -1f32, 1.0f32,
+            -1f32, 1f32, -1f32, 1.0f32,
+            -1f32, 1f32, 1f32, 1.0f32,
+            1f32, 1f32, 1f32, 1.0f32,
+            1f32, 1f32, 1f32, 1.0f32,
+            -1f32, 1f32, 1f32, 1.0f32,
+            -1f32, -1f32, 1f32, 1.0f32,
+            -1f32, 1f32, 1f32, 1.0f32,
+            -1f32, 1f32, -1f32, 1.0f32,
+            -1f32, -1f32, -1f32, 1.0f32,
+            1f32, -1f32, -1f32, 1.0f32,
+            1f32, -1f32, 1f32, 1.0f32,
+            -1f32, -1f32, 1f32, 1.0f32,
+            1f32, 1f32, -1f32, 1.0f32,
+            1f32, 1f32, 1f32, 1.0f32,
+            1f32, -1f32, 1f32, 1.0f32,
+            -1f32, 1f32, -1f32, 1.0f32,
+            1f32, 1f32, -1f32, 1.0f32,
+            1f32, -1f32, -1f32, 1.0f32,
+        ];
+        let uv: [f32; 72] = [
+            0.875f32, 0.5f32, 
+            0.625f32, 0.75f32, 
+            0.625f32, 0.5f32, 
+            0.625f32, 0.75f32, 
+            0.375f32, 1f32, 
+            0.375f32, 0.75f32, 
+            0.625f32, 0f32, 
+            0.375f32, 0.25f32, 
+            0.375f32, 0f32, 
+            0.375f32, 0.5f32, 
+            0.125f32, 0.75f32, 
+            0.125f32, 0.5f32, 
+            0.625f32, 0.5f32, 
+            0.375f32, 0.75f32, 
+            0.375f32, 0.5f32, 
+            0.625f32, 0.25f32, 
+            0.375f32, 0.5f32, 
+            0.375f32, 0.25f32, 
+            0.875f32, 0.5f32, 
+            0.875f32, 0.75f32, 
+            0.625f32, 0.75f32, 
+            0.625f32, 0.75f32, 
+            0.625f32, 1f32, 
+            0.375f32, 1f32, 
+            0.625f32, 0f32, 
+            0.625f32, 0.25f32, 
+            0.375f32, 0.25f32, 
+            0.375f32, 0.5f32, 
+            0.375f32, 0.75f32, 
+            0.125f32, 0.75f32, 
+            0.625f32, 0.5f32, 
+            0.625f32, 0.75f32, 
+            0.375f32, 0.75f32, 
+            0.625f32, 0.25f32, 
+            0.625f32, 0.5f32, 
+            0.375f32, 0.5f32, 
+        ];
+        let normals: [f32; 108] = [
+            -0f32, 1f32, -0f32, 
+            -0f32, 1f32, -0f32, 
+            -0f32, 1f32, -0f32, 
+            -0f32, -0f32, 1f32, 
+            -0f32, -0f32, 1f32, 
+            -0f32, -0f32, 1f32, 
+            -1f32, -0f32, -0f32, 
+            -1f32, -0f32, -0f32, 
+            -1f32, -0f32, -0f32, 
+            -0f32, -1f32, -0f32, 
+            -0f32, -1f32, -0f32, 
+            -0f32, -1f32, -0f32, 
+            1f32, -0f32, -0f32, 
+            1f32, -0f32, -0f32, 
+            1f32, -0f32, -0f32, 
+            -0f32, -0f32, -1f32, 
+            -0f32, -0f32, -1f32, 
+            -0f32, -0f32, -1f32, 
+            -0f32, 1f32, -0f32, 
+            -0f32, 1f32, -0f32, 
+            -0f32, 1f32, -0f32, 
+            -0f32, -0f32, 1f32, 
+            -0f32, -0f32, 1f32, 
+            -0f32, -0f32, 1f32, 
+            -1f32, -0f32, -0f32, 
+            -1f32, -0f32, -0f32, 
+            -1f32, -0f32, -0f32, 
+            -0f32, -1f32, -0f32, 
+            -0f32, -1f32, -0f32, 
+            -0f32, -1f32, -0f32, 
+            1f32, -0f32, -0f32, 
+            1f32, -0f32, -0f32, 
+            1f32, -0f32, -0f32, 
+            -0f32, -0f32, -1f32, 
+            -0f32, -0f32, -1f32, 
+            -0f32, -0f32, -1f32, 
+        ];
+        Object::new(eng, &vertices, &uv, &normals, 36, vertexcode, shadowvertexcode, fragmentcode, unifroms, texid, cubeid, magfilter, minfilter, cull_mode, shcull_mode, repeat_mode, forpost)
+    }
+    #[allow(dead_code)]
+    pub fn collision_calc(&mut self, mmat: Mat4, pos: Vec3, size: Vec3, speed: Vec3){
+        self.incomp.resize(self.comp.ibs as usize, 0f32);
+            for i in 0..16 {
+                self.incomp[i] = mmat.mat[i];
+            }
+            self.incomp[16] = pos.x;
+            self.incomp[17] = pos.y;
+            self.incomp[18] = pos.z;
+            self.incomp[19] = size.x;
+            self.incomp[20] = size.y;
+            self.incomp[21] = size.z;
+            self.incomp[22] = speed.x;
+            self.incomp[23] = speed.y;
+            self.incomp[24] = speed.z;
+            self.incomp[25] = self.incomp.len() as f32;
+            for i in 26..self.modelvert.len()+26 {
+                self.incomp[i] = self.modelvert[i-26];
+            }
+            self.comp.execute(&self.incomp);
+    }
+    #[allow(dead_code)]
     pub fn draw(&mut self, eng: &mut Engine, unifroms: &Vec<Uniformstruct>){
         self.inuniform = 0;
         let mut mmat = Mat4::new();
@@ -172,24 +342,7 @@ impl Object {
         t.trans(self.pos);
         mmat.mul(&t);
         if self.collision_detect && !eng.inshadow{
-            self.incomp.resize(self.comp.ibs as usize, 0f32);
-            for i in 0..16 {
-                self.incomp[i] = mmat.mat[i];
-            }
-            self.incomp[16] = eng.pos.x;
-            self.incomp[17] = eng.pos.y;
-            self.incomp[18] = eng.pos.z;
-            self.incomp[19] = eng.size.x;
-            self.incomp[20] = eng.size.y;
-            self.incomp[21] = eng.size.z;
-            self.incomp[22] = eng.speed.x;
-            self.incomp[23] = eng.speed.y;
-            self.incomp[24] = eng.speed.z;
-            self.incomp[25] = self.incomp.len() as f32;
-            for i in 26..self.modelvert.len()+26 {
-                self.incomp[i] = self.modelvert[i-26];
-            }
-            self.comp.execute(&self.incomp);
+           self.collision_calc(mmat, eng.pos, eng.size, eng.speed)
         }
         for i in 0..unifroms.len(){
             self.mat = eng.projection;

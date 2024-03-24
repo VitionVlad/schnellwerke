@@ -23,28 +23,6 @@ pub fn main() {
     const SPEED: f32 = 0.1f32;
     let mut eng: Engine = Engine::new("render", 1f32, 8000);
 
-    let vertices: [f32; 24] = [
-        -1.0, -1.0, 1.0, 1.0,
-        -1.0, 1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0,
-
-        -1.0, -1.0, 1.0, 1.0,
-        1.0, 1.0, 1.0, 1.0,
-        1.0, -1.0, 1.0, 1.0
-    ];
-
-    let uv: [f32; 12] = [
-        0.0, 1.0,
-        0.0, 0.0,
-        1.0, 0.0,
-
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0,
-    ];
-
-    let normals: [f32; 18] = [0f32; 18];
-
     let mut uniforms: Vec<Uniformstruct> = vec![];
     uniforms.push(createmvpmat("mvp"));
     uniforms.push(createsmvpmat("smvp"));
@@ -100,11 +78,11 @@ pub fn main() {
     shaders.new_fragment_shader();
     shaders.fragment_begin_main();
     shaders.fragment_code += "
-      col += vec4f(textureSample(mycube, mySampler, in.vertex.xyz).rgb+1.0, 1);
+      col += vec4f(textureSample(mycube, mySampler, in.vertex.xyz).rgb+0.5, 1);
     ";
     shaders.fragment_end_main();
 
-    let mut skybox: Object = Object::new_from_obj(&eng, "cube", &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", "repeat", false);
+    let mut skybox: Object = Object::new_cube(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", "repeat", false);
     skybox.collision_detect = false;
     skybox.scale = Vec3::newdefined(1000f32, 1000f32, 1000f32);
 
@@ -116,7 +94,7 @@ pub fn main() {
     shaders.fragment_add_mainframebuffer();
     shaders.fragment_end_main();
 
-    let mut renquad: Object = Object::new(&eng, &vertices, &uv, &normals, 6, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
+    let mut renquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
     renquad.collision_detect = false;
     let mut rd = 1.0f32;
 
