@@ -21,7 +21,7 @@ extern {
 #[wasm_bindgen]
 pub fn main() {
     const SPEED: f32 = 6f32;
-    let mut eng: Engine = Engine::new("render", 1f32, 8000);
+    let mut eng: Engine = Engine::new("render", 1f32, 4000);
 
     let mut uniforms: Vec<Uniformstruct> = vec![];
     uniforms.push(createmvpmat("mvp"));
