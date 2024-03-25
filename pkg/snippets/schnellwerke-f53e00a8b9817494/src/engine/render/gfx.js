@@ -89,6 +89,9 @@ export class Gfxrender{
         this.currentworkingbufferssh = false;
         this.change = false;
         this.changesh = false;
+        this.rb = false;
+        this.exect = performance.now();
+        this.fexect = performance.now() - this.exect;
     }
     gfxgetcanvassizex(){
         return this.canvas.width;
@@ -110,6 +113,11 @@ export class Gfxrender{
         this.changesh = true;
     }
     gfxbeginpass(lop, dlop){
+        if(this.rb === false){
+            this.rb = true;
+            this.fexect = performance.now() - this.exect;
+            this.exect = performance.now();
+        }
         this.passbeg = true;
         this.inpost = true;
         this.isshadowpass = false;
@@ -129,6 +137,11 @@ export class Gfxrender{
         });
     }
     gfxbeginmainpass(lop, dlop){
+        if(this.rb === false){
+            this.rb = true;
+            this.fexect = performance.now() - this.exect;
+            this.exect = performance.now();
+        }
         this.passbeg = true;
         this.inpost = false;
         this.isshadowpass = false;
@@ -148,6 +161,11 @@ export class Gfxrender{
         });
     }
     gfxbeginshadowpass(dlop){
+        if(this.rb === false){
+            this.rb = true;
+            this.fexect = performance.now() - this.exect;
+            this.exect = performance.now();
+        }
         this.passbeg = true;
         this.inpost = false;
         this.isshadowpass = true;
@@ -206,6 +224,10 @@ export class Gfxrender{
             this.currentworkingbufferssh = !this.currentworkingbufferssh;
             this.changesh = false;
         }
+        this.rb = false;
+    }
+    gfxgetexectime(){
+        return this.fexect;
     }
 }
 

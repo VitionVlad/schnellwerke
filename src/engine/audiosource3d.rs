@@ -19,11 +19,8 @@ impl Audiosource3d{
     #[allow(dead_code)]
     pub fn play(&mut self, eng: &Engine){
         self.audsrc.play();
-        let mut powervol = (self.power - f32::sqrt(f32::powi(self.pos.x-eng.pos.x, 2)+f32::powi(self.pos.y-eng.pos.y, 2)+f32::powi(self.pos.z-eng.pos.z, 2)))/self.power;
-        if powervol < 0f32 {
-            powervol = 0f32;
-        }
-        self.audsrc.volume = eng.volume * powervol;
+        let powervol = (self.power - f32::sqrt(f32::powi(self.pos.x-eng.pos.x, 2)+f32::powi(self.pos.y-eng.pos.y, 2)+f32::powi(self.pos.z-eng.pos.z, 2)))/self.power;
+        self.audsrc.volume = f32::min(f32::max(eng.volume * powervol, 0.0f32), 1.0f32);
     }
     #[allow(dead_code)]
     pub fn stop(&mut self){

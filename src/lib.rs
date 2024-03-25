@@ -20,7 +20,7 @@ extern {
 
 #[wasm_bindgen]
 pub fn main() {
-    const SPEED: f32 = 0.1f32;
+    const SPEED: f32 = 6f32;
     let mut eng: Engine = Engine::new("render", 1f32, 8000);
 
     let mut uniforms: Vec<Uniformstruct> = vec![];
@@ -108,7 +108,7 @@ pub fn main() {
     eng.shadow_z_far = 220f32;
     eng.shadowrot = Vec2::newdefined(1.05f32, 1.05f32);
     let drawloop = move || {
-      eng.speed.y = 0.1;
+      eng.speed.y = SPEED;
       {
         eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;
         eng.rot.y += get_mouse_x() as f32/eng.ren.get_canvas_size_x()as f32;

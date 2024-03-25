@@ -34,7 +34,10 @@ extern {
     pub fn gfxendpass(this: &Gfxrender);
 
     #[wasm_bindgen(method)]
-    fn gfxfinishrender(this: &Gfxrender);
+    pub fn gfxfinishrender(this: &Gfxrender);
+
+    #[wasm_bindgen(method)]
+    pub fn gfxgetexectime(this: &Gfxrender) -> f64;
 
     pub type Gfxmesh;
     #[wasm_bindgen(constructor)]

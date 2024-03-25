@@ -27,6 +27,11 @@ pub struct Engine{
     pub shadow_z_far: f32,
     pub inshadow: bool,
     pub volume: f32,
+    pub frametime: f64,
+    pub fps: i32,
+    norm: u8,
+    fr: i32,
+    totdur: f64,
 }
 
 impl Engine{
@@ -52,6 +57,11 @@ impl Engine{
             shadow_z_far: 100f32,
             inshadow: false,
             volume: 1.0f32,
+            frametime: 0.0f64,
+            fps: 0,
+            fr: 0,
+            totdur: 0.0f64,
+            norm: 0,
         }
     }
     #[allow(dead_code)]
@@ -115,8 +125,24 @@ impl Engine{
     #[allow(dead_code)]
     pub fn end(&mut self){
         self.ren.end_render();
-        self.pos.sum(self.speed);
+        if self.norm > 1{
+            self.speed.x /= self.fps as f32;
+            self.speed.y /= self.fps as f32;
+            self.speed.z /= self.fps as f32;
+            self.pos.sum(self.speed);
+        }
         self.speed = Vec3::new();
         self.inshadow = false;
+        self.totdur += self.ren.jsren.gfxgetexectime();
+        self.fr += 1;
+        if self.totdur >= 1000.0f64 {
+            self.fps = self.fr;
+            self.frametime = self.totdur / self.fr as f64;
+            self.fr = 0;
+            self.totdur = 0.0f64;
+            if self.norm < 2{
+                self.norm += 1;
+            }
+        }
     }
 }
