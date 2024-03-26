@@ -22,6 +22,7 @@ export class Gfxrender{
           device: device,
           format: this.canvasFormat,
         });
+        console.log("Gfxrender: canvas format is: " + this.canvasFormat);
         console.log("Gfxrender: canvas resolution is: " + this.canvas.width + " " + this.canvas.height);
         this.depthTexture = [
             device.createTexture({
