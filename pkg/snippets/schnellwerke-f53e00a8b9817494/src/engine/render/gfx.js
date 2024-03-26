@@ -21,6 +21,7 @@ export class Gfxrender{
         this.context.configure({
           device: device,
           format: this.canvasFormat,
+          alphaMode: 'premultiplied',
         });
         console.log("Gfxrender: canvas format is: " + this.canvasFormat);
         console.log("Gfxrender: canvas resolution is: " + this.canvas.width + " " + this.canvas.height);
@@ -201,7 +202,7 @@ export class Gfxrender{
                 size: [this.canvas.width, this.canvas.height],
                 usage: GPUTextureUsage.RENDER_ATTACHMENT,
             });
-            this.mainPassTexture[Number(this.currentworkingbuffers)].destroy();
+            this.mainPassTexture[Number(!this.currentworkingbuffers)].destroy();
             this.mainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "m",
                 format: "rgba16float",
