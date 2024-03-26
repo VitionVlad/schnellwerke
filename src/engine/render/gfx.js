@@ -37,8 +37,6 @@ export class Gfxrender{
                 usage: GPUTextureUsage.RENDER_ATTACHMENT,
             })
         ];
-        this.oldresx = this.canvas.width;
-        this.oldresy = this.canvas.height;
         this.mainPassTexture = [
             device.createTexture({
                 label: "main1",
@@ -188,36 +186,34 @@ export class Gfxrender{
     gfxfinishrender(){
         device.queue.submit([this.encoder.finish()]);
         this.encoder = device.createCommandEncoder();
-        this.canvas.width = this.canvas.offsetWidth;
-        this.canvas.height = this.canvas.offsetHeight;
 
-        if(this.oldresx != this.canvas.width || this.oldresy != this.canvas.height || this.change){
+        if(this.canvas.offsetWidth !== this.canvas.width || this.canvas.offsetHeight !== this.canvas.height || this.change){
             console.log("Gfxrender: changing working buffers from " + Number(this.currentworkingbuffers) + " to " + Number(!this.currentworkingbuffers));
             this.depthTexture[Number(!this.currentworkingbuffers)].destroy();
             this.depthTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "d",
                 format: "depth24plus",
-                size: [this.canvas.width, this.canvas.height],
+                size: [this.canvas.offsetWidth, this.canvas.offsetHeight],
                 usage: GPUTextureUsage.RENDER_ATTACHMENT,
             });
-            this.mainPassTexture[Number(this.currentworkingbuffers)].destroy();
+            this.mainPassTexture[Number(!this.currentworkingbuffers)].destroy();
             this.mainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "m",
                 format: "rgba16float",
-                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             });
             this.mainPassDepthTexture[Number(!this.currentworkingbuffers)].destroy();
             this.mainPassDepthTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "md",
                 format: "depth24plus",
-                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
                 usage:  GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.RENDER_ATTACHMENT,
             });
             this.currentworkingbuffers = !this.currentworkingbuffers;
-            console.log("Gfxrender: canvas resized from: x="+this.oldresx+" to x="+this.canvas.width+" from y="+this.oldresy+" to y="+this.canvas.height);
-            this.oldresx = this.canvas.width;
-            this.oldresy = this.canvas.height;
+            console.log("Gfxrender: canvas resized from: x="+this.canvas.width+" to x="+this.canvas.offsetWidth+", from y="+this.canvas.height+" to y="+this.canvas.offsetHeight);
+            this.canvas.width = this.canvas.offsetWidth;
+            this.canvas.height = this.canvas.offsetHeight;
             this.change = false
         }
         if(this.changesh){

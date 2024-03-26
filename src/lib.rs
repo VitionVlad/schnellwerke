@@ -107,6 +107,7 @@ pub fn main() {
     eng.shadowfov = 50f32;
     eng.shadow_z_far = 220f32;
     eng.shadowrot = Vec2::newdefined(1.05f32, 1.05f32);
+
     let drawloop = move || {
       eng.speed.y = SPEED;
       {
@@ -185,13 +186,12 @@ pub fn main() {
       mesh11.draw(&mut eng, &uniforms);
 
       skybox.draw(&mut eng, &uniforms);
-
+      
       eng.begin_post("clear", "clear");
 
       renquad.draw(&mut eng, &uniforms);
 
       eng.end();
     };
-
     engine::render::render::drawloopexec(drawloop)
 }

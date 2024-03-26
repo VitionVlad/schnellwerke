@@ -5,17 +5,6 @@
     <title>demo</title>
   </head>
   <body>
-    <canvas style="
-      background-color: #000;
-      display: block;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 100%;
-      width: 100%;
-      " id="render" onclick="document.getElementById('render').requestPointerLock()"></canvas>
     <img src="assets/sponzaweb/textures/sponza_floor_a_diff.png" id="tex" style="display: none;"/>
     <img src="assets/sponzaweb/textures/spnza_bricks_a_diff.png" id="tex2" style="display: none;"/>
     <img src="assets/sponzaweb/textures/sponza_arch_diff.png" id="tex3" style="display: none;"/>
@@ -72,6 +61,19 @@
     <iframe src="assets/sponzaweb/roof.txt" type="text/plain" id="md11" style="display: none;"></iframe>
 
     <iframe src="assets/cube.txt" type="text/plain" id="cube" style="display: none;"></iframe>
+
+    <canvas style="
+      background-color: #000;
+      display: block;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      width: 100%;
+      " id="render" onclick="document.getElementById('render').requestPointerLock()"></canvas>
+      
     <script type="module">
       import init, { main } from "./pkg/schnellwerke.js";
       function mn(){
@@ -80,7 +82,7 @@
         });
       }
       console.log("demo is started");
-      setTimeout(10000, mn());
+      setTimeout(20000, mn());
     </script>
   </body>
 </html>
