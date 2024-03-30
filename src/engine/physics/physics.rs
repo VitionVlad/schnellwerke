@@ -43,9 +43,9 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
     pos.y = -in[17];
     var outval = 0f;
     for(var i = 26u; i < u32(in[25]);i+=12){
-        var v1 = mat * vec4f(in[i], in[i+1], in[i+2], in[i+3]);
-        var v2 = mat * vec4f(in[i+4], in[i+5], in[i+6], in[i+7]);
-        var v3 = mat * vec4f(in[i+8], in[i+9], in[i+10], in[i+11]);
+        var v1 = vec4f(in[i], in[i+1], in[i+2], in[i+3])     * mat;
+        var v2 = vec4f(in[i+4], in[i+5], in[i+6], in[i+7])   * mat;
+        var v3 = vec4f(in[i+8], in[i+9], in[i+10], in[i+11]) * mat;
 
         var bb = vec3f(
             bg3(v1.x, v2.x, v3.x),
@@ -58,8 +58,6 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
             sm3(v1.y, v2.y, v3.y),
             sm3(v1.z, v2.z, v3.z)
         ); 
-
-        var v = (v1+v2+v3)/3;
 
         if (pos.x >= sb.x-aabb.x) && (pos.x <= bb.x+aabb.x) &&
             (pos.z >= sb.z-aabb.z) && (pos.z <= bb.z+aabb.z) &&

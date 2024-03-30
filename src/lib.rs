@@ -10,6 +10,7 @@ use crate::engine::audiosource3d::Audiosource3d;
 use crate::engine::math::vec3::Vec3;
 use crate::engine::math::vec2::Vec2;
 use crate::engine::shader_builder::ShaderBuilder;
+use engine::animation::Keytiming;
 mod engine;
 
 #[wasm_bindgen]
@@ -20,7 +21,7 @@ extern {
 
 #[wasm_bindgen]
 pub fn main() {
-    const SPEED: f32 = 6f32;
+    const SPEED: f32 = 3.8f32;
     let mut eng: Engine = Engine::new("render", 1f32, 4000);
 
     let mut uniforms: Vec<Uniformstruct> = vec![];
@@ -74,6 +75,10 @@ pub fn main() {
     mesh11.scale = Vec3::newdefined(0.025, 0.025, 0.025);
     mesh11.collision_detect = false;
 
+    let mut mesh12: Object = Object::new_cube(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex11;stex11;ntex11", "", "linear", "linear", "none", "none", "repeat", false);
+
+    let mut anim = Keytiming::new(10000, &mesh12, Vec3::newdefined(0f32, 8f32, -5f32), Vec3::newdefined(10f32, 5f32, 2.5f32), Vec3::newdefined(1f32, 1.5f32, 1f32));
+
     shaders = ShaderBuilder::new_skybox(&uniforms);
     shaders.new_fragment_shader();
     shaders.fragment_begin_main();
@@ -96,6 +101,18 @@ pub fn main() {
 
     let mut renquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
     renquad.collision_detect = false;
+
+    shaders = ShaderBuilder::new_post_procces(&uniforms);
+    shaders.new_fragment_shader();
+    shaders.fragment_begin_main();
+    shaders.fragment_code += "
+      col += textureSample(shadowMap, mySampler, in.uv);
+    ";
+    shaders.fragment_end_main();
+
+    let mut reshnquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
+    reshnquad.collision_detect = false;
+
     let mut rd = 1.0f32;
 
     eng.pos.y = -20f32;
@@ -107,6 +124,8 @@ pub fn main() {
     eng.shadowfov = 50f32;
     eng.shadow_z_far = 220f32;
     eng.shadowrot = Vec2::newdefined(1.05f32, 1.05f32);
+
+    let mut showsh: bool = false;
 
     let drawloop = move || {
       eng.speed.y = SPEED;
@@ -128,6 +147,9 @@ pub fn main() {
         if is_key_pressed(68){
           eng.speed.x = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * -SPEED;
           eng.speed.z = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * -SPEED;
+        }
+        if is_key_pressed(78){
+          showsh = !showsh;
         }
         if is_key_pressed(77){
           as1.audsrc.playng = !as1.audsrc.playng;
@@ -170,6 +192,8 @@ pub fn main() {
       mesh9.draw(&mut eng, &uniforms);
       mesh10.draw(&mut eng, &uniforms);
       mesh11.draw(&mut eng, &uniforms);
+      anim.play(&eng, &mut mesh12);
+      mesh12.draw(&mut eng, &uniforms);
 
       eng.begin_main("clear", "clear");
 
@@ -184,12 +208,17 @@ pub fn main() {
       mesh9.draw(&mut eng, &uniforms);
       mesh10.draw(&mut eng, &uniforms);
       mesh11.draw(&mut eng, &uniforms);
+      mesh12.draw(&mut eng, &uniforms);
 
       skybox.draw(&mut eng, &uniforms);
       
       eng.begin_post("clear", "clear");
 
-      renquad.draw(&mut eng, &uniforms);
+      if showsh{
+        reshnquad.draw(&mut eng, &uniforms);
+      }else{
+        renquad.draw(&mut eng, &uniforms);
+      }
 
       eng.end();
     };

@@ -9,7 +9,6 @@ pub struct Object{
     pub pos: Vec3,
     pub rot: Vec3,
     pub scale: Vec3,
-    mat: Mat4,
     smat: Mat4,
     pub comp: Compute,
     incomp: Vec<f32>,
@@ -74,10 +73,9 @@ impl Object {
             pos: Vec3::new(),
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
-            mat: Mat4::new(),
             smat: Mat4::new(),
-            comp: Compute::create((lenght*4+23) as u32, 4, PHYSICS_GPU),
-            incomp: Vec::with_capacity((lenght*4+23) as usize),
+            comp: Compute::create((lenght*4+26) as u32, 4, PHYSICS_GPU),
+            incomp: Vec::with_capacity((lenght*4+26) as usize),
             collision_detect: true,
             modelvert: vertices.to_vec(),
             speed: Vec3::new(),
@@ -139,7 +137,6 @@ impl Object {
             pos: Vec3::new(),
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
-            mat: Mat4::new(),
             smat: Mat4::new(),
             comp: Compute::create((md.size*4+26) as u32, 4, PHYSICS_GPU),
             incomp: Vec::new(),
@@ -418,7 +415,7 @@ impl Object {
         Object::new(eng, &vertices, &uv, &normals, 36, vertexcode, shadowvertexcode, fragmentcode, unifroms, texid, cubeid, magfilter, minfilter, cull_mode, shcull_mode, repeat_mode, forpost)
     }
     #[allow(dead_code)]
-    pub fn collision_calc(&mut self, mmat: Mat4, pos: Vec3, size: Vec3, speed: Vec3){
+    pub fn collision_calc(&mut self, mmat: &Mat4, pos: Vec3, size: Vec3, speed: Vec3){
         self.incomp.resize(self.comp.ibs as usize, 0f32);
             for i in 0..16 {
                 self.incomp[i] = mmat.mat[i];
@@ -442,7 +439,7 @@ impl Object {
     pub fn draw(&mut self, eng: &mut Engine, unifroms: &Vec<Uniformstruct>){
         self.inuniform = 0;
         let mut mmat = Mat4::new();
-        mmat.scale(self.scale);
+        mmat.trans(self.pos);
 
         let mut t: Mat4 = Mat4::new();
         t.xrot(self.rot.x);
@@ -457,19 +454,13 @@ impl Object {
         mmat.mul(&t);
 
         t = Mat4::new();
-        t.trans(self.pos);
+        t.scale(self.scale);
         mmat.mul(&t);
+
         if self.collision_detect && !eng.inshadow{
-           self.collision_calc(mmat, eng.pos, eng.size, eng.speed)
+           self.collision_calc(&mmat, eng.pos, eng.size, eng.speed)
         }
         for i in 0..unifroms.len(){
-            self.mat = eng.projection;
-            self.smat = eng.shadowprojection;
-
-            self.smat.mul(&mmat);
-
-            self.mat.transpose();
-            self.smat.transpose();
             mmat.transpose();
             match unifroms[i].usage {
                 Usages::Float => {
@@ -508,7 +499,7 @@ impl Object {
                 },
                 Usages::Mvpmat => {
                     for b in 0..16{
-                        self.jsarr.set_index(b+self.inuniform, self.mat.mat[b as usize]);
+                        self.jsarr.set_index(b+self.inuniform, eng.projection.mat[b as usize]);
                     }
                     self.inuniform+=16;
                     for b in 0..16{
@@ -518,7 +509,7 @@ impl Object {
                 },
                 Usages::Smvpmat => {
                     for b in 0..16{
-                        self.jsarr.set_index(b+self.inuniform, self.smat.mat[b as usize]);
+                        self.jsarr.set_index(b+self.inuniform, eng.shadowprojection.mat[b as usize]);
                     }
                     self.inuniform+=16;
                 },

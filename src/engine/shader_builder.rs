@@ -75,7 +75,9 @@ impl ShaderBuilder {
             fn vertexMain(@location(0) pos: vec4f) -> @builtin(position) vec4f {
               return ubo.".to_string();
             vertex_shadow_code += &smvl.to_string();
-            vertex_shadow_code += &" * vec4f(pos.xyz, 1);
+            vertex_shadow_code += &" * ubo.";
+            vertex_shadow_code += &mvl.to_string();
+            vertex_shadow_code += "_mod * pos;
             }
             ";
         }
@@ -107,7 +109,7 @@ impl ShaderBuilder {
             vertex_code += &mvl.to_string();
             vertex_code += &"_proj * ubo.";
             vertex_code += &mvl.to_string();
-            vertex_code += "_mod * vec4f(pos.xyz, 1);
+            vertex_code += "_mod * pos;
             out.uv = vec2f(uv.x, 1.0-uv.y);
             out.norm = n;
             out.tangent = t;
@@ -117,9 +119,11 @@ impl ShaderBuilder {
             vertex_code += "_mod * pos;
             out.smv = ubo.";
             vertex_code += &smvl.to_string();
-            vertex_code += &" * vec4f(pos.xyz, 1);
+            vertex_code += &" * ubo.";
+            vertex_code += &mvl.to_string();
+            vertex_code += "_mod * pos;
             return out;
-            }".to_string();
+            }";
         }
 
         if mve == true && smve == false {

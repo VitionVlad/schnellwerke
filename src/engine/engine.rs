@@ -29,7 +29,7 @@ pub struct Engine{
     pub volume: f32,
     pub frametime: f64,
     pub fps: i32,
-    norm: u8,
+    pub norm: u8,
     fr: i32,
     totdur: f64,
 }
@@ -41,7 +41,7 @@ impl Engine{
             ren: Render::init(canvasid, renderscale, shadowmapres),
             projection: Mat4::new(),
             pos: Vec3::new(),
-            size: Vec3::newdefined(0.6f32, 4f32, 0.6f32),
+            size: Vec3::newdefined(0.2f32, 4f32, 0.2f32),
             speed: Vec3::new(),
             rot: Vec2::new(),
             orthographic: false,
@@ -83,6 +83,7 @@ impl Engine{
         t = Mat4::new();
         t.trans(Vec3::newdefined(self.pos.x, self.pos.y, self.pos.z));
         self.projection.mul(&t);
+        self.projection.transpose();
     }
     #[allow(dead_code)]
     pub fn calculate_shadow_projection(&mut self){
@@ -104,6 +105,7 @@ impl Engine{
         t = Mat4::new();
         t.trans(Vec3::newdefined(self.shadowpos.x, self.shadowpos.y, self.shadowpos.z));
         self.shadowprojection.mul(&t);
+        self.shadowprojection.transpose();
     }
     #[allow(dead_code)]
     pub fn begin_shadow(&mut self, loadop: &str){
