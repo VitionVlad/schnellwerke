@@ -232,7 +232,7 @@ export class Gfxrender{
             this.lastMainPassTexture[Number(!this.currentworkingbuffers)].destroy();
             this.lastMainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "lm",
-                format: "depth24plus",
+                format: "rgba16float",
                 size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
                 usage:  GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.COPY_DST,
             });
@@ -577,7 +577,7 @@ export class Gfxmesh{
                 },
                 {
                     binding: 5,
-                    resource: gfx.lastMainPassTexture[Number(gfx.currentworkingbufferssh)].createView()
+                    resource: gfx.lastMainPassTexture[Number(gfx.currentworkingbuffers)].createView()
                 },
                 {
                     binding: 6,
@@ -902,7 +902,7 @@ export class Gfxmesh{
                 },
                 {
                     binding: 5,
-                    resource: gfx.lastMainPassTexture[Number(gfx.currentworkingbufferssh)].createView()
+                    resource: gfx.lastMainPassTexture[Number(gfx.currentworkingbuffers)].createView()
                 },
                 {
                     binding: 6,
