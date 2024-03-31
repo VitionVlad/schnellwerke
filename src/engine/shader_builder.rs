@@ -479,7 +479,9 @@ impl ShaderBuilder {
 
             @group(0) @binding(4) var mycube: texture_cube<f32>;
 
-            @group(0) @binding(5) var shadowSampler: sampler_comparison;
+            @group(0) @binding(5) var mainMap: texture_2d<f32>;
+
+            @group(0) @binding(6) var shadowSampler: sampler_comparison;
 
             struct OUT{
               @location(0) uv: vec2f,

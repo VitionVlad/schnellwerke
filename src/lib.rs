@@ -79,6 +79,21 @@ pub fn main() {
 
     let mut anim = Keytiming::new(10000, &mesh12, Vec3::newdefined(0f32, 8f32, -5f32), Vec3::newdefined(10f32, 5f32, 2.5f32), Vec3::newdefined(1f32, 1.5f32, 1f32));
 
+    shaders.new_fragment_shader();
+    shaders.fragment_begin_main();
+    shaders.fragment_code += "
+      col += vec4(textureSample(mainMap, mySampler, in.uv).rgb, 1.0);
+    ";
+    shaders.fragment_end_main();
+
+    let mut reshnquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", false);
+    reshnquad.pos.x = 5f32;
+    reshnquad.rot.z = 1.5708f32;
+    reshnquad.rot.y = 1.5708f32;
+    reshnquad.rot.x = 1.5708f32;
+    reshnquad.pos.y = 3.8f32;
+    reshnquad.scale = Vec3::newdefined(1f32, 1f32, 1f32);
+
     shaders = ShaderBuilder::new_skybox(&uniforms);
     shaders.new_fragment_shader();
     shaders.fragment_begin_main();
@@ -102,17 +117,6 @@ pub fn main() {
     let mut renquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
     renquad.collision_detect = false;
 
-    shaders = ShaderBuilder::new_post_procces(&uniforms);
-    shaders.new_fragment_shader();
-    shaders.fragment_begin_main();
-    shaders.fragment_code += "
-      col += textureSample(shadowMap, mySampler, in.uv);
-    ";
-    shaders.fragment_end_main();
-
-    let mut reshnquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
-    reshnquad.collision_detect = false;
-
     let mut rd = 1.0f32;
 
     eng.pos.y = -20f32;
@@ -124,8 +128,6 @@ pub fn main() {
     eng.shadowfov = 50f32;
     eng.shadow_z_far = 220f32;
     eng.shadowrot = Vec2::newdefined(1.05f32, 1.05f32);
-
-    let mut showsh: bool = false;
 
     let drawloop = move || {
       eng.speed.y = SPEED;
@@ -147,9 +149,6 @@ pub fn main() {
         if is_key_pressed(68){
           eng.speed.x = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * -SPEED;
           eng.speed.z = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * -SPEED;
-        }
-        if is_key_pressed(78){
-          showsh = !showsh;
         }
         if is_key_pressed(77){
           as1.audsrc.playng = !as1.audsrc.playng;
@@ -194,6 +193,7 @@ pub fn main() {
       mesh11.draw(&mut eng, &uniforms);
       anim.play(&eng, &mut mesh12);
       mesh12.draw(&mut eng, &uniforms);
+      reshnquad.draw(&mut eng, &uniforms);
 
       eng.begin_main("clear", "clear");
 
@@ -209,16 +209,12 @@ pub fn main() {
       mesh10.draw(&mut eng, &uniforms);
       mesh11.draw(&mut eng, &uniforms);
       mesh12.draw(&mut eng, &uniforms);
-
+      reshnquad.draw(&mut eng, &uniforms);
       skybox.draw(&mut eng, &uniforms);
       
       eng.begin_post("clear", "clear");
 
-      if showsh{
-        reshnquad.draw(&mut eng, &uniforms);
-      }else{
-        renquad.draw(&mut eng, &uniforms);
-      }
+      renquad.draw(&mut eng, &uniforms);
 
       eng.end();
     };

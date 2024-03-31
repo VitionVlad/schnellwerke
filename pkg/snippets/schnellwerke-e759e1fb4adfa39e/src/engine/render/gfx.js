@@ -42,13 +42,27 @@ export class Gfxrender{
                 label: "main1",
                 format: "rgba16float",
                 size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
-                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
             }),
             device.createTexture({
                 label: "main2",
                 format: "rgba16float",
                 size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
-                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            })
+        ];
+        this.lastMainPassTexture = [
+            device.createTexture({
+                label: "lastmain1",
+                format: "rgba16float",
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+            }),
+            device.createTexture({
+                label: "lastmain2",
+                format: "rgba16float",
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
             })
         ];
         this.mainPassDepthTexture = [
@@ -140,6 +154,11 @@ export class Gfxrender{
             this.fexect = performance.now() - this.exect;
             this.exect = performance.now();
         }
+        this.encoder.copyTextureToTexture(
+            {texture: this.mainPassTexture[Number(this.currentworkingbuffers)]}, 
+            {texture: this.lastMainPassTexture[Number(this.currentworkingbuffers)]}, 
+            [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, 1]
+        );
         this.passbeg = true;
         this.inpost = false;
         this.isshadowpass = false;
@@ -201,7 +220,7 @@ export class Gfxrender{
                 label: "m",
                 format: "rgba16float",
                 size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
-                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
             });
             this.mainPassDepthTexture[Number(!this.currentworkingbuffers)].destroy();
             this.mainPassDepthTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
@@ -209,6 +228,13 @@ export class Gfxrender{
                 format: "depth24plus",
                 size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
                 usage:  GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.RENDER_ATTACHMENT,
+            });
+            this.lastMainPassTexture[Number(!this.currentworkingbuffers)].destroy();
+            this.lastMainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
+                label: "lm",
+                format: "depth24plus",
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
+                usage:  GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.COPY_DST,
             });
             this.currentworkingbuffers = !this.currentworkingbuffers;
             console.log("Gfxrender: canvas resized from: x="+this.canvas.width+" to x="+this.canvas.offsetWidth+", from y="+this.canvas.height+" to y="+this.canvas.offsetHeight);
@@ -346,6 +372,11 @@ export class Gfxmesh{
               },
               {
                 binding: 5,
+                visibility: GPUShaderStage.FRAGMENT,
+                texture: {},
+              },
+              {
+                binding: 6,
                 visibility: GPUShaderStage.FRAGMENT,
                 sampler: {
                     type: 'comparison',
@@ -546,6 +577,10 @@ export class Gfxmesh{
                 },
                 {
                     binding: 5,
+                    resource: gfx.lastMainPassTexture[Number(gfx.currentworkingbufferssh)].createView()
+                },
+                {
+                    binding: 6,
                     resource: device.createSampler({
                       compare: 'less',
                     }),
@@ -861,12 +896,16 @@ export class Gfxmesh{
                 },
                 {
                     binding: 4,
-                    resource:this.cubemap.createView({
+                    resource: this.cubemap.createView({
                         dimension: 'cube',
                     })
                 },
                 {
                     binding: 5,
+                    resource: gfx.lastMainPassTexture[Number(gfx.currentworkingbufferssh)].createView()
+                },
+                {
+                    binding: 6,
                     resource: device.createSampler({
                       compare: 'less',
                     }),
