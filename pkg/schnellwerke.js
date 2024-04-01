@@ -277,6 +277,14 @@ function __wbg_get_imports() {
     imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
         takeObject(arg0);
     };
+    imports.wbg.__wbg_gfxgetcanvassizex_31ac7aa4985b79bf = function(arg0) {
+        const ret = getObject(arg0).gfxgetcanvassizex();
+        return ret;
+    };
+    imports.wbg.__wbg_gfxgetcanvassizey_54757510270b9052 = function(arg0) {
+        const ret = getObject(arg0).gfxgetcanvassizey();
+        return ret;
+    };
     imports.wbg.__wbindgen_object_clone_ref = function(arg0) {
         const ret = getObject(arg0);
         return addHeapObject(ret);
@@ -293,22 +301,11 @@ function __wbg_get_imports() {
         const ret = false;
         return ret;
     };
-    imports.wbg.__wbg_gfxgetcanvassizey_54757510270b9052 = function(arg0) {
-        const ret = getObject(arg0).gfxgetcanvassizey();
-        return ret;
-    };
-    imports.wbg.__wbg_gfxgetcanvassizex_31ac7aa4985b79bf = function(arg0) {
-        const ret = getObject(arg0).gfxgetcanvassizex();
-        return ret;
-    };
     imports.wbg.__wbg_setvolume_7f21eccdd9cb28f9 = function(arg0, arg1) {
         getObject(arg0).setvolume(arg1);
     };
     imports.wbg.__wbg_play_3e42ef0ae142ae4c = function(arg0) {
         getObject(arg0).play();
-    };
-    imports.wbg.__wbg_gfxsetrenderscale_51e8f91a849757b5 = function(arg0, arg1) {
-        getObject(arg0).gfxsetrenderscale(arg1);
     };
     imports.wbg.__wbg_gfxendpass_e3a35797f3160ceb = function(arg0) {
         getObject(arg0).gfxendpass();
@@ -319,6 +316,12 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_new_943b55775f2795a5 = function(arg0, arg1, arg2, arg3) {
         const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
         return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_gfxsetrenderscale_51e8f91a849757b5 = function(arg0, arg1) {
+        getObject(arg0).gfxsetrenderscale(arg1);
+    };
+    imports.wbg.__wbg_gfxsetshadowmapres_61a9fff32f748324 = function(arg0, arg1) {
+        getObject(arg0).gfxsetshadowmapres(arg1);
     };
     imports.wbg.__wbg_gfxbeginshadowpass_35c183267a3563df = function(arg0, arg1, arg2) {
         getObject(arg0).gfxbeginshadowpass(getStringFromWasm0(arg1, arg2));
@@ -450,7 +453,7 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper66 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper67 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 3, __wbg_adapter_16);
         return addHeapObject(ret);
     };

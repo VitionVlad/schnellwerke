@@ -460,8 +460,39 @@ impl Object {
         if self.collision_detect && !eng.inshadow{
            self.collision_calc(&mmat, eng.pos, eng.size, eng.speed)
         }
+
+        mmat.transpose();
+        
+        for b in 0..16{
+            self.jsarr.set_index(b+self.inuniform, eng.projection.mat[b as usize]);
+        }
+        self.inuniform+=16;
+        for b in 0..16{
+            self.jsarr.set_index(b+self.inuniform, eng.shadowprojection.mat[b as usize]);
+        }
+        self.inuniform+=16;
+        for b in 0..16{
+            self.jsarr.set_index(b+self.inuniform, mmat.mat[b as usize]);
+        }
+        self.inuniform+=16;
+        self.jsarr.set_index(self.inuniform, eng.ren.get_canvas_size_x() as f32);
+        self.inuniform+=1;
+        self.jsarr.set_index(self.inuniform, eng.ren.get_canvas_size_y() as f32);
+        self.inuniform+=1;
+        self.jsarr.set_index(self.inuniform, 0.0f32);
+        self.inuniform+=1;
+        self.jsarr.set_index(self.inuniform, 0.0f32);
+        self.inuniform+=1;
+        self.jsarr.set_index(self.inuniform, eng.pos.x);
+        self.inuniform+=1;
+        self.jsarr.set_index(self.inuniform, eng.pos.y);
+        self.inuniform+=1;
+        self.jsarr.set_index(self.inuniform, eng.pos.z);
+        self.inuniform+=1;
+        self.jsarr.set_index(self.inuniform, 1.0f32);
+        self.inuniform+=1;
+
         for i in 0..unifroms.len(){
-            mmat.transpose();
             match unifroms[i].usage {
                 Usages::Float => {
                     self.jsarr.set_index(self.inuniform, unifroms[i].float);
@@ -494,22 +525,6 @@ impl Object {
                 Usages::Mat => {
                     for b in 0..16{
                         self.jsarr.set_index(b+self.inuniform, unifroms[i].mat.mat[b as usize]);
-                    }
-                    self.inuniform+=16;
-                },
-                Usages::Mvpmat => {
-                    for b in 0..16{
-                        self.jsarr.set_index(b+self.inuniform, eng.projection.mat[b as usize]);
-                    }
-                    self.inuniform+=16;
-                    for b in 0..16{
-                        self.jsarr.set_index(b+self.inuniform, mmat.mat[b as usize]);
-                    }
-                    self.inuniform+=16;
-                },
-                Usages::Smvpmat => {
-                    for b in 0..16{
-                        self.jsarr.set_index(b+self.inuniform, eng.shadowprojection.mat[b as usize]);
                     }
                     self.inuniform+=16;
                 },

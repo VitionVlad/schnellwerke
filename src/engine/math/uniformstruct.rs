@@ -10,8 +10,6 @@ pub enum Usages{
     Vec3,
     Vec4,
     Mat,
-    Mvpmat,
-    Smvpmat
 }
 
 #[allow(dead_code)]
@@ -91,34 +89,8 @@ pub fn createmat(value: Mat4, label: &str) -> Uniformstruct{
 }
 
 #[allow(dead_code)]
-pub fn createmvpmat(label: &str) -> Uniformstruct{
-    Uniformstruct{
-        usage: Usages::Mvpmat,
-        float: 0.0f32,
-        vec2: Vec2::new(),
-        vec3: Vec3::new(),
-        vec4: Vec4::new(),
-        mat: Mat4::new(),
-        label: label.to_string()
-    }
-}
-
-#[allow(dead_code)]
-pub fn createsmvpmat(label: &str) -> Uniformstruct{
-    Uniformstruct{
-        usage: Usages::Smvpmat,
-        float: 0.0f32,
-        vec2: Vec2::new(),
-        vec3: Vec3::new(),
-        vec4: Vec4::new(),
-        mat: Mat4::new(),
-        label: label.to_string()
-    }
-}
-
-#[allow(dead_code)]
 pub fn getsize(uniforms: &Vec<Uniformstruct>) -> i32{
-    let mut size: i32 = 0;
+    let mut size: i32 = 224;
     for i in 0..uniforms.len(){
         match uniforms[i].usage {
             Usages::Float => size += 4,
@@ -126,8 +98,6 @@ pub fn getsize(uniforms: &Vec<Uniformstruct>) -> i32{
             Usages::Vec3 => size += 12,
             Usages::Vec4 => size += 16,
             Usages::Mat => size += 64,
-            Usages::Mvpmat => size += 128,
-            Usages::Smvpmat => size += 64,
         }
     }
     return size;

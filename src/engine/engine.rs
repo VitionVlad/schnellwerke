@@ -30,6 +30,10 @@ pub struct Engine{
     pub frametime: f64,
     pub fps: i32,
     pub norm: u8,
+    pub renderscale: f32,
+    pub shadowmapres: i32,
+    oldrenderscale: f32,
+    oldshadowmapres: i32,
     fr: i32,
     totdur: f64,
 }
@@ -62,6 +66,10 @@ impl Engine{
             fr: 0,
             totdur: 0.0f64,
             norm: 0,
+            renderscale: renderscale,
+            shadowmapres: shadowmapres,
+            oldrenderscale: renderscale,
+            oldshadowmapres: shadowmapres,
         }
     }
     #[allow(dead_code)]
@@ -126,6 +134,14 @@ impl Engine{
     }
     #[allow(dead_code)]
     pub fn end(&mut self){
+        if self.renderscale != self.oldrenderscale {
+            self.ren.change_render_scale(self.renderscale);
+            self.oldrenderscale = self.renderscale;
+        }
+        if self.shadowmapres != self.oldshadowmapres {
+            self.ren.change_shadow_map_resolution(self.shadowmapres);
+            self.oldshadowmapres = self.shadowmapres;
+        }
         self.ren.end_render();
         if self.norm > 1{
             self.speed.x /= self.fps as f32;

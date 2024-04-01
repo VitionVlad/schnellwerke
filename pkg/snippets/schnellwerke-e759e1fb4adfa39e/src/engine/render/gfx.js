@@ -154,11 +154,13 @@ export class Gfxrender{
             this.fexect = performance.now() - this.exect;
             this.exect = performance.now();
         }
-        this.encoder.copyTextureToTexture(
-            {texture: this.mainPassTexture[Number(this.currentworkingbuffers)]}, 
-            {texture: this.lastMainPassTexture[Number(this.currentworkingbuffers)]}, 
-            [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, 1]
-        );
+        if(this.canvas.offsetWidth === this.canvas.width && this.canvas.offsetHeight === this.canvas.height){
+            this.encoder.copyTextureToTexture(
+                {texture: this.mainPassTexture[Number(this.currentworkingbuffers)]}, 
+                {texture: this.lastMainPassTexture[Number(this.currentworkingbuffers)]}, 
+                [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, 1]
+            );
+        }
         this.passbeg = true;
         this.inpost = false;
         this.isshadowpass = false;

@@ -25,16 +25,13 @@ pub fn main() {
     let mut eng: Engine = Engine::new("render", 1f32, 4000);
 
     let mut uniforms: Vec<Uniformstruct> = vec![];
-    uniforms.push(createmvpmat("mvp"));
-    uniforms.push(createsmvpmat("smvp"));
     uniforms.push(createvec4(Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32), "lightpos"));
     uniforms.push(createvec4(Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32), "lightcolor"));
-    uniforms.push(createvec4(Vec4::newdefined(0f32, 0f32, 0f32, 0.0f32), "playerpos"));
 
     let mut shaders = ShaderBuilder::new(&uniforms);
     shaders.new_fragment_shader();
     shaders.fragment_begin_main();
-    shaders.fragment_add_light(true, "lightcolor", "lightpos", "playerpos");
+    shaders.fragment_add_light(true, "lightcolor", "lightpos");
     shaders.fragment_end_main();
 
     let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", "repeat", false);
@@ -92,7 +89,7 @@ pub fn main() {
     reshnquad.rot.y = 1.5708f32;
     reshnquad.rot.x = 1.5708f32;
     reshnquad.pos.y = 3.8f32;
-    reshnquad.scale = Vec3::newdefined(1f32, 1f32, 1f32);
+    reshnquad.scale = Vec3::newdefined(3.8f32, 3.8f32, 1f32);
 
     shaders = ShaderBuilder::new_skybox(&uniforms);
     shaders.new_fragment_shader();
@@ -116,8 +113,6 @@ pub fn main() {
 
     let mut renquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
     renquad.collision_detect = false;
-
-    let mut rd = 1.0f32;
 
     eng.pos.y = -20f32;
 
@@ -160,23 +155,18 @@ pub fn main() {
           eng.pos.z = 0f32;
         }
         if is_key_pressed(75){
-          if rd > 0.1f32{
-            rd-=0.1;
+          if eng.renderscale > 0.1f32{
+            eng.renderscale-=0.1;
           }
-          eng.ren.change_render_scale(rd);
         }
         if is_key_pressed(76){
-          rd+=0.1;
-          eng.ren.change_render_scale(rd);
+          eng.renderscale+=0.1;
         }
         set_touch_index(0);
         if get_is_touching(){
           eng.rot.y += ((get_touch_x() as f32/eng.ren.get_canvas_size_x()as f32)*2.0f32 - 1.0f32) / 100f32;
         }
       }
-      uniforms[4].vec4.x = eng.pos.x;
-      uniforms[4].vec4.y = eng.pos.y;
-      uniforms[4].vec4.z = eng.pos.z;
 
       eng.begin_shadow("clear");
 
