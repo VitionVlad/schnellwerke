@@ -35,18 +35,15 @@ let normals: [f32; 18] = [...];
 Additionally, you need to construct a uniform buffer where you will store all the data you want to use later in your shaders. This includes information such as light positions, various matrices, and other pertinent data. This can be structured like so:  
 ```
 let mut uniforms: Vec<Uniformstruct> = vec![];
-uniforms.push(createmvpmat());
-uniforms.push(createsmvpmat());
-uniforms.push(createvec4(Vec4::new()));
-uniforms.push(createvec4(Vec4::new()));
-uniforms.push(createvec4(Vec4::new()));
+uniforms.push(createvec4(Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32), "lightpos"));
+uniforms.push(createvec4(Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32), "lightcolor"));
 ```  
 and use all this to create shaders and object:  
 ```
 let mut shaders = ShaderBuilder::new(&uniforms);
 shaders.new_fragment_shader();
 shaders.fragment_begin_main();
-shaders.fragment_add_light(true, "lightcolor", "lightpos", "playerpos");
+shaders.fragment_add_light(true, "lightcolor", "lightpos");
 shaders.fragment_end_main();
 
 let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", "repeat", false);
