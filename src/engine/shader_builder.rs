@@ -286,6 +286,7 @@ impl ShaderBuilder {
             @group(0) @binding(5) var mainDepthMap: texture_depth_2d;
 
             struct OUT{
+              @builtin(position) position: vec4f,
               @location(0) uv: vec2f,
               @location(1) vertex: vec4f,
             }
@@ -299,17 +300,17 @@ impl ShaderBuilder {
                 return tor;
               }
               fn bloom(uv: vec2f, off: f32) -> vec3f{
-                let offset = 1.0 / off;
+                let offset = vec2f(1.0 / (ubo.ress.x/8), 1.0 / (ubo.ress.y/8));
                 let offsets = array<vec2f, 9>( 
-                  vec2f(-offset,  offset),
-                  vec2f( 0.0f,    offset),
-                  vec2f( offset,  offset),
-                  vec2f(-offset,  0.0f),  
+                  vec2f(-offset.x,  offset.y),
+                  vec2f( 0.0f,    offset.y),
+                  vec2f( offset.x,  offset.y),
+                  vec2f(-offset.x,  0.0f),  
                   vec2f( 0.0f,    0.0f),  
-                  vec2f( offset,  0.0f),  
-                  vec2f(-offset, -offset),
-                  vec2f( 0.0f,   -offset),
-                  vec2f( offset, -offset) 
+                  vec2f( offset.x,  0.0f),  
+                  vec2f(-offset.x, -offset.y),
+                  vec2f( 0.0f,   -offset.y),
+                  vec2f( offset.x, -offset.y) 
                 );
                 let kernel = array<f32, 9>( 
                   1.0 / 16, 2.0 / 16, 1.0 / 16,
@@ -323,17 +324,17 @@ impl ShaderBuilder {
                 return col;
               }
               fn kbao(uv: vec2f, off: f32) -> vec3f{
-                let offset = 1.0 / off;
+                let offset = vec2f(1.0 / (ubo.ress.x/2), 1.0 / (ubo.ress.y/2));
                 let offsets = array<vec2f, 9>( 
-                  vec2f(-offset,  offset),
-                  vec2f( 0.0f,    offset),
-                  vec2f( offset,  offset),
-                  vec2f(-offset,  0.0f),  
+                  vec2f(-offset.x,  offset.y),
+                  vec2f( 0.0f,    offset.y),
+                  vec2f( offset.x,  offset.y),
+                  vec2f(-offset.x,  0.0f),  
                   vec2f( 0.0f,    0.0f),  
-                  vec2f( offset,  0.0f),  
-                  vec2f(-offset, -offset),
-                  vec2f( 0.0f,   -offset),
-                  vec2f( offset, -offset) 
+                  vec2f( offset.x,  0.0f),  
+                  vec2f(-offset.x, -offset.y),
+                  vec2f( 0.0f,   -offset.y),
+                  vec2f( offset.x, -offset.y) 
                 );
                 let kernel1 = array<f32, 9>( 
                   0.0, -2.5, 0.0,
@@ -368,6 +369,7 @@ impl ShaderBuilder {
             @group(0) @binding(6) var shadowSampler: sampler_comparison;
 
             struct OUT{
+              @builtin(position) position: vec4f,
               @location(0) uv: vec2f,
               @location(1) smv: vec4f,
               @location(2) norm: vec3f,

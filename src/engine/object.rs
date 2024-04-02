@@ -479,9 +479,9 @@ impl Object {
         self.inuniform+=1;
         self.jsarr.set_index(self.inuniform, eng.ren.get_canvas_size_y() as f32);
         self.inuniform+=1;
-        self.jsarr.set_index(self.inuniform, 0.0f32);
+        self.jsarr.set_index(self.inuniform, eng.renderscale);
         self.inuniform+=1;
-        self.jsarr.set_index(self.inuniform, 0.0f32);
+        self.jsarr.set_index(self.inuniform, eng.shadowmapres as f32);
         self.inuniform+=1;
         self.jsarr.set_index(self.inuniform, eng.pos.x);
         self.inuniform+=1;

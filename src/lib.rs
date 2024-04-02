@@ -77,9 +77,36 @@ pub fn main() {
     let mut anim = Keytiming::new(10000, &mesh12, Vec3::newdefined(0f32, 8f32, -5f32), Vec3::newdefined(10f32, 5f32, 2.5f32), Vec3::newdefined(1f32, 1.5f32, 1f32));
 
     shaders.new_fragment_shader();
+    shaders.fragment_code += "
+      fn blur(uv: vec2f) -> vec3f{
+        let offset = vec2f(1.0 / (ubo.ress.x/8), 1.0 / (ubo.ress.y/8));
+        let offsets = array<vec2f, 9>( 
+          vec2f(-offset.x,  offset.y),
+          vec2f( 0.0f,    offset.y),
+          vec2f( offset.x,  offset.y),
+          vec2f(-offset.x,  0.0f),  
+          vec2f( 0.0f,    0.0f),  
+          vec2f( offset.x,  0.0f),  
+          vec2f(-offset.x, -offset.y),
+          vec2f( 0.0f,   -offset.y),
+          vec2f( offset.x, -offset.y) 
+        );
+        let kernel = array<f32, 9>( 
+          1.0 / 16, 2.0 / 16, 1.0 / 16,
+          2.0 / 16, 4.0 / 16, 2.0 / 16,
+          1.0 / 16, 2.0 / 16, 1.0 / 16  
+        );
+        var col = vec3f(0.0, 0.0, 0.0);
+        for(var i = 0; i < 9; i+=1){
+          col += textureSample(mainMap, mySampler, uv + offsets[i]).rgb * kernel[i];
+        }
+        return col;
+      }
+    ";
     shaders.fragment_begin_main();
     shaders.fragment_code += "
-      col += vec4(textureSample(mainMap, mySampler, in.uv).rgb, 1.0);
+      let luv = vec2f(in.position.x/ubo.ress.x, in.position.y/ubo.ress.y);
+      col += vec4(blur(luv), 1.0);
     ";
     shaders.fragment_end_main();
 
@@ -199,9 +226,11 @@ pub fn main() {
       mesh10.draw(&mut eng, &uniforms);
       mesh11.draw(&mut eng, &uniforms);
       mesh12.draw(&mut eng, &uniforms);
-      reshnquad.draw(&mut eng, &uniforms);
       skybox.draw(&mut eng, &uniforms);
-      
+
+      eng.begin_main("load", "load");
+      reshnquad.draw(&mut eng, &uniforms);
+
       eng.begin_post("clear", "clear");
 
       renquad.draw(&mut eng, &uniforms);
