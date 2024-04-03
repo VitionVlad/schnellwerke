@@ -36,6 +36,8 @@ pub struct Engine{
     oldshadowmapres: i32,
     fr: i32,
     totdur: f64,
+    pub usemaxy: bool,
+    pub maxy: f32,
 }
 
 impl Engine{
@@ -45,7 +47,7 @@ impl Engine{
             ren: Render::init(canvasid, renderscale, shadowmapres),
             projection: Mat4::new(),
             pos: Vec3::new(),
-            size: Vec3::newdefined(0.2f32, 4f32, 0.2f32),
+            size: Vec3::newdefined(0.5f32, 4f32, 0.5f32),
             speed: Vec3::new(),
             rot: Vec2::new(),
             orthographic: false,
@@ -70,6 +72,8 @@ impl Engine{
             shadowmapres: shadowmapres,
             oldrenderscale: renderscale,
             oldshadowmapres: shadowmapres,
+            usemaxy: false,
+            maxy: 0.0f32,
         }
     }
     #[allow(dead_code)]
@@ -146,6 +150,11 @@ impl Engine{
         if self.norm > 1{
             self.speed.x /= self.fps as f32;
             self.speed.y /= self.fps as f32;
+            if self.usemaxy{
+                self.pos.y = -self.maxy - self.size.y;
+                self.usemaxy = false;
+                //self.speed.y = 0f32;
+            }
             self.speed.z /= self.fps as f32;
             self.pos.sum(self.speed);
         }

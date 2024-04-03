@@ -533,7 +533,8 @@ impl Object {
         self.mesh.draw(&eng.ren, self.jsarr.clone());
         self.is_interacting = self.comp.out_buf[0];
         if self.comp.out_buf[0] == 1f32 && !eng.inshadow && self.camera_collision_interact{
-            eng.speed.y = 0f32;
+            eng.usemaxy = true;
+            eng.maxy = self.comp.out_buf[1];
         }
         if self.comp.out_buf[0] == 2f32 && !eng.inshadow && self.camera_collision_interact{
             eng.speed.y = 0f32;

@@ -42,6 +42,8 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
     pos += normalize(speed)*aabb;
     pos.y = -in[17];
     var outval = 0f;
+    var maxy = 0.0;
+    var ch = 0;
     for(var i = 26u; i < u32(in[25]);i+=12){
         var v1 = vec4f(in[i], in[i+1], in[i+2], in[i+3])     * mat;
         var v2 = vec4f(in[i+4], in[i+5], in[i+6], in[i+7])   * mat;
@@ -62,7 +64,15 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
         if (pos.x >= sb.x-aabb.x) && (pos.x <= bb.x+aabb.x) &&
             (pos.z >= sb.z-aabb.z) && (pos.z <= bb.z+aabb.z) &&
             (pos.y - aabb.y <= bb.y){
-            outval = 1.0f;
+            if ch == 1 && maxy <= bb.y && pos.y >= bb.y{
+                outval = 1.0f;
+                maxy = bb.y;
+            }
+            if ch == 0 && pos.y >= bb.y{
+                outval = 1.0f;                                                                   
+                maxy = bb.y;
+                ch = 1;
+            }
             if ((pos.y - aabb.y*0.8 <= sb.y) || (pos.y - aabb.y*0.8 <= bb.y)) && (pos.y >= sb.y){
                 outval = 2.0f;
                 break;
@@ -70,7 +80,7 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
         }
     }
     out[0] = outval;
-    out[1] = pos.x;
+    out[1] = maxy;
     out[2] = pos.y;
     out[3] = pos.z;
 }";
