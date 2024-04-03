@@ -38,6 +38,11 @@ pub struct Engine{
     totdur: f64,
     pub usemaxy: bool,
     pub maxy: f32,
+    pub use_resolution_scale: bool,
+    pub min_scale: f32,
+    pub max_scale: f32,
+    pub scale_modifier: f32,
+    pub prefered_fps: i32,
 }
 
 impl Engine{
@@ -74,6 +79,11 @@ impl Engine{
             oldshadowmapres: shadowmapres,
             usemaxy: false,
             maxy: 0.0f32,
+            use_resolution_scale: false,
+            min_scale: 0.1f32,
+            max_scale: 1.0f32,
+            scale_modifier: 0.1,
+            prefered_fps: 60,
         }
     }
     #[allow(dead_code)]
@@ -169,6 +179,16 @@ impl Engine{
             self.totdur = 0.0f64;
             if self.norm < 2{
                 self.norm += 1;
+            }
+            if self.fps < self.prefered_fps && self.use_resolution_scale{
+                if self.renderscale > self.min_scale{
+                    self.renderscale -= self.scale_modifier;
+                }
+            }
+            if self.fps > self.prefered_fps && self.use_resolution_scale{
+                if self.renderscale < self.max_scale{
+                    self.renderscale += self.scale_modifier;
+                }
             }
         }
     }

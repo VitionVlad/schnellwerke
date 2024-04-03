@@ -23,6 +23,7 @@ extern {
 pub fn main() {
     const SPEED: f32 = 3.8f32;
     let mut eng: Engine = Engine::new("render", 1f32, 4000);
+    eng.use_resolution_scale = true;
 
     let mut uniforms: Vec<Uniformstruct> = vec![];
     uniforms.push(createvec4(Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32), "lightpos"));
