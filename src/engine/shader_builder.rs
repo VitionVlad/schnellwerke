@@ -380,7 +380,19 @@ impl ShaderBuilder {
             
             fn shadowmapping(smv: vec4f) -> f32{
                 let proj = vec3f((smv.x / smv.w)*0.5+0.5, (smv.y / smv.w)*-0.5+0.5, smv.z / smv.w);
-                return 1.0-textureSampleCompare(shadowMap, shadowSampler, proj.xy, proj.z-0.001);
+                var visibility = 0.0;
+                let oneOverShadowDepthTextureSize = 1.0 / ubo.ress.w;
+                for (var y = -1; y <= 1; y++) {
+                  for (var x = -1; x <= 1; x++) {
+                    let offset = vec2f(vec2(x, y)) * oneOverShadowDepthTextureSize;
+                  
+                    visibility += textureSampleCompare(
+                      shadowMap, shadowSampler,
+                      proj.xy + offset, proj.z - 0.0015
+                    );
+                  }
+                }
+                return 1.0 - (visibility / 9.0);
               }
           
               fn light(in: OUT, useshadows: bool, lightcolor: vec4f, lightpos: vec4f, playerpos: vec3f) -> vec4f{

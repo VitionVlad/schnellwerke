@@ -81,7 +81,7 @@ impl Engine{
             usemaxy: false,
             maxy: 0.0f32,
             use_resolution_scale: false,
-            min_scale: 0.1f32,
+            min_scale: 0.5f32,
             max_scale: 1.0f32,
             scale_modifier: 0.1,
             prefered_fps: 60,
@@ -160,20 +160,17 @@ impl Engine{
         }
         self.ren.end_render();
         if self.norm > 1{
-            if self.fps > 1{
-                self.speed.x /= self.fps as f32;
-                self.speed.y /= self.fps as f32;
-                if self.usemaxy{
-                    self.pos.y = -self.maxy - self.size.y;
-                    self.usemaxy = false;
-                }
-                self.speed.z /= self.fps as f32;
-            }else{
-                if self.usemaxy{
-                    self.pos.y = -self.maxy - self.size.y;
-                    self.usemaxy = false;
-                }
+            self.speed.x /= self.fps as f32;
+            self.speed.y /= self.fps as f32;
+            if self.usemaxy{
+                self.pos.y = -self.maxy - self.size.y;
+                self.usemaxy = false;
             }
+            if self.speed.y >= 1f32{
+                self.speed.y *= self.fps as f32;
+                self.speed.y /= self.prefered_fps as f32;
+            }
+            self.speed.z /= self.fps as f32;
             self.pos.sum(self.speed);
         }
         self.speed = Vec3::new();
@@ -193,7 +190,7 @@ impl Engine{
                     self.renderscale -= self.scale_modifier;
                 }
             }
-            if self.fps > self.prefered_fps + self.allowed_diff && self.use_resolution_scale{
+            if self.fps >= self.prefered_fps && self.use_resolution_scale{
                 if self.renderscale < self.max_scale{
                     self.renderscale += self.scale_modifier;
                 }
