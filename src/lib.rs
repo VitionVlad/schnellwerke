@@ -80,7 +80,7 @@ pub fn main() {
     shaders.new_fragment_shader();
     shaders.fragment_code += "
       fn blur(uv: vec2f) -> vec3f{
-        let offset = vec2f(1.0 / (ubo.ress.x/8), 1.0 / (ubo.ress.y/8));
+        let offset = vec2f(1.0 / (ubo.ress.x*ubo.ress.z/8), 1.0 / (ubo.ress.y*ubo.ress.z/8));
         let offsets = array<vec2f, 9>( 
           vec2f(-offset.x,  offset.y),
           vec2f( 0.0f,    offset.y),
@@ -106,7 +106,7 @@ pub fn main() {
     ";
     shaders.fragment_begin_main();
     shaders.fragment_code += "
-      let luv = vec2f(in.position.x/ubo.ress.x, in.position.y/ubo.ress.y);
+      let luv = vec2f(in.position.x/(ubo.ress.x*ubo.ress.z), in.position.y/(ubo.ress.y*ubo.ress.z));
       col += vec4(blur(luv), 1.0);
     ";
     shaders.fragment_end_main();
@@ -181,14 +181,6 @@ pub fn main() {
           eng.pos.y = -20f32;
           eng.pos.x = 0f32;
           eng.pos.z = 0f32;
-        }
-        if is_key_pressed(75){
-          if eng.renderscale > 0.1f32{
-            eng.renderscale-=0.1;
-          }
-        }
-        if is_key_pressed(76){
-          eng.renderscale+=0.1;
         }
         set_touch_index(0);
         if get_is_touching(){

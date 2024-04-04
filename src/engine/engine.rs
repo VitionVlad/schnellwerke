@@ -43,6 +43,7 @@ pub struct Engine{
     pub max_scale: f32,
     pub scale_modifier: f32,
     pub prefered_fps: i32,
+    pub allowed_diff: i32,
 }
 
 impl Engine{
@@ -84,6 +85,7 @@ impl Engine{
             max_scale: 1.0f32,
             scale_modifier: 0.1,
             prefered_fps: 60,
+            allowed_diff: 5,
         }
     }
     #[allow(dead_code)]
@@ -158,14 +160,20 @@ impl Engine{
         }
         self.ren.end_render();
         if self.norm > 1{
-            self.speed.x /= self.fps as f32;
-            self.speed.y /= self.fps as f32;
-            if self.usemaxy{
-                self.pos.y = -self.maxy - self.size.y;
-                self.usemaxy = false;
-                //self.speed.y = 0f32;
+            if self.fps > 1{
+                self.speed.x /= self.fps as f32;
+                self.speed.y /= self.fps as f32;
+                if self.usemaxy{
+                    self.pos.y = -self.maxy - self.size.y;
+                    self.usemaxy = false;
+                }
+                self.speed.z /= self.fps as f32;
+            }else{
+                if self.usemaxy{
+                    self.pos.y = -self.maxy - self.size.y;
+                    self.usemaxy = false;
+                }
             }
-            self.speed.z /= self.fps as f32;
             self.pos.sum(self.speed);
         }
         self.speed = Vec3::new();
@@ -180,12 +188,12 @@ impl Engine{
             if self.norm < 2{
                 self.norm += 1;
             }
-            if self.fps < self.prefered_fps && self.use_resolution_scale{
+            if self.fps < self.prefered_fps - self.allowed_diff && self.use_resolution_scale{
                 if self.renderscale > self.min_scale{
                     self.renderscale -= self.scale_modifier;
                 }
             }
-            if self.fps > self.prefered_fps && self.use_resolution_scale{
+            if self.fps > self.prefered_fps + self.allowed_diff && self.use_resolution_scale{
                 if self.renderscale < self.max_scale{
                     self.renderscale += self.scale_modifier;
                 }

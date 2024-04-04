@@ -300,7 +300,7 @@ impl ShaderBuilder {
                 return tor;
               }
               fn bloom(uv: vec2f, off: f32) -> vec3f{
-                let offset = vec2f(1.0 / (ubo.ress.x/8), 1.0 / (ubo.ress.y/8));
+                let offset = vec2f(1.0 / (ubo.ress.x*ubo.ress.z/8), 1.0 / (ubo.ress.y*ubo.ress.z/8));
                 let offsets = array<vec2f, 9>( 
                   vec2f(-offset.x,  offset.y),
                   vec2f( 0.0f,    offset.y),
@@ -324,7 +324,7 @@ impl ShaderBuilder {
                 return col;
               }
               fn kbao(uv: vec2f, off: f32) -> vec3f{
-                let offset = vec2f(1.0 / (ubo.ress.x/2), 1.0 / (ubo.ress.y/2));
+                let offset = vec2f(1.0 / (ubo.ress.x*ubo.ress.z/2), 1.0 / (ubo.ress.y*ubo.ress.z/2));
                 let offsets = array<vec2f, 9>( 
                   vec2f(-offset.x,  offset.y),
                   vec2f( 0.0f,    offset.y),
