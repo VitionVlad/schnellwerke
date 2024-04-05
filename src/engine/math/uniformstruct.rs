@@ -12,6 +12,15 @@ pub enum Usages{
     Mat,
 }
 
+#[derive(Clone, Copy)]
+#[derive(PartialEq)]
+#[allow(dead_code)]
+pub enum InShaderUsage{
+    LightPosition,
+    LightColor,
+    Custom,
+}
+
 #[allow(dead_code)]
 pub struct Uniformstruct{
     pub usage: Usages,
@@ -21,6 +30,7 @@ pub struct Uniformstruct{
     pub vec4: Vec4,
     pub mat: Mat4,
     pub label: String,
+    pub scene_usage: InShaderUsage,
 }
 
 #[allow(dead_code)]
@@ -32,7 +42,8 @@ pub fn createfloat(value: f32, label: &str) -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: Vec4::new(),
         mat: Mat4::new(),
-        label: label.to_string()
+        label: label.to_string(),
+        scene_usage: InShaderUsage::Custom,
     }
 }
 
@@ -45,7 +56,8 @@ pub fn createvec2(value: Vec2, label: &str) -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: Vec4::new(),
         mat: Mat4::new(),
-        label: label.to_string()
+        label: label.to_string(),
+        scene_usage: InShaderUsage::Custom,
     }
 }
 
@@ -58,7 +70,8 @@ pub fn createvec3(value: Vec3, label: &str) -> Uniformstruct{
         vec3: value,
         vec4: Vec4::new(),
         mat: Mat4::new(),
-        label: label.to_string()
+        label: label.to_string(),
+        scene_usage: InShaderUsage::Custom,
     }
 }
 
@@ -71,7 +84,22 @@ pub fn createvec4(value: Vec4, label: &str) -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: value,
         mat: Mat4::new(),
-        label: label.to_string()
+        label: label.to_string(),
+        scene_usage: InShaderUsage::Custom,
+    }
+}
+
+#[allow(dead_code)]
+pub fn createvec4_with_usage(value: Vec4, label: &str, usage: InShaderUsage) -> Uniformstruct{
+    Uniformstruct{
+        usage: Usages::Vec4,
+        float: 0.0f32,
+        vec2: Vec2::new(),
+        vec3: Vec3::new(),
+        vec4: value,
+        mat: Mat4::new(),
+        label: label.to_string(),
+        scene_usage: usage,
     }
 }
 
@@ -84,7 +112,8 @@ pub fn createmat(value: Mat4, label: &str) -> Uniformstruct{
         vec3: Vec3::new(),
         vec4: Vec4::new(),
         mat: value,
-        label: label.to_string()
+        label: label.to_string(),
+        scene_usage: InShaderUsage::Custom,
     }
 }
 

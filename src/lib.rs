@@ -26,8 +26,8 @@ pub fn main() {
     eng.use_resolution_scale = true;
 
     let mut uniforms: Vec<Uniformstruct> = vec![];
-    uniforms.push(createvec4(Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32), "lightpos"));
-    uniforms.push(createvec4(Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32), "lightcolor"));
+    uniforms.push(createvec4_with_usage(Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32), "lightpos", InShaderUsage::LightPosition));
+    uniforms.push(createvec4_with_usage(Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32), "lightcolor", InShaderUsage::LightColor));
 
     let mut shaders = ShaderBuilder::new(&uniforms);
     shaders.new_fragment_shader();

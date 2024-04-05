@@ -166,7 +166,7 @@ impl Engine{
                 self.pos.y = -self.maxy - self.size.y;
                 self.usemaxy = false;
             }
-            if self.speed.y >= 1f32{
+            if self.speed.y >= 1f32 && self.fps <= 5{
                 self.speed.y *= self.fps as f32;
                 self.speed.y /= self.prefered_fps as f32;
             }

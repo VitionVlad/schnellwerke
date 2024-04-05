@@ -9,3 +9,4 @@ pub mod audio;
 pub mod audiosource3d;
 pub mod shader_builder;
 pub mod animation;
+pub mod scene;
