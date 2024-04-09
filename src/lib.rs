@@ -11,6 +11,7 @@ use crate::engine::math::vec3::Vec3;
 use crate::engine::math::vec2::Vec2;
 use crate::engine::shader_builder::ShaderBuilder;
 use engine::animation::Keytiming;
+use engine::scene::Scene;
 mod engine;
 
 #[wasm_bindgen]
@@ -25,6 +26,25 @@ pub fn main() {
     let mut eng: Engine = Engine::new("render", 1f32, 4000);
     eng.use_resolution_scale = true;
 
+    let mut scene: Scene = Scene::new(1, true);
+    scene.light_shadow_source_pos = Vec3::newdefined(80f32, -142f32, -35f32);
+    scene.light_shadow_source_rot = Vec2::newdefined(1.05f32, 1.05f32);
+
+    scene.push_object(&eng, "md1", "tex;stex;ntex", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md2", "tex2;stex2;ntex2", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md3", "tex3;stex3;ntex3", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md4", "tex4;stex4;ntex4", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md5", "tex5;stex5;ntex5", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md6", "tex6;stex6;ntex6", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md7", "tex7;stex7;ntex7", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md8", "tex8;stex8;ntex8", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md9", "tex9;stex9;ntex9", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md10", "tex10;stex10;ntex10", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md11", "tex11;stex11;ntex11", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+
+    scene.lightsources[0].pos = Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32);
+    scene.lightsources[0].color = Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32);
+
     let mut uniforms: Vec<Uniformstruct> = vec![];
     uniforms.push(createvec4_with_usage(Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32), "lightpos", InShaderUsage::LightPosition));
     uniforms.push(createvec4_with_usage(Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32), "lightcolor", InShaderUsage::LightColor));
@@ -34,44 +54,6 @@ pub fn main() {
     shaders.fragment_begin_main();
     shaders.fragment_add_light(true, "lightcolor", "lightpos");
     shaders.fragment_end_main();
-
-    let mut mesh: Object = Object::new_from_obj(&eng, "md1", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex;stex;ntex", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-
-    let mut mesh2: Object = Object::new_from_obj(&eng, "md2", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex2;stex2;ntex2", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh2.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-    let mut mesh3: Object = Object::new_from_obj(&eng, "md3", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex3;stex3;ntex3", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh3.scale = Vec3::newdefined(0.025, 0.025, 0.025); 
-    mesh3.collision_detect = false;
-
-    let mut mesh4: Object = Object::new_from_obj(&eng, "md4", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex4;stex4;ntex4", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh4.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-    mesh4.collision_detect = false;
-
-    let mut mesh5: Object = Object::new_from_obj(&eng, "md5", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex5;stex5;ntex5", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh5.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-    
-    let mut mesh6: Object = Object::new_from_obj(&eng, "md6", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex6;stex6;ntex6", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh6.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-    mesh6.collision_detect = false;
-
-    let mut mesh7: Object = Object::new_from_obj(&eng, "md7", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex7;stex7;ntex7", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh7.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-    mesh7.collision_detect = false;
-
-    let mut mesh8: Object = Object::new_from_obj(&eng, "md8", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex8;stex8;ntex8", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh8.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-
-    let mut mesh9: Object = Object::new_from_obj(&eng, "md9", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex9;stex9;ntex9", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh9.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-    mesh9.collision_detect = false;
-
-    let mut mesh10: Object = Object::new_from_obj(&eng, "md10", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex10;stex10;ntex10", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh10.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-
-    let mut mesh11: Object = Object::new_from_obj(&eng, "md11", &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex11;stex11;ntex11", "", "linear", "linear", "none", "none", "repeat", false);
-    mesh11.scale = Vec3::newdefined(0.025, 0.025, 0.025);
-    mesh11.collision_detect = false;
 
     let mut mesh12: Object = Object::new_cube(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "tex11;stex11;ntex11", "", "linear", "linear", "none", "none", "repeat", false);
 
@@ -110,7 +92,6 @@ pub fn main() {
       col += vec4(blur(luv), 1.0);
     ";
     shaders.fragment_end_main();
-
     let mut reshnquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", false);
     reshnquad.pos.x = 5f32;
     reshnquad.rot.z = 1.5708f32;
@@ -126,7 +107,6 @@ pub fn main() {
       col += vec4f(textureSample(mycube, mySampler, in.vertex.xyz).rgb+0.5, 1);
     ";
     shaders.fragment_end_main();
-
     let mut skybox: Object = Object::new_cube(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "right;left;top;bottom;front;back", "linear", "linear", "front", "back", "repeat", false);
     skybox.collision_detect = false;
     skybox.scale = Vec3::newdefined(1000f32, 1000f32, 1000f32);
@@ -138,7 +118,6 @@ pub fn main() {
     shaders.fragment_add_kbao();
     shaders.fragment_add_mainframebuffer();
     shaders.fragment_end_main();
-
     let mut renquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &&shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", true);
     renquad.collision_detect = false;
 
@@ -146,11 +125,9 @@ pub fn main() {
 
     let mut as1 = Audiosource3d::new("assets/sample.mp3", Vec3::newdefined(0f32, -4f32, 0f32), 10f32);
 
-    eng.shadowpos = Vec3::newdefined(80f32, -142f32, -35f32);
     eng.shadoworthographic = true;
     eng.shadowfov = 50f32;
     eng.shadow_z_far = 220f32;
-    eng.shadowrot = Vec2::newdefined(1.05f32, 1.05f32);
 
     let drawloop = move || {
       eng.speed.y = SPEED;
@@ -188,36 +165,13 @@ pub fn main() {
         }
       }
 
-      eng.begin_shadow("clear");
-
-      mesh.draw(&mut eng, &uniforms);
-      mesh2.draw(&mut eng, &uniforms);
-      mesh3.draw(&mut eng, &uniforms);
-      mesh4.draw(&mut eng, &uniforms);
-      mesh5.draw(&mut eng, &uniforms);
-      mesh6.draw(&mut eng, &uniforms);
-      mesh7.draw(&mut eng, &uniforms);
-      mesh8.draw(&mut eng, &uniforms);
-      mesh9.draw(&mut eng, &uniforms);
-      mesh10.draw(&mut eng, &uniforms);
-      mesh11.draw(&mut eng, &uniforms);
+      scene.draw_shadow(&mut eng);
       anim.play(&eng, &mut mesh12);
       mesh12.draw(&mut eng, &uniforms);
-      reshnquad.draw(&mut eng, &uniforms);
 
       eng.begin_main("clear", "clear");
 
-      mesh.draw(&mut eng, &uniforms);
-      mesh2.draw(&mut eng, &uniforms);
-      mesh3.draw(&mut eng, &uniforms);
-      mesh4.draw(&mut eng, &uniforms);
-      mesh5.draw(&mut eng, &uniforms);
-      mesh6.draw(&mut eng, &uniforms);
-      mesh7.draw(&mut eng, &uniforms);
-      mesh8.draw(&mut eng, &uniforms);
-      mesh9.draw(&mut eng, &uniforms);
-      mesh10.draw(&mut eng, &uniforms);
-      mesh11.draw(&mut eng, &uniforms);
+      scene.draw(&mut eng);
       mesh12.draw(&mut eng, &uniforms);
       skybox.draw(&mut eng, &uniforms);
 
@@ -225,7 +179,6 @@ pub fn main() {
       reshnquad.draw(&mut eng, &uniforms);
 
       eng.begin_post("clear", "clear");
-
       renquad.draw(&mut eng, &uniforms);
 
       eng.end();
