@@ -80,34 +80,53 @@ If no image is passed or there aren't enough faces, the engine will automaticall
 10. Culling mode while rendering in main pass
 11. Culling mode while rendering in shadowmap pass
 12. Repeat mode
-13. If "forpost" is true, the mesh will be prepared to be rendered in the final pass, typically used for UI elements or post proccesing.
+13. If "forpost" is true, the mesh will be prepared to be rendered in the final pass, typically used for UI elements or post proccesing.  
+But if you have to render more objects, in the same scene, you can use scenes:
+```
+let mut scene: Scene = Scene::new(1, true);
+scene.light_shadow_source_pos = Vec3::newdefined(80f32, -142f32, -35f32);
+scene.light_shadow_source_rot = Vec2::newdefined(1.05f32, 1.05f32);
 
+scene.push_object(&eng, "md1", "tex;stex;ntex", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md2", "tex2;stex2;ntex2", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md3", "tex3;stex3;ntex3", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md4", "tex4;stex4;ntex4", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md5", "tex5;stex5;ntex5", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md6", "tex6;stex6;ntex6", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md7", "tex7;stex7;ntex7", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scece.push_object(&eng, "md8", "tex8;stex8;ntex8", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md9", "tex9;stex9;ntex9", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md10", "tex10;stex10;ntex10", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+scene.push_object(&eng, "md11", "tex11;stex11;ntex11", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+
+scene.lightsources[0].pos = Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32);
+scene.lightsources[0].color = Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32);
+```
+They automatically handle a lot of things, like lighting, or shader generation, which makes a lot of things much easier
 and finally rendering:
 ```
-//begin pass for shadow mapping
-eng.begin_shadow("clear");
+//rendering scene in shadow automatically begins a new renderpass
+scene.draw_shadow(&mut eng);
+anim.play(&eng, &mut mesh12);
+mesh12.draw(&mut eng, &uniforms);
 
-//draw mesh, first argument is engine handle, second is reference to uniform buffer, dont forget to modify it with values you need!
-mesh.draw(&mut eng, &uniforms);
-
-//begin main pass
 eng.begin_main("clear", "clear");
 
-//same as in shadow pass
-mesh.draw(&mut eng, &uniforms);
-
+scene.draw(&mut eng);
+mesh12.draw(&mut eng, &uniforms);
 skybox.draw(&mut eng, &uniforms);
 
-//begin post pass, here you render ui and applying post effects
-eng.begin_post("clear", "clear");
+//everytime you begin new renderpass, the data from last render is copied, and can be used in next renderpass call
+eng.begin_main("load", "load");
+reshnquad.draw(&mut eng, &uniforms);
 
+eng.begin_post("clear", "clear");
 renquad.draw(&mut eng, &uniforms);
-//end render
+
 eng.end();
 ```
 by the way, if you dont use shadowmapping, you can skip shadow pass, it will not affect rest of the render.  
-![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/e063a845-5112-4605-8f7b-dfc005290fa6)
-
+![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/afc294b5-61e9-4cb5-9140-48ee5039c656)
 by the way, before loading any data make sure you page with resources is completly loaded:
 ```
 import init, { main } from "./pkg/schnellwerke.js";
