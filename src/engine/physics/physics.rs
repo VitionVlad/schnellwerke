@@ -44,6 +44,13 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
     var outval = 0f;
     var maxy = 0.0;
     var ch = 0;
+
+    var cbb = vec3f(0.0);
+
+    var csb = vec3f(0.0);
+
+    var ch1 = false;
+
     for(var i = 26u; i < u32(in[25]);i+=12){
         var v1 = vec4f(in[i], in[i+1], in[i+2], in[i+3])     * mat;
         var v2 = vec4f(in[i+4], in[i+5], in[i+6], in[i+7])   * mat;
@@ -59,7 +66,32 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
             sm3(v1.x, v2.x, v3.x),
             sm3(v1.y, v2.y, v3.y),
             sm3(v1.z, v2.z, v3.z)
-        ); 
+        );
+
+        if !ch1{
+            cbb = bb;
+            csb = sb;
+            ch1 = !ch1;
+        }
+        if bb.x > cbb.x{
+            cbb.x = bb.x;
+        }
+        if bb.y > cbb.y{
+            cbb.y = bb.y;
+        }
+        if bb.z > cbb.z{
+            cbb.z = bb.z;
+        }
+
+        if sb.x < csb.x{
+            csb.x = sb.x;
+        }
+        if sb.y < csb.y{
+            csb.y = sb.y;
+        }
+        if sb.z < csb.z{
+            csb.z = sb.z;
+        }
 
         if (pos.x >= sb.x-aabb.x) && (pos.x <= bb.x+aabb.x) &&
             (pos.z >= sb.z-aabb.z) && (pos.z <= bb.z+aabb.z) &&
@@ -81,6 +113,10 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
     }
     out[0] = outval;
     out[1] = maxy;
-    out[2] = pos.y;
-    out[3] = pos.z;
+    out[2] = cbb.x;
+    out[3] = cbb.y;
+    out[4] = cbb.z;
+    out[5] = csb.x;
+    out[6] = csb.y;
+    out[7] = csb.z;
 }";

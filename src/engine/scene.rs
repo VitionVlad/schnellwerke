@@ -3,22 +3,6 @@ use crate::createvec4_with_usage;
 use super::{audiosource3d::Audiosource3d, engine::Engine, math::{uniformstruct::{InShaderUsage, Uniformstruct}, vec2::Vec2, vec3::Vec3, vec4::Vec4}, object::Object, shader_builder::ShaderBuilder};
 
 #[allow(dead_code)]
-pub struct SceneObject{
-    pub object: Object,
-    pub is_static: bool,
-}
-
-impl SceneObject {
-    #[allow(dead_code)]
-    pub fn new(obj: Object, is_static: bool) -> SceneObject{
-        SceneObject{
-            object: obj,
-            is_static: is_static,
-        }
-    }
-}
-
-#[allow(dead_code)]
 pub struct LightSource{
     pub pos: Vec4,
     pub color: Vec4,
@@ -40,12 +24,15 @@ impl LightSource {
 pub struct Scene{
     pub shaders: ShaderBuilder,
     pub uniformbuffer: Vec<Uniformstruct>,
-    pub objects: Vec<SceneObject>,
+    pub objects: Vec<Object>,
     pub audiosources: Vec<Audiosource3d>,
     pub lightsources: Vec<LightSource>,
     pub render_shadows: bool,
     pub light_shadow_source_pos: Vec3,
     pub light_shadow_source_rot: Vec2,
+    pub light_shadow_source_clip: Vec2,
+    pub light_shadow_source_ortho: bool,
+    pub light_shadow_source_fov: f32,
     pub min_filter: String,
     pub mag_filter: String,
     pub culling: String,
@@ -74,6 +61,9 @@ impl Scene {
             repeat_mode: "repeat".to_string(),
             shadow_loadop: "clear".to_string(),
             index: 0,
+            light_shadow_source_clip: Vec2::newdefined(0.1f32, 100f32),
+            light_shadow_source_ortho: false,
+            light_shadow_source_fov: 90f32,
         }
     }
     #[allow(dead_code)]
@@ -107,6 +97,9 @@ impl Scene {
             repeat_mode: "repeat".to_string(),
             shadow_loadop: "clear".to_string(),
             index: 0,
+            light_shadow_source_clip: Vec2::newdefined(0.1f32, 100f32),
+            light_shadow_source_ortho: false,
+            light_shadow_source_fov: 90f32,
         }
     }
     #[allow(dead_code)]
@@ -120,8 +113,8 @@ impl Scene {
         Scene::new_custom_uniform_buffer(uniforms, use_shadows)
     }
     #[allow(dead_code)]
-    pub fn push_custom_object(&mut self, object: Object, is_static: bool) {
-        self.objects.push(SceneObject::new(object, is_static));
+    pub fn push_custom_object(&mut self, object: Object) {
+        self.objects.push(object);
         self.index+=1;
     }
     #[allow(dead_code)]
@@ -129,39 +122,39 @@ impl Scene {
         self.audiosources.push(audio_source);
     }
     #[allow(dead_code)]
-    pub fn push_object(&mut self, eng: &Engine, modid: &str, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3, is_static: bool) {
-        self.push_custom_object(Object::new_from_obj(eng, modid, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false), is_static);
-        self.objects[self.index-1].object.pos = pos;
-        self.objects[self.index-1].object.rot = rot;
-        self.objects[self.index-1].object.scale = scale;
+    pub fn push_object(&mut self, eng: &Engine, modid: &str, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3) {
+        self.push_custom_object(Object::new_from_obj(eng, modid, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false));
+        self.objects[self.index-1].pos = pos;
+        self.objects[self.index-1].rot = rot;
+        self.objects[self.index-1].scale = scale;
     }
     #[allow(dead_code)]
-    pub fn push_object_vertices(&mut self, eng: &Engine, vertices: &[f32], uv: &[f32], normals: &[f32], lenght: i32, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3, is_static: bool) {
-        self.push_custom_object(Object::new(eng, vertices, uv, normals, lenght, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false), is_static);
-        self.objects[self.index-1].object.pos = pos;
-        self.objects[self.index-1].object.rot = rot;
-        self.objects[self.index-1].object.scale = scale;
+    pub fn push_object_vertices(&mut self, eng: &Engine, vertices: &[f32], uv: &[f32], normals: &[f32], lenght: i32, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3) {
+        self.push_custom_object(Object::new(eng, vertices, uv, normals, lenght, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false));
+        self.objects[self.index-1].pos = pos;
+        self.objects[self.index-1].rot = rot;
+        self.objects[self.index-1].scale = scale;
     }
     #[allow(dead_code)]
-    pub fn push_plane(&mut self, eng: &Engine, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3, is_static: bool) {
-        self.push_custom_object(Object::new_plane(eng, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false), is_static);
-        self.objects[self.index-1].object.pos = pos;
-        self.objects[self.index-1].object.rot = rot;
-        self.objects[self.index-1].object.scale = scale;
+    pub fn push_plane(&mut self, eng: &Engine, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3) {
+        self.push_custom_object(Object::new_plane(eng, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false));
+        self.objects[self.index-1].pos = pos;
+        self.objects[self.index-1].rot = rot;
+        self.objects[self.index-1].scale = scale;
     }
     #[allow(dead_code)]
-    pub fn push_cube(&mut self, eng: &Engine, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3, is_static: bool) {
-        self.push_custom_object(Object::new_cube(eng, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false), is_static);
-        self.objects[self.index-1].object.pos = pos;
-        self.objects[self.index-1].object.rot = rot;
-        self.objects[self.index-1].object.scale = scale;
+    pub fn push_cube(&mut self, eng: &Engine, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3) {
+        self.push_custom_object(Object::new_cube(eng, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false));
+        self.objects[self.index-1].pos = pos;
+        self.objects[self.index-1].rot = rot;
+        self.objects[self.index-1].scale = scale;
     }
     #[allow(dead_code)]
-    pub fn push_cube_planeuv(&mut self, eng: &Engine, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3, is_static: bool) {
-        self.push_custom_object(Object::new_cube_planeuv(eng, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false), is_static);
-        self.objects[self.index-1].object.pos = pos;
-        self.objects[self.index-1].object.rot = rot;
-        self.objects[self.index-1].object.scale = scale;
+    pub fn push_cube_planeuv(&mut self, eng: &Engine, texid: &str, cubeid: &str, pos: Vec3, rot: Vec3, scale: Vec3) {
+        self.push_custom_object(Object::new_cube_planeuv(eng, &self.shaders.vertex_code, &self.shaders.shadow_vertex_code, &self.shaders.fragment_code, &self.uniformbuffer, texid, cubeid, &self.mag_filter, &self.min_filter, &self.culling, &self.sh_culling, &self.repeat_mode, false));
+        self.objects[self.index-1].pos = pos;
+        self.objects[self.index-1].rot = rot;
+        self.objects[self.index-1].scale = scale;
     }
     #[allow(dead_code)]
     pub fn draw(&mut self, eng: &mut Engine) {
@@ -170,16 +163,20 @@ impl Scene {
             self.uniformbuffer[(self.lightsources[i].index + 1) as usize].vec4 = self.lightsources[i].color;
         }
         for i in 0..self.objects.len() {
-            self.objects[i].object.draw(eng, &self.uniformbuffer);
+            self.objects[i].draw(eng, &self.uniformbuffer);
         }
     }
     #[allow(dead_code)]
     pub fn draw_shadow(&mut self, eng: &mut Engine) {
         eng.shadowpos = self.light_shadow_source_pos;
         eng.shadowrot = self.light_shadow_source_rot;
+        eng.shadoworthographic = self.light_shadow_source_ortho;
+        eng.shadow_z_near = self.light_shadow_source_clip.x;
+        eng.shadow_z_far = self.light_shadow_source_clip.y;
+        eng.shadowfov = self.light_shadow_source_fov;
         eng.begin_shadow(&self.shadow_loadop);
         for i in 0..self.objects.len() {
-            self.objects[i].object.draw(eng, &self.uniformbuffer);
+            self.objects[i].draw(eng, &self.uniformbuffer);
         }
     }
 }

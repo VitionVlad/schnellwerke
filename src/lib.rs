@@ -30,17 +30,17 @@ pub fn main() {
     scene.light_shadow_source_pos = Vec3::newdefined(80f32, -142f32, -35f32);
     scene.light_shadow_source_rot = Vec2::newdefined(1.05f32, 1.05f32);
 
-    scene.push_object(&eng, "md1", "tex;stex;ntex", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md2", "tex2;stex2;ntex2", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md3", "tex3;stex3;ntex3", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md4", "tex4;stex4;ntex4", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md5", "tex5;stex5;ntex5", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md6", "tex6;stex6;ntex6", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md7", "tex7;stex7;ntex7", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md8", "tex8;stex8;ntex8", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md9", "tex9;stex9;ntex9", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md10", "tex10;stex10;ntex10", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
-    scene.push_object(&eng, "md11", "tex11;stex11;ntex11", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32), true);
+    scene.push_object(&eng, "md1", "tex;stex;ntex", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md2", "tex2;stex2;ntex2", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md3", "tex3;stex3;ntex3", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md4", "tex4;stex4;ntex4", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md5", "tex5;stex5;ntex5", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md6", "tex6;stex6;ntex6", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md7", "tex7;stex7;ntex7", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md8", "tex8;stex8;ntex8", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md9", "tex9;stex9;ntex9", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md10", "tex10;stex10;ntex10", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
+    scene.push_object(&eng, "md11", "tex11;stex11;ntex11", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
 
     scene.lightsources[0].pos = Vec4::newdefined(0.8f32, -1.0f32, -0.8f32, 0.0f32);
     scene.lightsources[0].color = Vec4::newdefined(1f32, 1f32, 1f32, 0.2f32);
@@ -60,36 +60,10 @@ pub fn main() {
     let mut anim = Keytiming::new(10000, &mesh12, Vec3::newdefined(0f32, 8f32, -5f32), Vec3::newdefined(10f32, 5f32, 2.5f32), Vec3::newdefined(1f32, 1.5f32, 1f32));
 
     shaders.new_fragment_shader();
-    shaders.fragment_code += "
-      fn blur(uv: vec2f) -> vec3f{
-        let offset = vec2f(1.0 / (ubo.ress.x*ubo.ress.z/8), 1.0 / (ubo.ress.y*ubo.ress.z/8));
-        let offsets = array<vec2f, 9>( 
-          vec2f(-offset.x,  offset.y),
-          vec2f( 0.0f,    offset.y),
-          vec2f( offset.x,  offset.y),
-          vec2f(-offset.x,  0.0f),  
-          vec2f( 0.0f,    0.0f),  
-          vec2f( offset.x,  0.0f),  
-          vec2f(-offset.x, -offset.y),
-          vec2f( 0.0f,   -offset.y),
-          vec2f( offset.x, -offset.y) 
-        );
-        let kernel = array<f32, 9>( 
-          1.0 / 16, 2.0 / 16, 1.0 / 16,
-          2.0 / 16, 4.0 / 16, 2.0 / 16,
-          1.0 / 16, 2.0 / 16, 1.0 / 16  
-        );
-        var col = vec3f(0.0, 0.0, 0.0);
-        for(var i = 0; i < 9; i+=1){
-          col += textureSample(mainMap, mySampler, uv + offsets[i]).rgb * kernel[i];
-        }
-        return col;
-      }
-    ";
     shaders.fragment_begin_main();
     shaders.fragment_code += "
       let luv = vec2f(in.position.x/(ubo.ress.x*ubo.ress.z), in.position.y/(ubo.ress.y*ubo.ress.z));
-      col += vec4(blur(luv), 1.0);
+      col += vec4(1.0 - textureSample(mainMap, mySampler, luv).rgb, 1.0);
     ";
     shaders.fragment_end_main();
     let mut reshnquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", false);
@@ -125,15 +99,21 @@ pub fn main() {
 
     let mut as1 = Audiosource3d::new("assets/sample.mp3", Vec3::newdefined(0f32, -4f32, 0f32), 10f32);
 
-    eng.shadoworthographic = true;
-    eng.shadowfov = 50f32;
-    eng.shadow_z_far = 220f32;
+    scene.light_shadow_source_ortho = true;
+    scene.light_shadow_source_clip.y = 220f32;
+    scene.light_shadow_source_fov = 50f32;
 
     let drawloop = move || {
       eng.speed.y = SPEED;
       {
         eng.rot.x += get_mouse_y() as f32/eng.ren.get_canvas_size_y()as f32;
         eng.rot.y += get_mouse_x() as f32/eng.ren.get_canvas_size_x()as f32;
+        if eng.rot.x > 1.5f32{
+          eng.rot.x = 1.5f32;
+        }
+        if eng.rot.x < -1.5f32{
+          eng.rot.x = -1.5f32;
+        }
         if is_key_pressed(87){
           eng.speed.z = f32::cos(eng.rot.x) * f32::cos(eng.rot.y) * SPEED;
           eng.speed.x = f32::cos(eng.rot.x) * f32::sin(eng.rot.y) * -SPEED;
