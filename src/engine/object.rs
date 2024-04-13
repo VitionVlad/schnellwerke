@@ -76,7 +76,7 @@ impl Object {
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
             smat: Mat4::new(),
-            comp: Compute::create((lenght*4+26) as u32, 16, PHYSICS_GPU),
+            comp: Compute::create((lenght*4+26) as u32, 2, PHYSICS_GPU),
             incomp: Vec::with_capacity((lenght*4+26) as usize),
             collision_detect: true,
             modelvert: vertices.to_vec(),
@@ -142,7 +142,7 @@ impl Object {
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
             smat: Mat4::new(),
-            comp: Compute::create((md.size*4+26) as u32, 16, PHYSICS_GPU),
+            comp: Compute::create((md.size*4+26) as u32, 2, PHYSICS_GPU),
             incomp: Vec::new(),
             collision_detect: true,
             modelvert: md.vert,
@@ -546,10 +546,6 @@ impl Object {
             eng.speed.y = 0f32;
             eng.speed.x = 0f32;
             eng.speed.z = 0f32;
-        }
-        if self.comp.out_buf.len() >= 8{
-            self.aabb1 = Vec3::newdefined(self.comp.out_buf[2], self.comp.out_buf[3], self.comp.out_buf[4]);
-            self.aabb2 = Vec3::newdefined(self.comp.out_buf[5], self.comp.out_buf[6], self.comp.out_buf[7]);
         }
         self.pos.sum(self.speed);
         self.speed = Vec3::new();
