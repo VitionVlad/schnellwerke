@@ -1,5 +1,4 @@
 use self::mat4::Mat4;
-use self::vec2::Vec2;
 use self::vec3::Vec3;
 
 use super::render::render::Render;
@@ -13,10 +12,10 @@ pub struct Engine{
     pub pos: math::vec3::Vec3,
     pub size: math::vec3::Vec3,
     pub speed: math::vec3::Vec3,
-    pub rot: math::vec2::Vec2,
+    pub rot: math::vec3::Vec3,
     pub shadowprojection: math::mat4::Mat4,
     pub shadowpos: math::vec3::Vec3,
-    pub shadowrot: math::vec2::Vec2,
+    pub shadowrot: math::vec3::Vec3,
     pub orthographic: bool,
     pub shadoworthographic: bool,
     pub fov: f32,
@@ -55,12 +54,12 @@ impl Engine{
             pos: Vec3::new(),
             size: Vec3::newdefined(0.5f32, 4f32, 0.5f32),
             speed: Vec3::new(),
-            rot: Vec2::new(),
+            rot: Vec3::new(),
             orthographic: false,
             fov: 90.0f32,
             shadowprojection: Mat4::new(),
             shadowpos: Vec3::new(),
-            shadowrot: Vec2::new(),
+            shadowrot: Vec3::new(),
             shadoworthographic: false,
             shadowfov: 90.0f32,
             z_near: 0.1f32,
@@ -105,6 +104,10 @@ impl Engine{
         self.projection.mul(&t);
 
         t = Mat4::new();
+        t.zrot(self.rot.z);
+        self.projection.mul(&t);
+
+        t = Mat4::new();
         t.trans(Vec3::newdefined(self.pos.x, self.pos.y, self.pos.z));
         self.projection.mul(&t);
         self.projection.transpose();
@@ -124,6 +127,10 @@ impl Engine{
 
         t = Mat4::new();
         t.yrot(self.shadowrot.y);
+        self.shadowprojection.mul(&t);
+
+        t = Mat4::new();
+        t.zrot(self.shadowrot.z);
         self.shadowprojection.mul(&t);
 
         t = Mat4::new();

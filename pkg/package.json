@@ -10,5 +10,8 @@
   "types": "schnellwerke.d.ts",
   "sideEffects": [
     "./snippets/*"
-  ]
+  ],
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0"
+  }
 }

@@ -8,7 +8,6 @@ use engine::input::touch::*;
 use wasm_bindgen::prelude::*;
 use crate::engine::audiosource3d::Audiosource3d;
 use crate::engine::math::vec3::Vec3;
-use crate::engine::math::vec2::Vec2;
 use crate::engine::shader_builder::ShaderBuilder;
 use engine::animation::Keytiming;
 use engine::scene::Scene;
@@ -28,7 +27,7 @@ pub fn main() {
 
     let mut scene: Scene = Scene::new(1, true);
     scene.light_shadow_source_pos = Vec3::newdefined(80f32, -142f32, -35f32);
-    scene.light_shadow_source_rot = Vec2::newdefined(1.05f32, 1.05f32);
+    scene.light_shadow_source_rot = Vec3::newdefined(1.05f32, 1.05f32, 0f32);
 
     scene.push_object(&eng, "md1", "tex;stex;ntex", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));
     scene.push_object(&eng, "md2", "tex2;stex2;ntex2", "", Vec3::new(), Vec3::new(), Vec3::newdefined(0.025f32, 0.025f32, 0.025f32));

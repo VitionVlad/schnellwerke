@@ -76,13 +76,20 @@
       
     <script type="module">
       import init, { main } from "./pkg/schnellwerke.js";
-      function mn(){
+      console.log("starting...");
+      if (document.readyState != "loading"){
+        console.log("still starting...");
         init().then(() => {
           main();
         });
+      }else{
+        document.addEventListener("DOMContentLoaded", (event) => {
+          console.log("still starting...");
+          init().then(() => {
+            main();
+          });
+        });
       }
-      console.log("demo is started");
-      setTimeout(20000, mn());
     </script>
   </body>
 </html>
