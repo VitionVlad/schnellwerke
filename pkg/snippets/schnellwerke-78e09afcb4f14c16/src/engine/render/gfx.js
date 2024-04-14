@@ -545,8 +545,8 @@ export class Gfxmesh{
                         texture: this.cubemap,
                     },
                     this.getPixels(cds[i]),
-                    { bytesPerRow: 4*document.getElementById(cds[i]).width },
-                    { width: document.getElementById(cds[i]).width, height: document.getElementById(cds[i]).height },
+                    { bytesPerRow: 4*document.getElementById(cds[0]).width },
+                    { width: document.getElementById(cds[0]).width, height: document.getElementById(cds[0]).height },
                 );
             }
         }
