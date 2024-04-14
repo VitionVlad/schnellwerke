@@ -153,3 +153,9 @@ Audio engine is based on Audio class in js which is based on html5 audio, nothin
 let mut as1 = Audiosource3d::new("assets/sample.mp3", Vec3::newdefined(0f32, -4f32, 0f32), 10f32);
 ```
 first is url, second is position, third is power, or max distance in which you still can hear something  
+# <p align="center"> Compatibility </p>  
+only real requerement is webgpu support, it may differ from browser to browser, but it still should work, mostly tested on chromium based browsers, and it works, even on andoid.
+![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/26b8285f-553c-4eef-87a3-a8b87d9d58ca)  
+by the way, it was optimized to work in such environment as electron:  
+![Captură de ecran 2024-04-14 184909](https://github.com/VitionVlad/schnellwerke/assets/48290199/0af4787d-bfe5-4ec0-af16-ccf0a4ddaa15)
+so you can build desktop apps in a such way
