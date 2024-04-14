@@ -5,6 +5,13 @@
     <title>demo</title>
   </head>
   <body>
+    <img src="assets/top.png" id="top" style="display: none;"/>
+    <img src="assets/bottom.png" id="bottom" style="display: none;"/>
+    <img src="assets/front.png" id="front" style="display: none;"/>
+    <img src="assets/back.png" id="back" style="display: none;"/>
+    <img src="assets/right.png" id="right" style="display: none;"/>
+    <img src="assets/left.png" id="left" style="display: none;"/>
+
     <img src="assets/sponzaweb/textures/sponza_floor_a_diff.png" id="tex" style="display: none;"/>
     <img src="assets/sponzaweb/textures/spnza_bricks_a_diff.png" id="tex2" style="display: none;"/>
     <img src="assets/sponzaweb/textures/sponza_arch_diff.png" id="tex3" style="display: none;"/>
@@ -41,13 +48,6 @@
     <img src="assets/sponzaweb/specular/vases.png" id="stex10" style="display: none;"/>
     <img src="assets/sponzaweb/specular/roofs.png" id="stex11" style="display: none;"/>
 
-    <img src="assets/top.png" id="top" style="display: none;"/>
-    <img src="assets/bottom.png" id="bottom" style="display: none;"/>
-    <img src="assets/front.png" id="front" style="display: none;"/>
-    <img src="assets/back.png" id="back" style="display: none;"/>
-    <img src="assets/right.png" id="right" style="display: none;"/>
-    <img src="assets/left.png" id="left" style="display: none;"/>
-
     <iframe src="assets/sponzaweb/floor.txt" type="text/plain" id="md1" style="display: none;"></iframe>
     <iframe src="assets/sponzaweb/wall.txt" type="text/plain" id="md2" style="display: none;"></iframe>
     <iframe src="assets/sponzaweb/arch.txt" type="text/plain" id="md3" style="display: none;"></iframe>
@@ -76,15 +76,16 @@
       
     <script type="module">
       import init, { main } from "./pkg/schnellwerke.js";
-      console.log("starting...");
-      if (document.readyState != "loading"){
-        console.log("still starting...");
+      console.log("Loading assets...");
+      if (document.readyState === "complete"){
+        console.log("Already loaded...");
         init().then(() => {
           main();
         });
       }else{
-        document.addEventListener("DOMContentLoaded", (event) => {
-          console.log("still starting...");
+        console.log("Still Loading...");
+        window.addEventListener("load", (event) => {
+          console.log("Already loaded...");
           init().then(() => {
             main();
           });

@@ -539,13 +539,14 @@ export class Gfxmesh{
                   GPUTextureUsage.RENDER_ATTACHMENT,
             });
             for(let i = 0; i < cds.length; i++){
-                device.queue.copyExternalImageToTexture(
-                    { source: document.getElementById(cds[i]) },
-                    { 
+                device.queue.writeTexture(
+                    {
+                        origin: [0, 0, i],
                         texture: this.cubemap,
-                        origin: [0, 0, i]
                     },
-                    [document.getElementById(cds[i]).width, document.getElementById(cds[i]).height]
+                    this.getPixels(cds[i]),
+                    { bytesPerRow: 4*document.getElementById(cds[i]).width },
+                    { width: document.getElementById(cds[i]).width, height: document.getElementById(cds[i]).height },
                 );
             }
         }
