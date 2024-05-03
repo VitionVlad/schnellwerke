@@ -19,6 +19,7 @@ pub struct Object{
     pub is_interacting: f32,
     pub aabb1: Vec3,
     pub aabb2: Vec3,
+    pub collision_matrix_multiply: bool,
 }
 
 impl Object {
@@ -85,6 +86,7 @@ impl Object {
             is_interacting: 0.0f32,
             aabb1: Vec3::new(),
             aabb2: Vec3::new(),
+            collision_matrix_multiply: true,
         }
     }
     #[allow(dead_code)]
@@ -151,6 +153,7 @@ impl Object {
             is_interacting: 0.0f32,
             aabb1: Vec3::new(),
             aabb2: Vec3::new(),
+            collision_matrix_multiply: true,
         }
     }
     #[allow(dead_code)]
@@ -425,6 +428,11 @@ impl Object {
         self.incomp.resize(self.comp.ibs as usize, 0f32);
             for i in 0..16 {
                 self.incomp[i] = mmat.mat[i];
+            }
+            if self.collision_matrix_multiply == true{
+                self.incomp[12] = 0.0f32;
+            }else{
+                self.incomp[12] = 10000.0f32;
             }
             self.incomp[16] = pos.x;
             self.incomp[17] = pos.y;

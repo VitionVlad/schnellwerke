@@ -46,9 +46,15 @@ fn sm3(a: f32, b: f32, c: f32) -> f32{
     var ch = 0;
 
     for(var i = 26u; i < u32(in[25]);i+=12){
-        var v1 = vec4f(in[i], in[i+1], in[i+2], in[i+3])     * mat;
-        var v2 = vec4f(in[i+4], in[i+5], in[i+6], in[i+7])   * mat;
-        var v3 = vec4f(in[i+8], in[i+9], in[i+10], in[i+11]) * mat;
+        var v1 = vec4f(in[i], in[i+1], in[i+2], in[i+3])     ;
+        var v2 = vec4f(in[i+4], in[i+5], in[i+6], in[i+7])   ;
+        var v3 = vec4f(in[i+8], in[i+9], in[i+10], in[i+11]) ;
+
+        if in[12] < 10000{
+            v1 *= mat;
+            v2 *= mat;
+            v3 *= mat;
+        }
 
         var bb = vec3f(
             bg3(v1.x, v2.x, v3.x),
