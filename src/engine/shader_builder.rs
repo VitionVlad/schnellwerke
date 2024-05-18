@@ -97,6 +97,7 @@ impl ShaderBuilder {
               smvp: mat4x4<f32>,
               mview: mat4x4<f32>,
               ress: vec4f,
+              playerpos: vec4f,
         ".to_string();
         for i in 0..uniformbuffer.len() {
             match uniformbuffer[i].usage{
@@ -388,7 +389,7 @@ impl ShaderBuilder {
                   
                     visibility += textureSampleCompare(
                       shadowMap, shadowSampler,
-                      proj.xy + offset, proj.z - 0.0015
+                      proj.xy + offset, proj.z - ubo.playerpos.w
                     );
                   }
                 }
@@ -490,6 +491,12 @@ impl ShaderBuilder {
     pub fn fragment_add_mainframebuffer(&mut self){
         self.fragment_code += &"
           col += vec4f(textureSample(mainMap, mySampler, in.uv).rgb, 1);
+        ".to_string();
+    }
+    #[allow(dead_code)]
+    pub fn fragment_add_shadowframebuffer(&mut self){
+        self.fragment_code += &"
+          col += vec4f(textureSample(shadowMap, mySampler, in.uv).rrr, 1);
         ".to_string();
     }
     #[allow(dead_code)]

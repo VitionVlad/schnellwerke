@@ -43,6 +43,7 @@ pub struct Engine{
     pub scale_modifier: f32,
     pub prefered_fps: i32,
     pub allowed_diff: i32,
+    pub bias: f32,
 }
 
 impl Engine{
@@ -85,6 +86,7 @@ impl Engine{
             scale_modifier: 0.1,
             prefered_fps: 60,
             allowed_diff: 5,
+            bias: 0.0015f32,
         }
     }
     #[allow(dead_code)]

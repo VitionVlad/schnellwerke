@@ -503,7 +503,7 @@ impl Object {
         self.inuniform+=1;
         self.jsarr.set_index(self.inuniform, eng.pos.z);
         self.inuniform+=1;
-        self.jsarr.set_index(self.inuniform, 1.0f32);
+        self.jsarr.set_index(self.inuniform, eng.bias);
         self.inuniform+=1;
 
         for i in 0..unifroms.len(){
