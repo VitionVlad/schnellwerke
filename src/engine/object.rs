@@ -456,11 +456,11 @@ impl Object {
         mmat.trans(self.pos);
 
         let mut t: Mat4 = Mat4::new();
-        t.xrot(self.rot.x);
+        t.yrot(self.rot.y);
         mmat.mul(&t);
 
         t = Mat4::new();
-        t.yrot(self.rot.y);
+        t.xrot(self.rot.x);
         mmat.mul(&t);
 
         t = Mat4::new();

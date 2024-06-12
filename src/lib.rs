@@ -67,9 +67,7 @@ pub fn main() {
     shaders.fragment_end_main();
     let mut reshnquad: Object = Object::new_plane(&eng, &shaders.vertex_code, &shaders.shadow_vertex_code, &shaders.fragment_code, &uniforms, "", "", "nearest", "nearest", "none", "none", "clamp-to-edge", false);
     reshnquad.pos.x = 5f32;
-    reshnquad.rot.z = 1.5708f32;
     reshnquad.rot.y = 1.5708f32;
-    reshnquad.rot.x = 1.5708f32;
     reshnquad.pos.y = 3.8f32;
     reshnquad.scale = Vec3::newdefined(3.8f32, 3.8f32, 1f32);
 
