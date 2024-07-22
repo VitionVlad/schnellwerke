@@ -1,6 +1,6 @@
 [package]
 name = "schnellwerke"
-version = "1.0.103"
+version = "2.0.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,6 +11,7 @@ crate-type = ["cdylib"]
 [dependencies]
 js-sys = "0.3.66"
 wasm-bindgen = "0.2.89"
+wasm-bindgen-futures = "0.4.42"
 wasm-timer = "0.2.5"
 
 [dependencies.web-sys]
