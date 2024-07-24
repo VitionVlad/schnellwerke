@@ -85,11 +85,11 @@ pub fn main() {
 
   @group(0) @binding(2) var myTexture: texture_2d_array<f32>;
 
-  @group(0) @binding(3) var shadowMap: texture_depth_2d;
+  @group(0) @binding(3) var shadowMap: texture_depth_2d_array;
 
   @group(0) @binding(4) var mycube: texture_cube<f32>;
 
-  @group(0) @binding(5) var mainMap: texture_2d<f32>;
+  @group(0) @binding(5) var mainMap: texture_2d_array<f32>;
 
   @group(0) @binding(6) var shadowSampler: sampler_comparison;
 
@@ -151,11 +151,11 @@ pub fn main() {
 
   @group(0) @binding(2) var myTexture: texture_2d_array<f32>;
 
-  @group(0) @binding(3) var shadowMap: texture_depth_2d;
+  @group(0) @binding(3) var shadowMap: texture_depth_2d_array;
 
-  @group(0) @binding(4) var mainMap: texture_2d<f32>;
+  @group(0) @binding(4) var mainMap: texture_2d_array<f32>;
 
-  @group(0) @binding(5) var mainDepthMap: texture_depth_2d;
+  @group(0) @binding(5) var mainDepthMap: texture_depth_2d_array;
 
   struct OUT{
     @location(0) uv: vec2f,
@@ -163,7 +163,7 @@ pub fn main() {
         
   @fragment
   fn fragmentMain(in: OUT) -> @location(0) vec4f {
-    return vec4f(textureSample(mainMap, mySampler, in.uv).rgb, 1);
+    return vec4f(textureSample(mainMap, mySampler, in.uv, 0).rgb, 1);
   }
   ";
 
@@ -209,7 +209,8 @@ pub fn main() {
   let mesh2: Mesh = Mesh::create(&ren, &v, &uv, &vn, &tn, 6, postvertex_code, svertex_code, postfragment_code, 16, "tex", "", "linear", "linear", "none", "none", "repeat", true);
   push_mesh(&mesh2.jsmesh);
 
-  let mainloop = Closure::new(move || {
+  ren.change_render_scale(1.0f32, 2);
+  let render_prepare_loop = Closure::new(move || {
     let mut ubm = Mat4::new();
     ubm.perspective(90f32, 100f32, 0.1f32, ren.get_canvas_size_x() as f32/ren.get_canvas_size_y() as f32);
     let mut t: Mat4 = Mat4::new();
@@ -227,7 +228,7 @@ pub fn main() {
     ubm.transpose();
     mesh1.set_ubo(&ubm.mat);
   });
-  set_func(&mainloop);
+  set_func(&render_prepare_loop);
   drawloop();
-  mainloop.forget();
+  render_prepare_loop.forget();
 }

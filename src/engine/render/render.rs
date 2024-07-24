@@ -14,16 +14,10 @@ extern {
     pub fn gfxgetcanvassizey(this: &Gfxrender) -> i32;
 
     #[wasm_bindgen(method)]
-    pub fn gfxsetrenderscale(this: &Gfxrender,renderscale: f32);
+    pub fn gfxsetrenderscale(this: &Gfxrender,renderscale: f32, mainpasslayers: u32);
 
     #[wasm_bindgen(method)]
-    pub fn gfxsetshadowmapres(this: &Gfxrender,shadowmapres: i32);
-
-    #[wasm_bindgen(method)]
-    pub fn setthisrender(this: &Gfxrender);
-
-    #[wasm_bindgen(method)]
-    pub fn startrender(this: &Gfxrender);
+    pub fn gfxsetshadowmapres(this: &Gfxrender,shadowmapres: i32, shadowmapcnt: u32);
 
     pub type Gfxmesh;
     #[wasm_bindgen(constructor)]
@@ -74,19 +68,11 @@ impl Render{
         self.jsren.gfxgetcanvassizey()
     }
     #[allow(dead_code)]
-    pub fn change_render_scale(&self, renderscale: f32){
-        self.jsren.gfxsetrenderscale(renderscale);
+    pub fn change_render_scale(&self, renderscale: f32, mainpasslayers: u32){
+        self.jsren.gfxsetrenderscale(renderscale, mainpasslayers);
     }
     #[allow(dead_code)]
-    pub fn change_shadow_map_resolution(&self, renderscale: i32){
-        self.jsren.gfxsetshadowmapres(renderscale);
-    }
-    #[allow(dead_code)]
-    pub fn setthisrender(&self){
-        self.jsren.setthisrender();
-    }
-    #[allow(dead_code)]
-    pub fn startrender(&self){
-        self.jsren.startrender();
+    pub fn change_shadow_map_resolution(&self, renderscale: i32, shadowmapcnt: u32){
+        self.jsren.gfxsetshadowmapres(renderscale, shadowmapcnt);
     }
 }

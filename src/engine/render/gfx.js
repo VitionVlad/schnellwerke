@@ -37,17 +37,18 @@ export class Gfxrender{
                 usage: GPUTextureUsage.RENDER_ATTACHMENT,
             })
         ];
+        this.mainpasslayers = 2;
         this.mainPassTexture = [
             device.createTexture({
                 label: "main1",
                 format: "rgba16float",
-                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
             }),
             device.createTexture({
                 label: "main2",
                 format: "rgba16float",
-                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
             })
         ];
@@ -55,13 +56,13 @@ export class Gfxrender{
             device.createTexture({
                 label: "lastmain1",
                 format: "rgba16float",
-                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
             }),
             device.createTexture({
                 label: "lastmain2",
                 format: "rgba16float",
-                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale],
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
             })
         ];
@@ -69,27 +70,28 @@ export class Gfxrender{
             device.createTexture({
                 label: "maindepth1",
                 format: "depth24plus",
-                size: [Number(this.canvas.width*this.rscale), Number(this.canvas.height*this.rscale)],
+                size: [Number(this.canvas.width*this.rscale), Number(this.canvas.height*this.rscale), this.mainpasslayers],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             }),
             device.createTexture({
                 label: "maindepth2",
                 format: "depth24plus",
-                size: [Number(this.canvas.width*this.rscale), Number(this.canvas.height*this.rscale)],
+                size: [Number(this.canvas.width*this.rscale), Number(this.canvas.height*this.rscale), this.mainpasslayers],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             })
         ];
+        this.shadowcount = 2;
         this.shadowTexture = [
             device.createTexture({
                 label: "shadow1",
                 format: "depth32float",
-                size: [this.shadowr, this.shadowr],
+                size: [this.shadowr, this.shadowr, this.shadowcount],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             }),
             device.createTexture({
                 label: "shadow2",
                 format: "depth32float",
-                size: [this.shadowr, this.shadowr],
+                size: [this.shadowr, this.shadowr, this.shadowcount],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             })
         ];
@@ -101,6 +103,8 @@ export class Gfxrender{
         this.currentworkingbufferssh = false;
         this.change = false;
         this.changesh = false;
+        this.renderlayers = 1;
+        this.rendershadows = 1;
     }
     gfxgetcanvassizex(){
         return this.canvas.width;
@@ -108,18 +112,32 @@ export class Gfxrender{
     gfxgetcanvassizey(){
         return this.canvas.height;
     }
-    gfxsetrenderscale(renderscale){
-        this.rscale = renderscale;
-        this.change = true;
+    gfxsetrenderscale(renderscale, mainpasslayers){
+        if(renderscale !== this.renderscale || this.mainpasslayers !== mainpasslayers){
+            this.mainpasslayers = mainpasslayers;
+            this.renderlayers = mainpasslayers;
+            if(this.mainpasslayers < 2){
+                this.mainpasslayers = 2;
+            }
+            this.rscale = renderscale;
+            this.change = true;
+        }
     }
-    gfxsetshadowmapres(shadowmapres){
-        this.shadowr = shadowmapres;
-        this.shadowTexture[Number(!this.currentworkingbufferssh)] = device.createTexture({
-            format: "depth32float",
-            size: [this.shadowr, this.shadowr],
-            usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
-        });
-        this.changesh = true;
+    gfxsetshadowmapres(shadowmapres, shadowmapcnt){
+        if(shadowmapres !== this.shadowmapres || this.shadowcount !== shadowmapcnt){
+            this.shadowcount = shadowmapcnt;
+            this.shadowr = shadowmapres;
+            this.rendershadows = shadowmapcnt;
+            if(this.shadowcount < 2){
+                this.shadowcount = 2;
+            }
+            this.shadowTexture[Number(!this.currentworkingbufferssh)] = device.createTexture({
+                format: "depth32float",
+                size: [this.shadowr, this.shadowr, this.shadowcount],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
+            });
+            this.changesh = true;
+        }
     }
     gfxbeginpass(lop, dlop){
         this.passbeg = true;
@@ -140,40 +158,51 @@ export class Gfxrender{
             }
         });
     }
-    gfxbeginmainpass(lop, dlop){
+    gfxcopylasttex(){
         if(this.canvas.offsetWidth === this.canvas.width && this.canvas.offsetHeight === this.canvas.height){
             this.encoder.copyTextureToTexture(
                 {texture: this.mainPassTexture[Number(this.currentworkingbuffers)]}, 
                 {texture: this.lastMainPassTexture[Number(this.currentworkingbuffers)]}, 
-                [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, 1]
+                [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers]
             );
         }
+    }
+    gfxbeginmainpass(lop, dlop, layer){
         this.passbeg = true;
         this.inpost = false;
         this.isshadowpass = false;
         this.pass = this.encoder.beginRenderPass({
             colorAttachments: [{
-               view: this.mainPassTexture[Number(this.currentworkingbuffers)].createView(),
+               view: this.mainPassTexture[Number(this.currentworkingbuffers)].createView({
+                    dimension: "2d",
+                    baseArrayLayer: layer,
+               }),
                clearValue: { r: 0, g: 0, b: 0, a: 1 },
                loadOp: lop,
                storeOp: "store",
             }],
             depthStencilAttachment: {
-                view: this.mainPassDepthTexture[Number(this.currentworkingbuffers)].createView(),
+                view: this.mainPassDepthTexture[Number(this.currentworkingbuffers)].createView({
+                    dimension: "2d",
+                    baseArrayLayer: layer,
+                }),
                 depthClearValue: 1.0,
                 depthLoadOp: dlop,
                 depthStoreOp: "store",
             }
         });
     }
-    gfxbeginshadowpass(dlop){
+    gfxbeginshadowpass(dlop, layer){
         this.passbeg = true;
         this.inpost = false;
         this.isshadowpass = true;
         this.pass = this.encoder.beginRenderPass({
             colorAttachments: [],
             depthStencilAttachment: {
-                view: this.shadowTexture[Number(this.currentworkingbufferssh)].createView(),
+                view: this.shadowTexture[Number(this.currentworkingbufferssh)].createView({
+                    dimension: "2d",
+                    baseArrayLayer: layer,
+                }),
                 depthClearValue: 1.0,
                 depthLoadOp: dlop,
                 depthStoreOp: "store",
@@ -186,10 +215,7 @@ export class Gfxrender{
             this.passbeg = false;
         }
     }
-    gfxfinishrender(){
-        device.queue.submit([this.encoder.finish()]);
-        this.encoder = device.createCommandEncoder();
-
+    gfxcheckchange(){
         if(this.canvas.offsetWidth !== this.canvas.width || this.canvas.offsetHeight !== this.canvas.height || this.change){
             console.log("Gfxrender: changing working buffers from " + Number(this.currentworkingbuffers) + " to " + Number(!this.currentworkingbuffers));
             this.depthTexture[Number(!this.currentworkingbuffers)].destroy();
@@ -203,21 +229,21 @@ export class Gfxrender{
             this.mainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "m",
                 format: "rgba16float",
-                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
             });
             this.mainPassDepthTexture[Number(!this.currentworkingbuffers)].destroy();
             this.mainPassDepthTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "md",
                 format: "depth24plus",
-                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
                 usage:  GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.RENDER_ATTACHMENT,
             });
             this.lastMainPassTexture[Number(!this.currentworkingbuffers)].destroy();
             this.lastMainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "lm",
                 format: "rgba16float",
-                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale],
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
                 usage:  GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.COPY_DST,
             });
             this.currentworkingbuffers = !this.currentworkingbuffers;
@@ -230,6 +256,10 @@ export class Gfxrender{
             this.currentworkingbufferssh = !this.currentworkingbufferssh;
             this.changesh = false;
         }
+    }
+    gfxfinishrender(){
+        device.queue.submit([this.encoder.finish()]);
+        this.encoder = device.createCommandEncoder();
     }
 }
 
@@ -340,6 +370,7 @@ export class Gfxmesh{
                 binding: 3,
                 visibility: GPUShaderStage.FRAGMENT,
                 texture: {
+                    viewDimension: "2d-array",
                     sampleType: 'depth',
                   },
               },
@@ -353,7 +384,9 @@ export class Gfxmesh{
               {
                 binding: 5,
                 visibility: GPUShaderStage.FRAGMENT,
-                texture: {},
+                texture: {
+                    viewDimension: "2d-array",
+                },
               },
               {
                 binding: 6,
@@ -599,18 +632,22 @@ export class Gfxmesh{
                 binding: 3,
                 visibility: GPUShaderStage.FRAGMENT,
                 texture: {
+                    viewDimension: "2d-array",
                     sampleType: 'depth',
                   },
               },
               {
                 binding: 4,
                 visibility: GPUShaderStage.FRAGMENT,
-                texture: {},
+                texture: {
+                    viewDimension: "2d-array",
+                },
               },
               {
                 binding: 5,
                 visibility: GPUShaderStage.FRAGMENT,
                 texture: {
+                    viewDimension: "2d-array",
                     sampleType: 'depth',
                   },
               },
@@ -1037,18 +1074,22 @@ var perframefunc = null;
 
 export function drawloop(){
     perframefunc();
-    gfxr.gfxbeginshadowpass("clear");
-    for(var i = 0; i != gfxms.length; i+=1){
-        gfxms[i].draw(gfxr);
+    gfxr.gfxcheckchange();
+    gfxr.gfxcopylasttex();
+    for(var i = 0; i !== gfxr.rendershadows; i += 1){
+        gfxr.gfxbeginshadowpass("clear", i);
+        for(var b = 0; b != gfxms.length; b+=1){
+            gfxms[b].draw(gfxr);
+        }
+        gfxr.gfxendpass();
     }
-    gfxr.gfxendpass();
-
-    gfxr.gfxbeginmainpass("clear", "clear");
-    for(var i = 0; i != gfxms.length; i+=1){
-        gfxms[i].draw(gfxr);
+    for(var i = 0; i !== gfxr.renderlayers; i += 1){
+        gfxr.gfxbeginmainpass("clear", "clear", i);
+        for(var b = 0; b != gfxms.length; b+=1){
+            gfxms[b].draw(gfxr);
+        }
+        gfxr.gfxendpass();
     }
-    gfxr.gfxendpass();
-
     gfxr.gfxbeginpass("clear", "clear");
     for(var i = 0; i != gfxms.length; i+=1){
         gfxms[i].draw(gfxr);
@@ -1072,3 +1113,10 @@ export function set_render(ren){
 export function set_func(func){
     perframefunc = func;
 }
+
+//function check(){
+//    console.log("check!");
+//    setTimeout(check, 5);
+//}
+//
+//check();

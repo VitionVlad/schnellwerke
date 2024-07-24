@@ -173,6 +173,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_pushmesh_ad91b1ecd9519656 = function(arg0) {
         push_mesh(getObject(arg0));
     };
+    imports.wbg.__wbg_gfxsetrenderscale_b8e9b2e9c6279ed6 = function(arg0, arg1, arg2) {
+        getObject(arg0).gfxsetrenderscale(arg1, arg2 >>> 0);
+    };
     imports.wbg.__wbg_setfunc_831daff3274a541a = function(arg0) {
         set_func(getObject(arg0));
     };
@@ -209,7 +212,7 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper28 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper29 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 3, __wbg_adapter_8);
         return addHeapObject(ret);
     };
