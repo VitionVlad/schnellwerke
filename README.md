@@ -1,3 +1,2 @@
 # <p align="center"> <img src="https://github.com/VitionVlad/schnellwerke/blob/main/logo.png"> </p>
-![image](https://github.com/VitionVlad/schnellwerke/assets/48290199/611dbad6-25f9-489d-83a4-d3ea9f526bed)
 Version 2.0, work in progress...
