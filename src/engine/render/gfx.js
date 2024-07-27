@@ -113,7 +113,7 @@ export class Gfxrender{
         return this.canvas.height;
     }
     gfxsetrenderscale(renderscale, mainpasslayers){
-        if(renderscale !== this.renderscale || this.mainpasslayers !== mainpasslayers){
+        if(renderscale !== this.renderscale || this.renderlayers !== mainpasslayers){
             this.mainpasslayers = mainpasslayers;
             this.renderlayers = mainpasslayers;
             if(this.mainpasslayers < 2){
@@ -124,7 +124,7 @@ export class Gfxrender{
         }
     }
     gfxsetshadowmapres(shadowmapres, shadowmapcnt){
-        if(shadowmapres !== this.shadowmapres || this.shadowcount !== shadowmapcnt){
+        if(shadowmapres !== this.shadowmapres || this.rendershadows !== shadowmapcnt){
             this.shadowcount = shadowmapcnt;
             this.shadowr = shadowmapres;
             this.rendershadows = shadowmapcnt;
@@ -785,6 +785,13 @@ export class Gfxmesh{
             ],
         });
     }
+    createub(ubol){
+        this.uniformBuffer.destroy();
+        this.uniformBuffer = device.createBuffer({
+            size: ubol*4,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+        });
+    }
     constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, cullMode, shcullMode, repeatmode, forpost){
         this.forpost = forpost;
         this.lenght = lenght;
@@ -937,6 +944,9 @@ export class Gfxmesh{
         device.queue.writeBuffer(this.vertexBuffer, 0, vertices);
     }
     set_ubo(uniformValues){
+        if(uniformValues.length !== this.ubo.length){
+            this.createub(uniformValues.length);
+        }
         this.ubo = uniformValues;
     }
     draw(gfx){

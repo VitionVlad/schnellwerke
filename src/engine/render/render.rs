@@ -20,6 +20,9 @@ extern {
     pub fn gfxsetshadowmapres(this: &Gfxrender,shadowmapres: i32, shadowmapcnt: u32);
 
     pub type Gfxmesh;
+    #[wasm_bindgen(method)]
+    pub fn createub(this: &Gfxmesh, ubol: i32);
+
     #[wasm_bindgen(constructor)]
     pub fn create(gfx: &Gfxrender, vertices: &Float32Array, uv: &Float32Array, normals: &Float32Array, tang: &Float32Array, lenght: i32, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, cullMode: &str, shcullMode: &str, repeatmode: &str, forpost: bool) -> Gfxmesh;
 

@@ -5,6 +5,8 @@ use super::camera::Camera;
 pub struct Engine{
     pub render: Render,
     pub cameras: Vec<Camera>,
+    main_projections: Vec<f32>,
+    pub mesh_to_draw: Vec<Mesh>,
 }
 
 impl Engine {
@@ -15,27 +17,25 @@ impl Engine {
         Engine{
             render: ren,
             cameras: vec![Camera{ pos: Vec3::new(), rot: Vec3::new(), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: false }],
+            main_projections: vec![0f32, 0f32, 0f32, 0f32],
+            mesh_to_draw: vec![],
         }
     }
     #[allow(dead_code)]
-    pub fn start(){
+    pub fn start(mut self){
         let render_prepare_loop = Closure::new(move || {
-            //let mut ubm = Mat4::new();
-            //ubm.perspective(90f32, 100f32, 0.1f32, ren.get_canvas_size_x() as f32/ren.get_canvas_size_y() as f32);
-            //let mut t: Mat4 = Mat4::new();
-            //t.xrot(0f32);
-            //ubm.mul(&t);
-            //t = Mat4::new();
-            //t.yrot(0.5f32);
-            //ubm.mul(&t);
-            //t = Mat4::new();
-            //t.zrot(0f32);
-            //ubm.mul(&t);
-            //t = Mat4::new();
-            //t.trans(Vec3::newdefined(2f32, 0f32, -4f32));
-            //ubm.mul(&t);
-            //ubm.transpose();
-            //mesh1.set_ubo(&ubm.mat);
+            let aspect = self.render.get_canvas_size_x() as f32/self.render.get_canvas_size_y() as f32;
+            self.main_projections.resize(16*self.cameras.len()+4, 0f32);
+            for i1 in 0..self.cameras.len(){
+                let ubm = self.cameras[i1].get_projection(aspect);
+                for i in 0..16 {
+                    self.main_projections[i1*16+i+4] = ubm.mat[i];
+                }
+            }
+
+            for i in 0..self.mesh_to_draw.len(){
+                self.mesh_to_draw[i].set_ubo(&self.main_projections);
+            }
           });
           set_func(&render_prepare_loop);
           drawloop();

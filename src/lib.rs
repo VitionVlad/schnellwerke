@@ -1,4 +1,4 @@
-use engine::math::mat4::Mat4;
+use engine::engine::Engine;
 use js_sys::Float32Array;
 use wasm_bindgen::prelude::*;
 use engine::render::render::*;
@@ -16,8 +16,7 @@ extern {
 
 #[wasm_bindgen]
 pub fn main() {
-  let ren: Render = Render::init("render", 1.0f32, 1000);
-  set_render(&ren.jsren);
+  let mut eng: Engine = Engine::new("render");
   let res: Objreader = Objreader::new("cube");
 
   let mut vcnt: u32 = 0;
@@ -48,6 +47,7 @@ pub fn main() {
 
   let vertex_code = "
   struct uniforms {
+    eng: vec4f,
     mvp: mat4x4<f32>
   }
   @group(0) @binding(0) var<uniform> ubo: uniforms;
@@ -72,6 +72,7 @@ pub fn main() {
   ";
   let svertex_code = "
   struct uniforms {
+    eng: vec4f,
     mvp: mat4x4<f32>
   }
   @group(0) @binding(0) var<uniform> ubo: uniforms;
@@ -108,28 +109,13 @@ pub fn main() {
   }
   ";
 
-  let mut ubm = Mat4::new();
-  ubm.perspective(90f32, 100f32, 0.1f32, ren.get_canvas_size_x() as f32/ren.get_canvas_size_y() as f32);
-  let mut t: Mat4 = Mat4::new();
-  t.xrot(0f32);
-  ubm.mul(&t);
-  t = Mat4::new();
-  t.yrot(0.5f32);
-  ubm.mul(&t);
-  t = Mat4::new();
-  t.zrot(0f32);
-  ubm.mul(&t);
-  t = Mat4::new();
-  t.trans(Vec3::newdefined(2f32, 0f32, -4f32));
-  ubm.mul(&t);
-  ubm.transpose();
 
-  let mesh1: Mesh = Mesh::create(&ren, &res.vert, &res.uv, &res.norm, &jst, res.size, vertex_code, svertex_code, fragment_code, 16, "tex", "", "linear", "linear", "none", "none", "repeat", false);
-  mesh1.set_ubo(&ubm.mat);
+  let mesh1: Mesh = Mesh::create(&eng.render, &res.vert, &res.uv, &res.norm, &jst, res.size, vertex_code, svertex_code, fragment_code, 20, "tex", "", "linear", "linear", "none", "none", "repeat", false);
   push_mesh(&mesh1.jsmesh);
 
   let postvertex_code = "
   struct uniforms {
+    eng: vec4f,
     mvp: mat4x4<f32>
   }
   struct OUT{
@@ -206,29 +192,11 @@ pub fn main() {
 
   let tn = Float32Array::new_with_length(18);
 
-  let mesh2: Mesh = Mesh::create(&ren, &v, &uv, &vn, &tn, 6, postvertex_code, svertex_code, postfragment_code, 16, "tex", "", "linear", "linear", "none", "none", "repeat", true);
+  let mesh2: Mesh = Mesh::create(&eng.render, &v, &uv, &vn, &tn, 6, postvertex_code, svertex_code, postfragment_code, 20, "tex", "", "linear", "linear", "none", "none", "repeat", true);
   push_mesh(&mesh2.jsmesh);
 
-  ren.change_render_scale(1.0f32, 2);
-  let render_prepare_loop = Closure::new(move || {
-    let mut ubm = Mat4::new();
-    ubm.perspective(90f32, 100f32, 0.1f32, ren.get_canvas_size_x() as f32/ren.get_canvas_size_y() as f32);
-    let mut t: Mat4 = Mat4::new();
-    t.xrot(0f32);
-    ubm.mul(&t);
-    t = Mat4::new();
-    t.yrot(0.5f32);
-    ubm.mul(&t);
-    t = Mat4::new();
-    t.zrot(0f32);
-    ubm.mul(&t);
-    t = Mat4::new();
-    t.trans(Vec3::newdefined(2f32, 0f32, -4f32));
-    ubm.mul(&t);
-    ubm.transpose();
-    mesh1.set_ubo(&ubm.mat);
-  });
-  set_func(&render_prepare_loop);
-  drawloop();
-  render_prepare_loop.forget();
+  eng.cameras[0].pos = Vec3::newdefined(-2f32, 0f32, 4f32);
+  eng.cameras[0].rot = Vec3::newdefined(0f32, 0.5f32, 0f32);
+  eng.mesh_to_draw = vec![mesh1, mesh2];
+  eng.start();
 }
