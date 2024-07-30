@@ -23,10 +23,7 @@ extern {
 #[allow(dead_code)]
 pub struct Objreader{
     load: Jsrelod,
-    pub vert: Float32Array,
-    pub uv: Float32Array,
-    pub norm: Float32Array,
-    pub size: i32,
+    pub arr: Vec<f32>,
 }
 
 impl Objreader{
@@ -36,13 +33,19 @@ impl Objreader{
         let v = t.getvert();
         let u = t.getuv();
         let n = t.getnorm();
-        let l = t.getlen();
+        let mut a: Vec<f32> = vec![];
+        for i in 0..t.getlen()*3{// n/8
+            a.push(v.get_index(i as u32));
+        }
+        for i in 0..t.getlen()*2{
+            a.push(u.get_index(i as u32));
+        }
+        for i in 0..t.getlen()*3{
+            a.push(n.get_index(i as u32));
+        }
         Objreader{
             load: t,
-            vert: v,
-            uv: u,
-            norm: n,
-            size: l,
+            arr: a,
         }
     }
 }

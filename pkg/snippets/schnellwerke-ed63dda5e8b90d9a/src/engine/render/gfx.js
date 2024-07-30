@@ -339,14 +339,87 @@ export class Gfxmesh{
             ],
         });
     }
-    preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullmode, repeatmode){
+    createpipeline(gfx, vertexcode, fragmentcode, cullmode){
         this.vertexcode = device.createShaderModule({
             code: vertexcode
         });
         this.fragmentcode = device.createShaderModule({
             code: fragmentcode
         });
-        const bindGroupLayout = device.createBindGroupLayout({
+        if(this.forpost){
+            this.postpipeline = device.createRenderPipeline({
+                layout: device.createPipelineLayout({
+                    bindGroupLayouts: [this.bindGroupLayout],
+                }),
+                vertex: {
+                  module: this.vertexcode,
+                  entryPoint: "vertexMain",
+                  buffers: [
+                    this.vertexBufferLayout,
+                    this.uvBufferLayout,
+                    this.nBufferLayout,
+                    this.tBufferLayout,
+                ]
+                },
+                fragment: {
+                  module: this.fragmentcode,
+                  entryPoint: "fragmentMain",
+                  targets: [{
+                    format: gfx.canvasFormat
+                  }]
+                },
+                depthStencil: {
+                    depthWriteEnabled: true,
+                    depthCompare: 'less-equal',
+                    format: 'depth24plus',
+                },
+            });
+        }else{
+            this.pipeline = device.createRenderPipeline({
+                label: "mainPipeline",
+                layout: device.createPipelineLayout({
+                    bindGroupLayouts: [this.bindGroupLayout],
+                }),
+                vertex: {
+                  module: this.vertexcode,
+                  entryPoint: "vertexMain",
+                  buffers: [
+                    this.vertexBufferLayout,
+                    this.uvBufferLayout,
+                    this.nBufferLayout,
+                    this.tBufferLayout,
+                ]
+                },
+                fragment: {
+                  module: this.fragmentcode,
+                  entryPoint: "fragmentMain",
+                  targets: [{
+                    format: "rgba16float",
+                    blend: {
+                        color: {
+                          srcFactor: 'one',
+                          dstFactor: 'one-minus-src-alpha'
+                        },
+                        alpha: {
+                          srcFactor: 'one',
+                          dstFactor: 'one-minus-src-alpha'
+                        },
+                    },
+                  }]
+                },
+                depthStencil: {
+                    depthWriteEnabled: true,
+                    depthCompare: 'less-equal',
+                    format: 'depth24plus',
+                },
+                primitive: {
+                    cullMode: cullmode
+                },
+            });
+        }
+    }
+    preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullmode, repeatmode){
+        this.bindGroupLayout = device.createBindGroupLayout({
             label: "mainGroupLayout",
             entries: [
               {
@@ -397,48 +470,7 @@ export class Gfxmesh{
               },
             ],
           });
-        this.pipeline = device.createRenderPipeline({
-            label: "mainPipeline",
-            layout: device.createPipelineLayout({
-                bindGroupLayouts: [bindGroupLayout],
-            }),
-            vertex: {
-              module: this.vertexcode,
-              entryPoint: "vertexMain",
-              buffers: [
-                this.vertexBufferLayout,
-                this.uvBufferLayout,
-                this.nBufferLayout,
-                this.tBufferLayout,
-            ]
-            },
-            fragment: {
-              module: this.fragmentcode,
-              entryPoint: "fragmentMain",
-              targets: [{
-                format: "rgba16float",
-                blend: {
-                    color: {
-                      srcFactor: 'one',
-                      dstFactor: 'one-minus-src-alpha'
-                    },
-                    alpha: {
-                      srcFactor: 'one',
-                      dstFactor: 'one-minus-src-alpha'
-                    },
-                },
-              }]
-            },
-            depthStencil: {
-                depthWriteEnabled: true,
-                depthCompare: 'less-equal',
-                format: 'depth24plus',
-            },
-            primitive: {
-                cullMode: cullmode
-            },
-        });
-
+        this.createpipeline(gfx, vertexcode, fragmentcode, cullmode);
         this.sampler = device.createSampler({
             magFilter: magfilter,
             minFilter: minfilter,
@@ -603,13 +635,7 @@ export class Gfxmesh{
         });
     }
     preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter, repeatmode){
-        this.vertexcode = device.createShaderModule({
-            code: vertexcode
-        });
-        this.fragmentcode = device.createShaderModule({
-            code: fragmentcode
-        });
-        const bindpostGroupLayout = device.createBindGroupLayout({
+        this.bindGroupLayout = device.createBindGroupLayout({
             entries: [
               {
                 binding: 0,
@@ -711,43 +737,16 @@ export class Gfxmesh{
               });
               for(let i = 0; i < ids.length; i++){
                   device.queue.copyExternalImageToTexture(
-                      { source: document.getElementById(ids[i]) },
-                      { 
-                          texture: this.colortex,
-                          origin: [0, 0, i]
-                      },
-                      [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
-                  );
-              }
-          }
-
-        this.postpipeline = device.createRenderPipeline({
-            layout: device.createPipelineLayout({
-                bindGroupLayouts: [bindpostGroupLayout],
-            }),
-            vertex: {
-              module: this.vertexcode,
-              entryPoint: "vertexMain",
-              buffers: [
-                this.vertexBufferLayout,
-                this.uvBufferLayout,
-                this.nBufferLayout,
-                this.tBufferLayout,
-            ]
-            },
-            fragment: {
-              module: this.fragmentcode,
-              entryPoint: "fragmentMain",
-              targets: [{
-                format: gfx.canvasFormat
-              }]
-            },
-            depthStencil: {
-                depthWriteEnabled: true,
-                depthCompare: 'less-equal',
-                format: 'depth24plus',
-            },
-        });
+                    { source: document.getElementById(ids[i]) },
+                    { 
+                        texture: this.colortex,
+                        origin: [0, 0, i]
+                    },
+                    [document.getElementById(ids[i]).width, document.getElementById(ids[i]).height]
+                );
+            }
+        }
+        this.createpipeline(gfx, vertexcode, fragmentcode, "none");
         this.postbindGroup = device.createBindGroup({
             layout: this.postpipeline.getBindGroupLayout(0),
             entries: [

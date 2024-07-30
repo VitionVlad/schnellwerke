@@ -21,10 +21,16 @@ extern {
 
     pub type Gfxmesh;
     #[wasm_bindgen(method)]
+    pub fn preparesh(this: &Gfxmesh, shadowvertexcode: &str, cullMode: &str);
+
+    #[wasm_bindgen(method)]
     pub fn createub(this: &Gfxmesh, ubol: i32);
 
+    #[wasm_bindgen(method)]
+    pub fn createpipeline(this: &Gfxmesh, gfx: &Gfxrender, vertexcode: &str, fragmentcode: &str, cullMode: &str);
+
     #[wasm_bindgen(constructor)]
-    pub fn create(gfx: &Gfxrender, vertices: &Float32Array, uv: &Float32Array, normals: &Float32Array, tang: &Float32Array, lenght: i32, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, cullMode: &str, shcullMode: &str, repeatmode: &str, forpost: bool) -> Gfxmesh;
+    pub fn create(gfx: &Gfxrender, vertices: &Float32Array, uv: &Float32Array, normals: &Float32Array, tang: &Float32Array, lenght: usize, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, cullMode: &str, shcullMode: &str, repeatmode: &str, forpost: bool) -> Gfxmesh;
 
     #[wasm_bindgen(method)]
     pub fn writenewvertices(this: &Gfxmesh, vertices: &Float32Array);
@@ -53,6 +59,11 @@ extern {
 
 pub struct Render{
     pub jsren: Gfxrender,
+    pub magfilter: String,
+    pub minfilter: String,
+    pub culling_mode: String,
+    pub culling_mode_shadow: String,
+    pub repeat_mode: String,
 }
 
 impl Render{
@@ -60,6 +71,11 @@ impl Render{
     pub fn init(canvasid: &str, renderscale: f32, shadowmapres: i32) -> Render{
         Render{
             jsren: Gfxrender::new(canvasid, renderscale, shadowmapres),
+            magfilter: "linear".to_string(),
+            minfilter: "linear".to_string(),
+            culling_mode: "none".to_string(),
+            culling_mode_shadow: "none".to_string(),
+            repeat_mode: "repeat".to_string(),
         }
     }
     #[allow(dead_code)]
