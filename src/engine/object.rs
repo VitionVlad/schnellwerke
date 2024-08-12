@@ -1,13 +1,13 @@
 use js_sys::Float32Array;
 
-use super::{engine::Engine, math::{vec2::Vec2, vec3::Vec3}, render::mesh::Mesh};
+use super::{engine::Engine, math::{vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
 
 pub struct Object{
     pub mesh: Mesh,
 }
 
 impl Object{
-    pub fn new(eng: &Engine, vertex_data: Vec<f32>, vertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, for_post: bool) -> Object{
+    pub fn new(eng: &Engine, vertex_data: Vec<f32>, vertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, usage: MUsages) -> Object{
         let size = vertex_data.len()/8;
         let v = Float32Array::new_with_length((size*3) as u32);
         let u = Float32Array::new_with_length((size*2) as u32);
@@ -47,7 +47,7 @@ impl Object{
             vcnt+=6
         }
         Object{
-            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, vertexcode, &eng.shadow_code, fragmentcode, ubol, texid, cubeid, &eng.render.magfilter, &eng.render.minfilter, &eng.render.culling_mode, &eng.render.culling_mode_shadow, &eng.render.repeat_mode, for_post)
+            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, vertexcode, &eng.shadow_code, fragmentcode, ubol, texid, cubeid, &eng.render.magfilter, &eng.render.minfilter, &eng.render.culling_mode, &eng.render.culling_mode_shadow, &eng.render.repeat_mode, usage)
         }
     }
 }

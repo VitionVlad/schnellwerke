@@ -346,7 +346,7 @@ export class Gfxmesh{
         this.fragmentcode = device.createShaderModule({
             code: fragmentcode
         });
-        if(this.forpost){
+        if(this.usage === 4){
             this.postpipeline = device.createRenderPipeline({
                 layout: device.createPipelineLayout({
                     bindGroupLayouts: [this.bindGroupLayout],
@@ -791,8 +791,8 @@ export class Gfxmesh{
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
         });
     }
-    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, cullMode, shcullMode, repeatmode, forpost){
-        this.forpost = forpost;
+    constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, cullMode, shcullMode, repeatmode, usage){
+        this.usage = usage;
         this.lenght = lenght;
         this.ubol = ubol;
         this.ubo = new Float32Array(ubol);
@@ -852,9 +852,10 @@ export class Gfxmesh{
               shaderLocation: 3,
             }],
         };
-        if(!forpost){
+        if(usage === 1 || usage === 2){
             this.preparemainrender(vertexcode, fragmentcode, texid, cubeid, gfx, magfilter, minfilter, cullMode, repeatmode);
-        }else{
+        }
+        if(usage === 4){
             this.preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter, repeatmode);
         }
         this.preparesh(shadowvertexcode, shcullMode);
@@ -951,12 +952,14 @@ export class Gfxmesh{
     draw(gfx){
         device.queue.writeBuffer(this.uniformBuffer, 0, this.ubo);
         if(gfx.isshadowpass){
-            gfx.pass.setPipeline(this.shadowpipeline);
-            gfx.pass.setBindGroup(0, this.sbindGroup);
-            gfx.pass.setVertexBuffer(0, this.vertexBuffer);
-            gfx.pass.draw(this.lenght);
+            if(this.usage === 1 || this.usage === 3){
+                gfx.pass.setPipeline(this.shadowpipeline);
+                gfx.pass.setBindGroup(0, this.sbindGroup);
+                gfx.pass.setVertexBuffer(0, this.vertexBuffer);
+                gfx.pass.draw(this.lenght);
+            }
         }else{
-            if(gfx.inpost && this.forpost){
+            if(gfx.inpost && this.usage == 4){
                 this.recpostg(gfx);
                 gfx.pass.setPipeline(this.postpipeline);
                 gfx.pass.setBindGroup(0, this.postbindGroup);
@@ -966,7 +969,7 @@ export class Gfxmesh{
                 gfx.pass.setVertexBuffer(3, this.tBuffer);
                 gfx.pass.draw(this.lenght);
             }
-            if (!gfx.inpost && !this.forpost){
+            if (!gfx.inpost && (this.usage == 1 || this.usage == 2)){
                 this.recg(gfx);
                 gfx.pass.setPipeline(this.pipeline);
                 gfx.pass.setBindGroup(0, this.bindGroup);
@@ -1088,6 +1091,8 @@ export function drawloop(){
     for(var i = 0; i !== gfxr.rendershadows; i += 1){
         gfxr.gfxbeginshadowpass("clear", i);
         for(var b = 0; b != gfxms.length; b+=1){
+            gfxms[b].ubo[2] = gfxr.shadowmapres;
+            gfxms[b].ubo[3] = i;
             gfxms[b].draw(gfxr);
         }
         gfxr.gfxendpass();
@@ -1095,6 +1100,10 @@ export function drawloop(){
     for(var i = 0; i !== gfxr.renderlayers; i += 1){
         gfxr.gfxbeginmainpass("clear", "clear", i);
         for(var b = 0; b != gfxms.length; b+=1){
+            gfxms[b].ubo[0] = gfxr.canvas.width*gfxr.rscale;
+            gfxms[b].ubo[1] = gfxr.canvas.height*gfxr.rscale;
+            gfxms[b].ubo[2] = gfxr.shadowmapres;
+            gfxms[b].ubo[3] = i;
             gfxms[b].draw(gfxr);
         }
         gfxr.gfxendpass();

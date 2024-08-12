@@ -5,3 +5,5 @@ pub mod resourceloader;
 pub mod engine;
 pub mod camera;
 pub mod object;
+pub mod plane;
+pub mod light;

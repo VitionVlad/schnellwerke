@@ -30,7 +30,7 @@ extern {
     pub fn createpipeline(this: &Gfxmesh, gfx: &Gfxrender, vertexcode: &str, fragmentcode: &str, cullMode: &str);
 
     #[wasm_bindgen(constructor)]
-    pub fn create(gfx: &Gfxrender, vertices: &Float32Array, uv: &Float32Array, normals: &Float32Array, tang: &Float32Array, lenght: usize, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, cullMode: &str, shcullMode: &str, repeatmode: &str, forpost: bool) -> Gfxmesh;
+    pub fn create(gfx: &Gfxrender, vertices: &Float32Array, uv: &Float32Array, normals: &Float32Array, tang: &Float32Array, lenght: usize, vertexcode: &str, shadowvertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, magfilter: &str, minfilter: &str, cullMode: &str, shcullMode: &str, repeatmode: &str, usage: u32) -> Gfxmesh;
 
     #[wasm_bindgen(method)]
     pub fn writenewvertices(this: &Gfxmesh, vertices: &Float32Array);

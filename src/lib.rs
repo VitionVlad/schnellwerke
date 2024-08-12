@@ -1,5 +1,6 @@
 use engine::engine::Engine;
 use engine::object::Object;
+use engine::plane::PLANE;
 use wasm_bindgen::prelude::*;
 use engine::render::render::*;
 use engine::resourceloader::resourceloader::Objreader;
@@ -20,7 +21,11 @@ pub fn main() {
   let vertex_code = "
   struct uniforms {
     eng: vec4f,
-    mvp: mat4x4<f32>
+    mvp: array<mat4x4<f32>, 1>,
+    pos: array<vec4f, 1>,
+    smvp: array<mat4x4<f32>, 1>,
+    lpos: array<vec4f, 1>,
+    lcolor: array<vec4f, 1>,
   }
   @group(0) @binding(0) var<uniform> ubo: uniforms;
   struct OUT{
@@ -34,7 +39,7 @@ pub fn main() {
   @vertex
   fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
     var out: OUT;
-    out.position = ubo.mvp * vec4f(pos, 1.0);
+    out.position = ubo.mvp[0] * vec4f(pos, 1.0);
     out.uv = vec2f(uv.x, 1.0-uv.y);
     out.norm = n;
     out.tangent = t;
@@ -71,12 +76,16 @@ pub fn main() {
   ";
 
 
-  let mesh1: Object = Object::new(&eng, res.arr, vertex_code, fragment_code, 20, "tex", "", false);
+  let mesh1: Object = Object::new(&eng, res.arr, vertex_code, fragment_code, 48, "tex", "", engine::render::mesh::MUsages::ShadowAndMain);
 
   let postvertex_code = "
   struct uniforms {
     eng: vec4f,
-    mvp: mat4x4<f32>
+    mvp: array<mat4x4<f32>, 1>,
+    pos: array<vec4f, 1>,
+    smvp: array<mat4x4<f32>, 1>,
+    lpos: array<vec4f, 1>,
+    lcolor: array<vec4f, 1>,
   }
   struct OUT{
     @builtin(position) position: vec4f,
@@ -113,33 +122,7 @@ pub fn main() {
   }
   ";
 
-  let plane: [f32; 48] = [
-    -1.0, -1.0, 1.0,
-    -1.0, 1.0, 1.0, 
-    1.0, 1.0, 1.0,
-
-    -1.0, -1.0, 1.0,
-    1.0, 1.0, 1.0,
-    1.0, -1.0, 1.0, 
-
-    0.0, 1.0,
-    0.0, 0.0,
-    1.0, 0.0,
-
-    0.0, 1.0,
-    1.0, 0.0,
-    1.0, 1.0,
-
-    0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0,
-
-    0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0,
-    0.0, 0.0, 1.0
-  ];
-
-  let mesh2: Object = Object::new(&eng, plane.to_vec(), postvertex_code, postfragment_code, 20, "tex", "", true);
+  let mesh2: Object = Object::new(&eng, PLANE.to_vec(), postvertex_code, postfragment_code, 48, "tex", "", engine::render::mesh::MUsages::PostProcessing);
 
   eng.cameras[0].pos = Vec3::newdefined(-2f32, 0f32, 4f32);
   eng.cameras[0].rot = Vec3::newdefined(0f32, 0.5f32, 0f32);
