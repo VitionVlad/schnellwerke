@@ -1,4 +1,4 @@
-import { Gfxrender, Gfxmesh, push_mesh, set_render, set_func } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
+import { Gfxrender, Gfxmesh, push_mesh, set_render, set_lfunc } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 import { Jsrelod } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/resourceloader/resloader.js';
 import * as __wbg_star0 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 
@@ -82,7 +82,7 @@ function makeMutClosure(arg0, arg1, dtor, f) {
     return real;
 }
 function __wbg_adapter_8(arg0, arg1) {
-    wasm._dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1b9b59625f4c3dc3(arg0, arg1);
+    wasm.wasm_bindgen__convert__closures__invoke0_mut__he756140b1d7ea7d9(arg0, arg1);
 }
 
 /**
@@ -125,8 +125,8 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
-    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
-        takeObject(arg0);
+    imports.wbg.__wbg_setrender_e632d4306c50c59d = function(arg0) {
+        set_render(getObject(arg0));
     };
     imports.wbg.__wbg_gfxgetcanvassizex_f04fe36b4cb8f74a = function(arg0) {
         const ret = getObject(arg0).gfxgetcanvassizex();
@@ -139,11 +139,8 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_setubo_52def3822cd560c5 = function(arg0, arg1) {
         getObject(arg0).set_ubo(getObject(arg1));
     };
-    imports.wbg.__wbg_setrender_e632d4306c50c59d = function(arg0) {
-        set_render(getObject(arg0));
-    };
-    imports.wbg.__wbg_setfunc_831daff3274a541a = function(arg0) {
-        set_func(getObject(arg0));
+    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
+        takeObject(arg0);
     };
     imports.wbg.__wbg_create_0b9fe6d5be161aee = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24, arg25, arg26, arg27) {
         const ret = new Gfxmesh(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3), getObject(arg4), arg5 >>> 0, getStringFromWasm0(arg6, arg7), getStringFromWasm0(arg8, arg9), getStringFromWasm0(arg10, arg11), arg12, getStringFromWasm0(arg13, arg14), getStringFromWasm0(arg15, arg16), getStringFromWasm0(arg17, arg18), getStringFromWasm0(arg19, arg20), getStringFromWasm0(arg21, arg22), getStringFromWasm0(arg23, arg24), getStringFromWasm0(arg25, arg26), arg27 >>> 0);
@@ -155,6 +152,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
         const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
         return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_setlfunc_b04671b3dac03214 = function(arg0) {
+        set_lfunc(getObject(arg0));
     };
     imports.wbg.__wbg_new_766710a7adac36ef = function(arg0, arg1) {
         const ret = new Jsrelod(getStringFromWasm0(arg0, arg1));
@@ -209,8 +209,8 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper28 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 3, __wbg_adapter_8);
+    imports.wbg.__wbindgen_closure_wrapper67 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_8);
         return addHeapObject(ret);
     };
     imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js'] = __wbg_star0;

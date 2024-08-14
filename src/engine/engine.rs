@@ -1,4 +1,4 @@
-use engine::{light::{Light, LightType}, object::Object};
+use engine::{light::{Light, LightType}, math::mat4::Mat4, object::Object};
 use crate::*;
 use super::camera::Camera;
 
@@ -33,7 +33,8 @@ impl Engine {
                 pos: array<vec4f, 1>,
                 smvp: array<mat4x4<f32>, 1>,
                 lpos: array<vec4f, 1>,
-                lcolor: array<vec4f, 1>,".to_string(),
+                lcolor: array<vec4f, 1>,
+                model: mat4x4<f32>,".to_string(),
             last_cam_size: 1,
             last_light_size: 1,
             shadow_code: "
@@ -44,89 +45,106 @@ impl Engine {
               smvp: array<mat4x4<f32>, 1>,
               lpos: array<vec4f, 1>,
               lcolor: array<vec4f, 1>,
+              model: mat4x4<f32>,
             }
             @group(0) @binding(0) var<uniform> ubo: uniforms;
             @vertex
             fn vertexMain(@location(0) pos: vec3f) -> @builtin(position) vec4f {
-              return ubo.mvp[0] * vec4f(pos, 1.0);
+              return ubo.mvp[0] * ubo.model * vec4f(pos, 1.0);
             }".to_string(),
         }
     }
     #[allow(dead_code)]
-    pub fn start(mut self){
-        let render_prepare_loop = Closure::new(move || {
-            let mut smats = 0;
-            for i in 0..self.lights.len(){
-                smats+=1;
-                if self.lights[i].light_type == LightType::Point{
-                    smats+=5;
-                }
+    pub fn start(&mut self){
+        let mut smats = 0;
+        for i in 0..self.lights.len(){
+            smats+=1;
+            if self.lights[i].light_type == LightType::Point{
+                smats+=5;
             }
-            if self.last_cam_size != self.cameras.len() || self.last_light_size != self.lights.len(){
-                self.uniform_beg = "
-                    struct uniforms {
-                        eng: vec4f,
-                        mvp: array<mat4x4<f32>, ".to_string();
-                self.uniform_beg += &self.cameras.len().to_string();
-                self.uniform_beg += ">,
-                        cam: array<vec4f, ";
-                self.uniform_beg += &self.cameras.len().to_string();
-                self.uniform_beg += ">,
-                        smvp: array<mat4x4<f32>, ";
-                self.uniform_beg += &smats.to_string();
-                self.uniform_beg += ">,
-                        lpos: array<vec4f, ";
-                self.uniform_beg += &self.lights.len().to_string();
-                self.uniform_beg += ">,
-                        lcolor: array<vec4f, ";
-                self.uniform_beg += &self.lights.len().to_string();
-                self.uniform_beg += ">,";
-                self.last_cam_size = self.cameras.len();
-                self.last_light_size = self.lights.len();
-            }
+        }
+        if self.last_cam_size != self.cameras.len() || self.last_light_size != self.lights.len(){
+            self.uniform_beg = "
+                struct uniforms {
+                    eng: vec4f,
+                    mvp: array<mat4x4<f32>, ".to_string();
+            self.uniform_beg += &self.cameras.len().to_string();
+            self.uniform_beg += ">,
+                    cam: array<vec4f, ";
+            self.uniform_beg += &self.cameras.len().to_string();
+            self.uniform_beg += ">,
+                    smvp: array<mat4x4<f32>, ";
+            self.uniform_beg += &smats.to_string();
+            self.uniform_beg += ">,
+                    lpos: array<vec4f, ";
+            self.uniform_beg += &self.lights.len().to_string();
+            self.uniform_beg += ">,
+                    lcolor: array<vec4f, ";
+            self.uniform_beg += &self.lights.len().to_string();
+            self.uniform_beg += ">,
+                    model: mat4x4<f32>,";
+            self.last_cam_size = self.cameras.len();
+            self.last_light_size = self.lights.len();
+        }
             
-            let aspect = self.render.get_canvas_size_x() as f32/self.render.get_canvas_size_y() as f32;
-            self.main_projections.resize(20*self.cameras.len()+4+smats*16+self.lights.len()*8, 0f32);
-            for i1 in 0..self.cameras.len(){
-                let ubm = self.cameras[i1].get_projection(aspect);
-                for i in 0..16 {
-                    self.main_projections[i1*16+i+4] = ubm.mat[i];
-                }
+        let aspect = self.render.get_canvas_size_x() as f32/self.render.get_canvas_size_y() as f32;
+        self.main_projections.resize(20*self.cameras.len()+20+smats*16+self.lights.len()*8, 0f32);
+        for i1 in 0..self.cameras.len(){
+            let ubm = self.cameras[i1].get_projection(aspect);
+            for i in 0..16 {
+                self.main_projections[i1*16+i+4] = ubm.mat[i];
             }
-            for i in (0..self.cameras.len()*4).step_by(4){
-                self.main_projections[16*self.cameras.len()+4+i] = self.cameras[i].pos.x;
-                self.main_projections[16*self.cameras.len()+5+i] = self.cameras[i].pos.y;
-                self.main_projections[16*self.cameras.len()+6+i] = self.cameras[i].pos.z;
-                self.main_projections[16*self.cameras.len()+7+i] = 0f32;
+        }
+        for i in 0..self.cameras.len(){
+            self.main_projections[16*self.cameras.len()+4+i*4] = self.cameras[i].pos.x;
+            self.main_projections[16*self.cameras.len()+5+i*4] = self.cameras[i].pos.y;
+            self.main_projections[16*self.cameras.len()+6+i*4] = self.cameras[i].pos.z;
+            self.main_projections[16*self.cameras.len()+7+i*4] = 0f32;
+        }
+        
+        for l in 0..self.lights.len(){
+            let vc = self.lights[l].getvec();
+            for i in 0..vc.len(){
+                self.main_projections[20*self.cameras.len()+4+l*16+i] = vc[i];
             }
-            
-            for l in 0..self.lights.len(){
-                let vc = self.lights[l].getvec();
-                for i in 0..vc.len(){
-                    self.main_projections[20*self.cameras.len()+4+l*16+i] = vc[i];
-                }
+        }
+
+        for i in 0..self.lights.len(){
+            self.main_projections[20*self.cameras.len()+4+smats*16+i*4] = self.lights[i].pos.x;
+            self.main_projections[20*self.cameras.len()+5+smats*16+i*4] = self.lights[i].pos.y;
+            self.main_projections[20*self.cameras.len()+6+smats*16+i*4] = self.lights[i].pos.z;
+            self.main_projections[20*self.cameras.len()+7+smats*16+i*4] = 0f32;
+        }
+
+        for i in 0..self.lights.len(){
+            self.main_projections[20*self.cameras.len()+4+smats*16+self.lights.len()*4+i*4] = self.lights[i].color.x;
+            self.main_projections[20*self.cameras.len()+5+smats*16+self.lights.len()*4+i*4] = self.lights[i].color.y;
+            self.main_projections[20*self.cameras.len()+6+smats*16+self.lights.len()*4+i*4] = self.lights[i].color.z;
+            self.main_projections[20*self.cameras.len()+7+smats*16+self.lights.len()*4+i*4] = 0f32;
+        }
+
+        for i in 0..self.object_to_draw.len(){
+            let mut mmat = Mat4::new();
+            mmat.trans(self.object_to_draw[i].pos);
+            let mut t: Mat4 = Mat4::new();
+            t.yrot(self.object_to_draw[i].rot.y);
+            mmat.mul(&t);
+            t = Mat4::new();
+            t.xrot(self.object_to_draw[i].rot.x);
+            mmat.mul(&t);
+            t = Mat4::new();
+            t.zrot(self.object_to_draw[i].rot.z);
+            mmat.mul(&t);
+            t = Mat4::new();
+            t.scale(self.object_to_draw[i].scale);
+            mmat.mul(&t);
+            mmat.transpose();
+
+            for c in 0..16{
+                self.main_projections[20*self.cameras.len()+4+smats*16+self.lights.len()*8+c] = mmat.mat[c];
             }
 
-            for i in 0..self.lights.len(){
-                self.main_projections[20*self.cameras.len()+4+smats*16] = self.lights[i].pos.x;
-                self.main_projections[20*self.cameras.len()+5+smats*16] = self.lights[i].pos.y;
-                self.main_projections[20*self.cameras.len()+6+smats*16] = self.lights[i].pos.z;
-                self.main_projections[20*self.cameras.len()+7+smats*16] = 0f32;
-            }
-
-            for i in 0..self.lights.len(){
-                self.main_projections[20*self.cameras.len()+4+smats*16+self.lights.len()*4] = self.lights[i].color.x;
-                self.main_projections[20*self.cameras.len()+5+smats*16+self.lights.len()*4] = self.lights[i].color.y;
-                self.main_projections[20*self.cameras.len()+6+smats*16+self.lights.len()*4] = self.lights[i].color.z;
-                self.main_projections[20*self.cameras.len()+7+smats*16+self.lights.len()*4] = 0f32;
-            }
-
-            for i in 0..self.object_to_draw.len(){
-                self.object_to_draw[i].mesh.set_ubo(&self.main_projections);
-            }
-          });
-          set_func(&render_prepare_loop);
-          drawloop();
-          render_prepare_loop.forget();
+            self.object_to_draw[i].mesh.set_ubo(&self.main_projections);
+        }
     }
 }

@@ -1085,7 +1085,7 @@ var gfxms = [];
 var perframefunc = null;
 
 export function drawloop(){
-    perframefunc();
+    //perframefunc();
     gfxr.gfxcheckchange();
     gfxr.gfxcopylasttex();
     for(var i = 0; i !== gfxr.rendershadows; i += 1){
@@ -1132,9 +1132,13 @@ export function set_func(func){
     perframefunc = func;
 }
 
-//function check(){
-//    console.log("check!");
-//    setTimeout(check, 5);
-//}
-//
-//check();
+var logicfunc = null;
+
+export function logicloop(){
+    logicfunc();
+    setTimeout(logicloop, 5);
+}
+
+export function set_lfunc(func){
+    logicfunc = func;
+}

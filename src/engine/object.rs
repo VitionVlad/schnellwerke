@@ -2,11 +2,16 @@ use js_sys::Float32Array;
 
 use super::{engine::Engine, math::{vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
 
+#[allow(dead_code)]
 pub struct Object{
     pub mesh: Mesh,
+    pub pos: Vec3,
+    pub rot: Vec3,
+    pub scale: Vec3,
 }
 
 impl Object{
+    #[allow(dead_code)]
     pub fn new(eng: &Engine, vertex_data: Vec<f32>, vertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, usage: MUsages) -> Object{
         let size = vertex_data.len()/8;
         let v = Float32Array::new_with_length((size*3) as u32);
@@ -47,7 +52,10 @@ impl Object{
             vcnt+=6
         }
         Object{
-            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, vertexcode, &eng.shadow_code, fragmentcode, ubol, texid, cubeid, &eng.render.magfilter, &eng.render.minfilter, &eng.render.culling_mode, &eng.render.culling_mode_shadow, &eng.render.repeat_mode, usage)
+            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, vertexcode, &eng.shadow_code, fragmentcode, ubol, texid, cubeid, &eng.render.magfilter, &eng.render.minfilter, &eng.render.culling_mode, &eng.render.culling_mode_shadow, &eng.render.repeat_mode, usage),
+            pos: Vec3::new(),
+            rot: Vec3::new(),
+            scale: Vec3::newdefined(1f32, 1f32, 1f32),
         }
     }
 }

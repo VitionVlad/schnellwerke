@@ -26,6 +26,7 @@ pub fn main() {
     smvp: array<mat4x4<f32>, 1>,
     lpos: array<vec4f, 1>,
     lcolor: array<vec4f, 1>,
+    model: mat4x4<f32>,
   }
   @group(0) @binding(0) var<uniform> ubo: uniforms;
   struct OUT{
@@ -39,7 +40,7 @@ pub fn main() {
   @vertex
   fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
     var out: OUT;
-    out.position = ubo.mvp[0] * vec4f(pos, 1.0);
+    out.position = ubo.mvp[0] * ubo.model * vec4f(pos, 1.0);
     out.uv = vec2f(uv.x, 1.0-uv.y);
     out.norm = n;
     out.tangent = t;
@@ -76,7 +77,7 @@ pub fn main() {
   ";
 
 
-  let mesh1: Object = Object::new(&eng, res.arr, vertex_code, fragment_code, 48, "tex", "", engine::render::mesh::MUsages::ShadowAndMain);
+  let mut mesh1: Object = Object::new(&eng, res.arr, vertex_code, fragment_code, 64, "tex", "", engine::render::mesh::MUsages::ShadowAndMain);
 
   let postvertex_code = "
   struct uniforms {
@@ -86,6 +87,7 @@ pub fn main() {
     smvp: array<mat4x4<f32>, 1>,
     lpos: array<vec4f, 1>,
     lcolor: array<vec4f, 1>,
+    model: mat4x4<f32>,
   }
   struct OUT{
     @builtin(position) position: vec4f,
@@ -122,10 +124,22 @@ pub fn main() {
   }
   ";
 
-  let mesh2: Object = Object::new(&eng, PLANE.to_vec(), postvertex_code, postfragment_code, 48, "tex", "", engine::render::mesh::MUsages::PostProcessing);
+  let mesh2: Object = Object::new(&eng, PLANE.to_vec(), postvertex_code, postfragment_code, 64, "tex", "", engine::render::mesh::MUsages::PostProcessing);
+
+  mesh1.scale.y = 2f32;
+  mesh1.rot.x = 0.5f32;
 
   eng.cameras[0].pos = Vec3::newdefined(-2f32, 0f32, 4f32);
   eng.cameras[0].rot = Vec3::newdefined(0f32, 0.5f32, 0f32);
+
   eng.object_to_draw = vec![mesh1, mesh2];
-  eng.start();
+
+  let logic_loop = Closure::new(move || {
+    eng.start();
+    eng.object_to_draw[0].rot.x += 0.01f32;
+  });
+  set_lfunc(&logic_loop);
+  logicloop();
+  logic_loop.forget();
+  drawloop();
 }

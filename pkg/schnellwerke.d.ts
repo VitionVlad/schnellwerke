@@ -10,7 +10,7 @@ export interface InitOutput {
   readonly memory: WebAssembly.Memory;
   readonly main: () => void;
   readonly __wbindgen_export_0: WebAssembly.Table;
-  readonly _dyn_core__ops__function__FnMut_____Output___R_as_wasm_bindgen__closure__WasmClosure___describe__invoke__h1b9b59625f4c3dc3: (a: number, b: number) => void;
+  readonly wasm_bindgen__convert__closures__invoke0_mut__he756140b1d7ea7d9: (a: number, b: number) => void;
 }
 
 export type SyncInitInput = BufferSource | WebAssembly.Module;
