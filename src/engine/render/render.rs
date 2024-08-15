@@ -54,7 +54,6 @@ extern {
     pub fn push_mesh(mesh: &Gfxmesh);
     pub fn set_render(reb: &Gfxrender);
     pub fn drawloop();
-    pub fn set_func(func: &Closure<dyn FnMut()>);
 
     pub fn logicloop();
     pub fn set_lfunc(func: &Closure<dyn FnMut()>);

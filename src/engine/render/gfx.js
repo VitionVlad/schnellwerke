@@ -1082,10 +1082,7 @@ var gfxr = null;
 
 var gfxms = [];
 
-var perframefunc = null;
-
 export function drawloop(){
-    //perframefunc();
     gfxr.gfxcheckchange();
     gfxr.gfxcopylasttex();
     for(var i = 0; i !== gfxr.rendershadows; i += 1){
@@ -1126,10 +1123,6 @@ export function push_mesh(mesh){
 
 export function set_render(ren){
     gfxr = ren;
-}
-
-export function set_func(func){
-    perframefunc = func;
 }
 
 var logicfunc = null;

@@ -1,6 +1,6 @@
 use js_sys::Float32Array;
 
-use super::{engine::Engine, math::{vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
+use super::{engine::Engine, light::LightType, math::{mat4::Mat4, vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
 
 #[allow(dead_code)]
 pub struct Object{
@@ -8,6 +8,7 @@ pub struct Object{
     pub pos: Vec3,
     pub rot: Vec3,
     pub scale: Vec3,
+    ubo: Vec<f32>,
 }
 
 impl Object{
@@ -56,6 +57,43 @@ impl Object{
             pos: Vec3::new(),
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
+            ubo: vec![0f32, 0f32, 0f32, 0f32],
         }
+    }
+    #[allow(dead_code)]
+    pub fn exec(&mut self, eng: &mut Engine){
+        let mut smats = 0;
+        for i in 0..eng.lights.len(){
+            smats+=1;
+            if eng.lights[i].light_type == LightType::Point{
+                smats+=5;
+            }
+        }
+        self.ubo.resize(20*eng.cameras.len()+20+smats*16+eng.lights.len()*8, 0f32);
+        
+        for i in 0..(20*eng.cameras.len()+4+smats*16+eng.lights.len()*8){
+            self.ubo[i] = eng.ubo_beg_values[i];
+        }
+
+        let mut mmat = Mat4::new();
+        mmat.trans(self.pos);
+        let mut t: Mat4 = Mat4::new();
+        t.yrot(self.rot.y);
+        mmat.mul(&t);
+        t = Mat4::new();
+        t.xrot(self.rot.x);
+        mmat.mul(&t);
+        t = Mat4::new();
+        t.zrot(self.rot.z);
+        mmat.mul(&t);
+        t = Mat4::new();
+        t.scale(self.scale);
+        mmat.mul(&t);
+        mmat.transpose();
+
+        for i in 0..16{
+            self.ubo[20*eng.cameras.len()+4+smats*16+eng.lights.len()*8+i] = mmat.mat[i];
+        }
+        self.mesh.set_ubo(&self.ubo);
     }
 }

@@ -1,4 +1,4 @@
-use engine::engine::Engine;
+use engine::engine::{start_loop, Engine};
 use engine::object::Object;
 use engine::plane::PLANE;
 use wasm_bindgen::prelude::*;
@@ -124,7 +124,7 @@ pub fn main() {
   }
   ";
 
-  let mesh2: Object = Object::new(&eng, PLANE.to_vec(), postvertex_code, postfragment_code, 64, "tex", "", engine::render::mesh::MUsages::PostProcessing);
+  let mut mesh2: Object = Object::new(&eng, PLANE.to_vec(), postvertex_code, postfragment_code, 64, "tex", "", engine::render::mesh::MUsages::PostProcessing);
 
   mesh1.scale.y = 2f32;
   mesh1.rot.x = 0.5f32;
@@ -132,14 +132,11 @@ pub fn main() {
   eng.cameras[0].pos = Vec3::newdefined(-2f32, 0f32, 4f32);
   eng.cameras[0].rot = Vec3::newdefined(0f32, 0.5f32, 0f32);
 
-  eng.object_to_draw = vec![mesh1, mesh2];
 
-  let logic_loop = Closure::new(move || {
+  start_loop(Closure::new(move || {
     eng.start();
-    eng.object_to_draw[0].rot.x += 0.01f32;
-  });
-  set_lfunc(&logic_loop);
-  logicloop();
-  logic_loop.forget();
-  drawloop();
+    mesh1.rot.x += 0.01f32;
+    mesh1.exec(&mut eng);
+    mesh2.exec(&mut eng);
+  }));
 }
