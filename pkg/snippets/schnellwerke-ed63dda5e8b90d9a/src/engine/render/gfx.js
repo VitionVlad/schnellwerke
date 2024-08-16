@@ -1129,7 +1129,7 @@ var logicfunc = null;
 
 export function logicloop(){
     logicfunc();
-    setTimeout(logicloop, 5);
+    setTimeout(logicloop, 4);
 }
 
 export function set_lfunc(func){
