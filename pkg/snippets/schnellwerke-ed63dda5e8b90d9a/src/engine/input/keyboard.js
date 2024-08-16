@@ -2,86 +2,164 @@ var keycode = -1;
 
 document.addEventListener('keydown', function(event) {
     switch(event.key){
-        case "q" || "Q":
+        case "q":
             keycode = 0;
             break;
-        case "w" || "W":
+        case "w":
             keycode = 1;
             break;
-        case "e" || "E":
+        case "e":
             keycode = 2;
             break;
-        case "r" || "R":
+        case "r":
             keycode = 3;
             break;
-        case "t" || "T":
+        case "t":
             keycode = 4;
             break;
-        case "y" || "Y":
+        case "y":
             keycode = 5;
             break;
-        case "u" || "U":
+        case "u":
             keycode = 6;
             break;
-        case "i" || "I":
+        case "i":
             keycode = 7;
             break;
-        case "o" || "O":
+        case "o":
             keycode = 8;
             break;
-        case "p" || "P":
+        case "p":
             keycode = 9;
             break;
-        case "a" || "A":
+        case "a":
             keycode = 10;
             break;
-        case "s" || "S":
+        case "s":
             keycode = 11;
             break;
-        case "d" || "D":
+        case "d":
             keycode = 12;
             break;
-        case "f" || "F":
+        case "f":
             keycode = 13;
             break;
-        case "g" || "G":
+        case "g":
             keycode = 14;
             break;
-        case "h" || "H":
+        case "h":
             keycode = 15;
             break;
-        case "j" || "J":
+        case "j":
             keycode = 16;
             break;
-        case "k" || "K":
+        case "k":
             keycode = 17;
             break;
-        case "l" || "L":
+        case "l":
             keycode = 18;
             break;
         case ";":
             keycode = 19;
             break;
-        case "z" || "Z":
+        case "z":
             keycode = 20;
             break;
-        case "x" || "X":
+        case "x":
             keycode = 21;
             break;
-        case "c" || "C":
+        case "c":
             keycode = 22;
             break;
-        case "v" || "V":
+        case "v":
             keycode = 23;
             break;
-        case "b" || "B":
+        case "b":
             keycode = 24;
             break;
-        case "n" || "N":
+        case "n":
             keycode = 25;
             break;
-        case "m" || "M":
+        case "m":
             keycode = 26;
+            break;
+        case "Q":
+            keycode = 100;
+            break;
+        case "W":
+            keycode = 101;
+            break;
+        case "E":
+            keycode = 102;
+            break;
+        case "R":
+            keycode = 103;
+            break;
+        case "T":
+            keycode = 104;
+            break;
+        case "Y":
+            keycode = 105;
+            break;
+        case "U":
+            keycode = 106;
+            break;
+        case "I":
+            keycode = 107;
+            break;
+        case "O":
+            keycode = 108;
+            break;
+        case "P":
+            keycode = 109;
+            break;
+        case "A":
+            keycode = 110;
+            break;
+        case "S":
+            keycode = 111;
+            break;
+        case "D":
+            keycode = 112;
+            break;
+        case "F":
+            keycode = 113;
+            break;
+        case "G":
+            keycode = 114;
+            break;
+        case "H":
+            keycode = 115;
+            break;
+        case "J":
+            keycode = 116;
+            break;
+        case "K":
+            keycode = 117;
+            break;
+        case "L":
+            keycode = 118;
+            break;
+        case "Z":
+            keycode = 120;
+            break;
+        case "X":
+            keycode = 121;
+            break;
+        case "C":
+            keycode = 122;
+            break;
+        case "V":
+            keycode = 123;
+            break;
+        case "B":
+            keycode = 124;
+            break;
+        case "N":
+            keycode = 125;
+            break;
+        case "M":
+            keycode = 126;
             break;
         case ",":
             keycode = 27;
