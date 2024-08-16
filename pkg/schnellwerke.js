@@ -1,6 +1,8 @@
 import { Gfxrender, Gfxmesh, push_mesh, set_render, set_lfunc } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 import { Jsrelod } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/resourceloader/resloader.js';
-import * as __wbg_star0 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
+import * as __wbg_star0 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/keyboard.js';
+import * as __wbg_star1 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/mouse.js';
+import * as __wbg_star2 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 
 let wasm;
 
@@ -152,6 +154,10 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_setubo_52def3822cd560c5 = function(arg0, arg1) {
         getObject(arg0).set_ubo(getObject(arg1));
     };
+    imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
+        const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbg_new_766710a7adac36ef = function(arg0, arg1) {
         const ret = new Jsrelod(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
@@ -171,10 +177,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_getlen_70e067c36215dcd7 = function(arg0) {
         const ret = getObject(arg0).getlen();
         return ret;
-    };
-    imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
-        const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
-        return addHeapObject(ret);
     };
     imports.wbg.__wbg_buffer_12d079cc21e14bdb = function(arg0) {
         const ret = getObject(arg0).buffer;
@@ -209,11 +211,13 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper58 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper81 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 12, __wbg_adapter_8);
         return addHeapObject(ret);
     };
-    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js'] = __wbg_star0;
+    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/keyboard.js'] = __wbg_star0;
+    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/mouse.js'] = __wbg_star1;
+    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js'] = __wbg_star2;
 
     return imports;
 }

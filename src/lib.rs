@@ -1,4 +1,6 @@
 use engine::engine::{start_loop, Engine};
+use engine::input::keyboard::is_key_pressed;
+use engine::input::mouse::{get_mouse_x, get_mouse_y};
 use engine::object::Object;
 use engine::plane::PLANE;
 use wasm_bindgen::prelude::*;
@@ -15,6 +17,7 @@ extern {
 
 #[wasm_bindgen]
 pub fn main() {
+  const SPEED: f32 = 0.1f32;
   let mut eng: Engine = Engine::new("render");
   let res: Objreader = Objreader::new("cube");
 
@@ -134,6 +137,24 @@ pub fn main() {
 
 
   start_loop(Closure::new(move || {
+    eng.cameras[0].rot.x += get_mouse_y() as f32/eng.render.get_canvas_size_y()as f32;
+    eng.cameras[0].rot.y += get_mouse_x() as f32/eng.render.get_canvas_size_x()as f32;
+    if is_key_pressed(11){
+      eng.cameras[0].pos.z += f32::cos(eng.cameras[0].rot.x) * f32::cos(eng.cameras[0].rot.y) * SPEED;
+      eng.cameras[0].pos.x += f32::cos(eng.cameras[0].rot.x) * f32::sin(eng.cameras[0].rot.y) * -SPEED;
+    }
+    if is_key_pressed(1){
+      eng.cameras[0].pos.z += f32::cos(eng.cameras[0].rot.x) * f32::cos(eng.cameras[0].rot.y) * -SPEED;
+      eng.cameras[0].pos.x += f32::cos(eng.cameras[0].rot.x) * f32::sin(eng.cameras[0].rot.y) * SPEED;
+    }
+    if is_key_pressed(12){
+      eng.cameras[0].pos.x += f32::cos(eng.cameras[0].rot.x) * f32::cos(eng.cameras[0].rot.y) * SPEED;
+      eng.cameras[0].pos.z += f32::cos(eng.cameras[0].rot.x) * f32::sin(eng.cameras[0].rot.y) * SPEED;
+    }
+    if is_key_pressed(10){
+      eng.cameras[0].pos.x += f32::cos(eng.cameras[0].rot.x) * f32::cos(eng.cameras[0].rot.y) * -SPEED;
+      eng.cameras[0].pos.z += f32::cos(eng.cameras[0].rot.x) * f32::sin(eng.cameras[0].rot.y) * -SPEED;
+    }
     eng.start();
     mesh1.rot.x += 0.01f32;
     mesh1.exec(&mut eng);
