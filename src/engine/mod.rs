@@ -7,3 +7,4 @@ pub mod camera;
 pub mod object;
 pub mod plane;
 pub mod light;
+pub mod material;

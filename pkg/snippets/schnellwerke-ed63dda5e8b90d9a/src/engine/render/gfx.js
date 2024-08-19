@@ -52,6 +52,50 @@ export class Gfxrender{
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
             })
         ];
+
+        this.matPassTexture = [
+            device.createTexture({
+                label: "material2",
+                format: "rgba16float",
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            }),
+            device.createTexture({
+                label: "material2",
+                format: "rgba16float",
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            })
+        ];
+        this.normalPassTexture = [
+            device.createTexture({
+                label: "normal1",
+                format: "rgba16float",
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            }),
+            device.createTexture({
+                label: "normal2",
+                format: "rgba16float",
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            })
+        ];
+        this.positionPassTexture = [
+            device.createTexture({
+                label: "position1",
+                format: "rgba16float",
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            }),
+            device.createTexture({
+                label: "position2",
+                format: "rgba16float",
+                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            })
+        ];
+
         this.lastMainPassTexture = [
             device.createTexture({
                 label: "lastmain1",
@@ -180,6 +224,30 @@ export class Gfxrender{
                clearValue: { r: 0, g: 0, b: 0, a: 1 },
                loadOp: lop,
                storeOp: "store",
+            },{
+                view: this.matPassTexture[Number(this.currentworkingbuffers)].createView({
+                     dimension: "2d",
+                     baseArrayLayer: layer,
+                }),
+                clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                loadOp: lop,
+                storeOp: "store",
+            },{
+                view: this.normalPassTexture[Number(this.currentworkingbuffers)].createView({
+                     dimension: "2d",
+                     baseArrayLayer: layer,
+                }),
+                clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                loadOp: lop,
+                storeOp: "store",
+            },{
+                view: this.positionPassTexture[Number(this.currentworkingbuffers)].createView({
+                     dimension: "2d",
+                     baseArrayLayer: layer,
+                }),
+                clearValue: { r: 0, g: 0, b: 0, a: 1 },
+                loadOp: lop,
+                storeOp: "store",
             }],
             depthStencilAttachment: {
                 view: this.mainPassDepthTexture[Number(this.currentworkingbuffers)].createView({
@@ -228,6 +296,27 @@ export class Gfxrender{
             this.mainPassTexture[Number(!this.currentworkingbuffers)].destroy();
             this.mainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
                 label: "m",
+                format: "rgba16float",
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            });
+            this.matPassTexture[Number(!this.currentworkingbuffers)].destroy();
+            this.matPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
+                label: "mat",
+                format: "rgba16float",
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            });
+            this.normalPassTexture[Number(!this.currentworkingbuffers)].destroy();
+            this.normalPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
+                label: "normal",
+                format: "rgba16float",
+                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
+                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
+            });
+            this.positionPassTexture[Number(!this.currentworkingbuffers)].destroy();
+            this.positionPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
+                label: "position",
                 format: "rgba16float",
                 size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT | GPUTextureUsage.COPY_SRC,
@@ -393,18 +482,24 @@ export class Gfxmesh{
                 fragment: {
                   module: this.fragmentcode,
                   entryPoint: "fragmentMain",
-                  targets: [{
+                  targets: [{ 
                     format: "rgba16float",
-                    blend: {
-                        color: {
-                          srcFactor: 'one',
-                          dstFactor: 'one-minus-src-alpha'
-                        },
-                        alpha: {
-                          srcFactor: 'one',
-                          dstFactor: 'one-minus-src-alpha'
-                        },
-                    },
+                    //blend: {
+                    //    color: {
+                    //      srcFactor: 'one',
+                    //      dstFactor: 'one-minus-src-alpha'
+                    //    },
+                    //    alpha: {
+                    //      srcFactor: 'one',
+                    //      dstFactor: 'one-minus-src-alpha'
+                    //    },
+                    //},
+                  },{
+                    format: "rgba16float",
+                  },{
+                    format: "rgba16float",
+                  },{
+                    format: "rgba16float",
                   }]
                 },
                 depthStencil: {
@@ -674,11 +769,32 @@ export class Gfxmesh{
                 visibility: GPUShaderStage.FRAGMENT,
                 texture: {
                     viewDimension: "2d-array",
+                },
+              },
+              {
+                binding: 6,
+                visibility: GPUShaderStage.FRAGMENT,
+                texture: {
+                    viewDimension: "2d-array",
+                },
+              },
+              {
+                binding: 7,
+                visibility: GPUShaderStage.FRAGMENT,
+                texture: {
+                    viewDimension: "2d-array",
+                },
+              },
+              {
+                binding: 8,
+                visibility: GPUShaderStage.FRAGMENT,
+                texture: {
+                    viewDimension: "2d-array",
                     sampleType: 'depth',
                   },
               },
               {
-                binding: 6,
+                binding: 9,
                 visibility: GPUShaderStage.FRAGMENT,
                 sampler: {
                     type: 'comparison',
@@ -773,10 +889,22 @@ export class Gfxmesh{
                 },
                 {
                     binding: 5,
-                    resource: gfx.mainPassDepthTexture[Number(gfx.currentworkingbuffers)].createView()
+                    resource: gfx.matPassTexture[Number(gfx.currentworkingbuffers)].createView()
                 },
                 {
                     binding: 6,
+                    resource: gfx.normalPassTexture[Number(gfx.currentworkingbuffers)].createView()
+                },
+                {
+                    binding: 7,
+                    resource: gfx.positionPassTexture[Number(gfx.currentworkingbuffers)].createView()
+                },
+                {
+                    binding: 8,
+                    resource: gfx.mainPassDepthTexture[Number(gfx.currentworkingbuffers)].createView()
+                },
+                {
+                    binding: 9,
                     resource: device.createSampler({
                       compare: 'less',
                     }),
@@ -888,10 +1016,22 @@ export class Gfxmesh{
                 },
                 {
                     binding: 5,
-                    resource: gfx.mainPassDepthTexture[Number(gfx.currentworkingbuffers)].createView()
+                    resource: gfx.matPassTexture[Number(gfx.currentworkingbuffers)].createView()
                 },
                 {
                     binding: 6,
+                    resource: gfx.normalPassTexture[Number(gfx.currentworkingbuffers)].createView()
+                },
+                {
+                    binding: 7,
+                    resource: gfx.positionPassTexture[Number(gfx.currentworkingbuffers)].createView()
+                },
+                {
+                    binding: 8,
+                    resource: gfx.mainPassDepthTexture[Number(gfx.currentworkingbuffers)].createView()
+                },
+                {
+                    binding: 9,
                     resource: device.createSampler({
                       compare: 'less',
                     }),

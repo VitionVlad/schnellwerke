@@ -14,6 +14,7 @@ pub struct Light{
     pub pos: Vec3,
     pub rot: Vec3,
     pub color: Vec3,
+    pub shadow: bool,
     cameras: Vec<Camera>,
 }
 
@@ -31,6 +32,7 @@ impl Light{
             pos: Vec3::new(),
             rot: Vec3::new(),
             color: Vec3::newdefined(1f32, 1f32, 1f32),
+            shadow: true,
             cameras: cams,
         }
     }
