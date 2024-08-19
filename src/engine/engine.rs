@@ -56,9 +56,11 @@ impl Engine {
     pub fn start(&mut self){
         let mut smats = 0;
         for i in 0..self.lights.len(){
-            smats+=1;
-            if self.lights[i].light_type == LightType::Point{
-                smats+=5;
+            if self.lights[i].shadow {
+                smats+=1;
+                if self.lights[i].light_type == LightType::Point{
+                    smats+=5;
+                }
             }
         }
         if self.last_cam_size != self.cameras.len() || self.last_light_size != self.lights.len(){
@@ -100,10 +102,17 @@ impl Engine {
             self.ubo_beg_values[16*self.cameras.len()+7+i*4] = 0f32;
         }
         
+        let mut fl = 0;
         for l in 0..self.lights.len(){
-            let vc = self.lights[l].getvec();
-            for i in 0..vc.len(){
-                self.ubo_beg_values[20*self.cameras.len()+4+l*16+i] = vc[i];
+            if self.lights[l].shadow{
+                let vc = self.lights[l].getvec();
+                for i in 0..vc.len(){
+                    self.ubo_beg_values[20*self.cameras.len()+4+fl+i] = vc[i];
+                }
+                fl+=16;
+                if self.lights[l].light_type == LightType::Point{
+                    fl += 80;
+                }
             }
         }
 
