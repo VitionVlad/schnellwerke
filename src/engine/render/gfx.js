@@ -96,20 +96,6 @@ export class Gfxrender{
             })
         ];
 
-        this.lastMainPassTexture = [
-            device.createTexture({
-                label: "lastmain1",
-                format: "rgba16float",
-                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
-                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
-            }),
-            device.createTexture({
-                label: "lastmain2",
-                format: "rgba16float",
-                size: [this.canvas.width*this.rscale, this.canvas.height*this.rscale, this.mainpasslayers],
-                usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
-            })
-        ];
         this.mainPassDepthTexture = [
             device.createTexture({
                 label: "maindepth1",
@@ -201,15 +187,6 @@ export class Gfxrender{
                 depthStoreOp: "store",
             }
         });
-    }
-    gfxcopylasttex(){
-        if(this.canvas.offsetWidth === this.canvas.width && this.canvas.offsetHeight === this.canvas.height){
-            this.encoder.copyTextureToTexture(
-                {texture: this.mainPassTexture[Number(this.currentworkingbuffers)]}, 
-                {texture: this.lastMainPassTexture[Number(this.currentworkingbuffers)]}, 
-                [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers]
-            );
-        }
     }
     gfxbeginmainpass(lop, dlop, layer){
         this.passbeg = true;
@@ -327,13 +304,6 @@ export class Gfxrender{
                 format: "depth24plus",
                 size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
                 usage:  GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.RENDER_ATTACHMENT,
-            });
-            this.lastMainPassTexture[Number(!this.currentworkingbuffers)].destroy();
-            this.lastMainPassTexture[Number(!this.currentworkingbuffers)] = device.createTexture({
-                label: "lm",
-                format: "rgba16float",
-                size: [this.canvas.offsetWidth*this.rscale, this.canvas.offsetHeight*this.rscale, this.mainpasslayers],
-                usage:  GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.COPY_DST,
             });
             this.currentworkingbuffers = !this.currentworkingbuffers;
             console.log("Gfxrender: canvas resized from: x="+this.canvas.width+" to x="+this.canvas.offsetWidth+", from y="+this.canvas.height+" to y="+this.canvas.offsetHeight);
@@ -552,13 +522,6 @@ export class Gfxmesh{
               {
                 binding: 5,
                 visibility: GPUShaderStage.FRAGMENT,
-                texture: {
-                    viewDimension: "2d-array",
-                },
-              },
-              {
-                binding: 6,
-                visibility: GPUShaderStage.FRAGMENT,
                 sampler: {
                     type: 'comparison',
                 },
@@ -718,10 +681,6 @@ export class Gfxmesh{
                 },
                 {
                     binding: 5,
-                    resource: gfx.lastMainPassTexture[Number(gfx.currentworkingbuffers)].createView()
-                },
-                {
-                    binding: 6,
                     resource: device.createSampler({
                       compare: 'less',
                     }),
@@ -1069,10 +1028,6 @@ export class Gfxmesh{
                 },
                 {
                     binding: 5,
-                    resource: gfx.lastMainPassTexture[Number(gfx.currentworkingbuffers)].createView()
-                },
-                {
-                    binding: 6,
                     resource: device.createSampler({
                       compare: 'less',
                     }),
@@ -1224,7 +1179,6 @@ var gfxms = [];
 
 export function drawloop(){
     gfxr.gfxcheckchange();
-    gfxr.gfxcopylasttex();
     for(var i = 0; i !== gfxr.rendershadows; i += 1){
         gfxr.gfxbeginshadowpass("clear", i);
         for(var b = 0; b != gfxms.length; b+=1){

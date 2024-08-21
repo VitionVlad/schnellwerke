@@ -48,7 +48,7 @@ impl Engine {
             @group(0) @binding(0) var<uniform> ubo: uniforms;
             @vertex
             fn vertexMain(@location(0) pos: vec3f) -> @builtin(position) vec4f {
-              return ubo.mvp[0] * ubo.model * vec4f(pos, 1.0);
+              return ubo.smvp[i32(ubo.eng.w)] * ubo.model * vec4f(pos, 1.0);
             }".to_string(),
         }
     }

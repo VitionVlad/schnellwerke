@@ -127,6 +127,10 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
+        const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbg_setrender_e632d4306c50c59d = function(arg0) {
         set_render(getObject(arg0));
     };
@@ -153,10 +157,6 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_setubo_52def3822cd560c5 = function(arg0, arg1) {
         getObject(arg0).set_ubo(getObject(arg1));
-    };
-    imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
-        const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
-        return addHeapObject(ret);
     };
     imports.wbg.__wbg_new_766710a7adac36ef = function(arg0, arg1) {
         const ret = new Jsrelod(getStringFromWasm0(arg0, arg1));

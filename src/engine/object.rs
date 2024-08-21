@@ -1,6 +1,6 @@
 use js_sys::Float32Array;
 
-use super::{engine::Engine, light::LightType, math::{mat4::Mat4, vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
+use super::{engine::Engine, light::LightType, material::Material, math::{mat4::Mat4, vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
 
 #[allow(dead_code)]
 pub struct Object{
@@ -9,11 +9,13 @@ pub struct Object{
     pub rot: Vec3,
     pub scale: Vec3,
     ubo: Vec<f32>,
+    startsize: i32,
+    addsize: i32,
 }
 
 impl Object{
     #[allow(dead_code)]
-    pub fn new(eng: &Engine, vertex_data: Vec<f32>, vertexcode: &str, fragmentcode: &str, ubol: i32, texid: &str, cubeid: &str, usage: MUsages) -> Object{
+    pub fn new(eng: &Engine, vertex_data: Vec<f32>, material: Material, usage: MUsages) -> Object{
         let size = vertex_data.len()/8;
         let v = Float32Array::new_with_length((size*3) as u32);
         let u = Float32Array::new_with_length((size*2) as u32);
@@ -52,12 +54,24 @@ impl Object{
             jst.set_index(i+8, (deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
             vcnt+=6
         }
+        let vc = eng.uniform_beg.to_string() + &material.vertex_shader;
+        let fc = eng.uniform_beg.to_string() + &material.fragment_shader;
+        let mut smats = 0;
+        for i in 0..eng.lights.len(){
+            smats+=1;
+            if eng.lights[i].light_type == LightType::Point{
+                smats+=5;
+            }
+        }
+        let startsize: i32 = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
         Object{
-            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, vertexcode, &eng.shadow_code, fragmentcode, ubol, texid, cubeid, &eng.render.magfilter, &eng.render.minfilter, &eng.render.culling_mode, &eng.render.culling_mode_shadow, &eng.render.repeat_mode, usage),
+            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, &vc, &eng.shadow_code, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
             pos: Vec3::new(),
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
             ubo: vec![0f32, 0f32, 0f32, 0f32],
+            startsize: startsize,
+            addsize: material.ubo_size,
         }
     }
     #[allow(dead_code)]
@@ -69,7 +83,8 @@ impl Object{
                 smats+=5;
             }
         }
-        self.ubo.resize(20*eng.cameras.len()+20+smats*16+eng.lights.len()*8, 0f32);
+        self.ubo.resize(20*eng.cameras.len()+20+smats*16+eng.lights.len()*8 + self.addsize as usize, 0f32);
+        self.startsize = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
         
         for i in 0..(20*eng.cameras.len()+4+smats*16+eng.lights.len()*8){
             self.ubo[i] = eng.ubo_beg_values[i];

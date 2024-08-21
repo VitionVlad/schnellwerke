@@ -61,11 +61,6 @@ extern {
 
 pub struct Render{
     pub jsren: Gfxrender,
-    pub magfilter: String,
-    pub minfilter: String,
-    pub culling_mode: String,
-    pub culling_mode_shadow: String,
-    pub repeat_mode: String,
 }
 
 impl Render{
@@ -73,11 +68,6 @@ impl Render{
     pub fn init(canvasid: &str, renderscale: f32, shadowmapres: i32) -> Render{
         Render{
             jsren: Gfxrender::new(canvasid, renderscale, shadowmapres),
-            magfilter: "linear".to_string(),
-            minfilter: "linear".to_string(),
-            culling_mode: "none".to_string(),
-            culling_mode_shadow: "none".to_string(),
-            repeat_mode: "repeat".to_string(),
         }
     }
     #[allow(dead_code)]
