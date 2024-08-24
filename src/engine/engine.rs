@@ -5,13 +5,18 @@ use super::camera::Camera;
 #[allow(dead_code)]
 pub struct Engine{
     pub render: Render,
+    pub renderscale: f32,
+    pub shadowmap_resolution: i32,
     pub cameras: Vec<Camera>,
     pub lights: Vec<Light>,
     pub ubo_beg_values: Vec<f32>,
     pub uniform_beg: String,
     last_cam_size: usize,
     last_light_size: usize,
+    last_renderscale: f32,
+    last_shs: i32,
     pub shadow_code: String,
+    pub rec_pipeline: bool,
 }
 
 impl Engine {
@@ -21,12 +26,14 @@ impl Engine {
         set_render(&ren.jsren);
         Engine{
             render: ren,
+            renderscale: 1.0f32,
+            shadowmap_resolution: 1000,
             cameras: vec![Camera{ pos: Vec3::new(), rot: Vec3::new(), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: false }],
             lights: vec![Light::new(LightType::Directional)],
             ubo_beg_values: vec![0f32, 0f32, 0f32, 0f32],
             uniform_beg: "
             struct uniforms {
-                eng: vec4f,
+                eng: vec4i,
                 mvp: array<mat4x4<f32>, 1>,
                 pos: array<vec4f, 1>,
                 smvp: array<mat4x4<f32>, 1>,
@@ -35,25 +42,20 @@ impl Engine {
                 model: mat4x4<f32>,".to_string(),
             last_cam_size: 1,
             last_light_size: 1,
+            last_renderscale: 1f32,
+            last_shs: 1000,
             shadow_code: "
-            struct uniforms {
-              eng: vec4f,
-              mvp: array<mat4x4<f32>, 1>,
-              pos: array<vec4f, 1>,
-              smvp: array<mat4x4<f32>, 1>,
-              lpos: array<vec4f, 1>,
-              lcolor: array<vec4f, 1>,
-              model: mat4x4<f32>,
-            }
             @group(0) @binding(0) var<uniform> ubo: uniforms;
             @vertex
             fn vertexMain(@location(0) pos: vec3f) -> @builtin(position) vec4f {
-              return ubo.smvp[i32(ubo.eng.w)] * ubo.model * vec4f(pos, 1.0);
+              return ubo.smvp[ubo.eng.a] * ubo.model * vec4f(pos, 1.0);
             }".to_string(),
+            rec_pipeline: false,
         }
     }
     #[allow(dead_code)]
     pub fn start(&mut self){
+        self.rec_pipeline = false;
         let mut smats = 0;
         for i in 0..self.lights.len(){
             if self.lights[i].shadow {
@@ -66,7 +68,7 @@ impl Engine {
         if self.last_cam_size != self.cameras.len() || self.last_light_size != self.lights.len(){
             self.uniform_beg = "
                 struct uniforms {
-                    eng: vec4f,
+                    eng: vec4i,
                     mvp: array<mat4x4<f32>, ".to_string();
             self.uniform_beg += &self.cameras.len().to_string();
             self.uniform_beg += ">,
@@ -85,6 +87,17 @@ impl Engine {
                     model: mat4x4<f32>,";
             self.last_cam_size = self.cameras.len();
             self.last_light_size = self.lights.len();
+            self.rec_pipeline = true;
+            self.render.change_render_scale(self.renderscale, self.last_cam_size as u32);
+            self.render.change_shadow_map_resolution(self.shadowmap_resolution, smats as u32);
+        }
+        if self.last_renderscale != self.renderscale {
+            self.render.change_render_scale(self.renderscale, self.last_cam_size as u32);
+            self.last_renderscale = self.renderscale;
+        }
+        if self.last_shs != self.shadowmap_resolution {
+            self.render.change_shadow_map_resolution(self.shadowmap_resolution, smats as u32);
+            self.last_shs = self.shadowmap_resolution;
         }
             
         let aspect = self.render.get_canvas_size_x() as f32/self.render.get_canvas_size_y() as f32;

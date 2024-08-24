@@ -353,22 +353,26 @@ export class Gfxmesh{
             }
         }
     }
-    preparesh(shadowvertexcode, cullmode){
+    preparesbg(i){
+        this.sbindGroup[i] = device.createBindGroup({
+            layout: this.shadowpipeline.getBindGroupLayout(0),
+            entries: [
+                { 
+                    binding: 0, 
+                    resource: { 
+                        buffer: this.uniformBuffers[i][this.currentubo] 
+                    }
+                },
+            ],
+        });
+    }
+    createshpipeline(shadowvertexcode, cullmode){
         this.vertexshadercode = device.createShaderModule({
             code: shadowvertexcode
         });
-        const shadowbindGroupLayout = device.createBindGroupLayout({
-            entries: [
-              {
-                binding: 0,
-                visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
-                buffer: {},
-              },
-            ],
-        });
         this.shadowpipeline = device.createRenderPipeline({
             layout: device.createPipelineLayout({
-                bindGroupLayouts: [shadowbindGroupLayout],
+                bindGroupLayouts: [this.shadowbindGroupLayout],
             }),
             vertex: {
               module: this.vertexshadercode,
@@ -386,17 +390,37 @@ export class Gfxmesh{
                 cullMode: cullmode
             },
         });
-        this.sbindGroup = device.createBindGroup({
+        this.sbindGroup = [device.createBindGroup({
             layout: this.shadowpipeline.getBindGroupLayout(0),
             entries: [
                 { 
                     binding: 0, 
                     resource: { 
-                        buffer: this.uniformBuffer 
+                        buffer: this.uniformBuffers[0][this.currentubo] 
                     }
                 },
             ],
+        })];
+    }
+    preparesh(shadowvertexcode, cullmode){
+        this.shadowbindGroupLayout = device.createBindGroupLayout({
+            entries: [
+              {
+                binding: 0,
+                visibility: GPUShaderStage.VERTEX | GPUShaderStage.FRAGMENT,
+                buffer: {},
+              },
+            ],
         });
+        this.createshpipeline(shadowvertexcode, cullmode);
+    }
+    queuepipeline(svertexcode, vertexcode, fragmentcode, cullmode, shcullmode){
+        this.newsvc = svertexcode;
+        this.newvc = vertexcode;
+        this.newfc = fragmentcode;
+        this.cullmq = cullmode;
+        this.shcullmq = shcullmode;
+        this.reqpl = true;
     }
     createpipeline(gfx, vertexcode, fragmentcode, cullmode){
         this.vertexcode = device.createShaderModule({
@@ -652,14 +676,14 @@ export class Gfxmesh{
             }
         }
 
-        this.bindGroup = device.createBindGroup({
+        this.bindGroup = [device.createBindGroup({
             label: "mainBindGroup",
             layout: this.pipeline.getBindGroupLayout(0),
             entries: [
                 { 
                     binding: 0, 
                     resource: { 
-                        buffer: this.uniformBuffer 
+                        buffer: this.uniformBuffers[0][this.currentubo] 
                     }},
                 {
                     binding: 1,
@@ -686,7 +710,7 @@ export class Gfxmesh{
                     }),
                 },
             ],
-        });
+        })];
     }
     preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter, repeatmode){
         this.bindGroupLayout = device.createBindGroupLayout({
@@ -828,7 +852,7 @@ export class Gfxmesh{
                 { 
                     binding: 0, 
                     resource: { 
-                        buffer: this.uniformBuffer 
+                        buffer: this.uniformBuffers[0][this.currentubo] 
                     }},
                 {
                     binding: 1,
@@ -872,25 +896,36 @@ export class Gfxmesh{
         });
     }
     createub(ubol){
-        this.uniformBuffer.destroy();
-        this.uniformBuffer = device.createBuffer({
-            size: ubol*4,
-            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        });
+        this.currentubo = Number(!this.currentubo);
+        for(var i = 0; i != this.uniformBuffers.length; i+=1){
+            this.uniformBuffers[i][this.currentubo].destroy();
+            this.uniformBuffers[i][this.currentubo] = device.createBuffer({
+                size: ubol*4,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                label: "bf" + this.currentubo,
+            });
+        }
     }
     constructor(gfx, vertices, uv, normals, tang, lenght, vertexcode, shadowvertexcode, fragmentcode, ubol, texid, cubeid, magfilter, minfilter, cullMode, shcullMode, repeatmode, usage){
         this.usage = usage;
         this.lenght = lenght;
         this.ubol = ubol;
         this.ubo = new Float32Array(ubol);
-        this.uniformBuffer = device.createBuffer({
+        this.currentubo = 0;
+        this.currentpipe = 0;
+        this.uniformBuffers = [[device.createBuffer({
             size: ubol*4,
             usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-        });
+            label: "bf0",
+        }), device.createBuffer({
+            size: ubol*4,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+            label: "bf1",
+        })]];
         this.vertexBuffer = device.createBuffer({
             size: 12*lenght,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
-        });
+        }); 
         this.uvBuffer = device.createBuffer({
             size: 8*lenght,
             usage: GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST,
@@ -947,6 +982,13 @@ export class Gfxmesh{
         }
         this.preparesh(shadowvertexcode, shcullMode);
         this.index = -1;
+        this.recbuf = false;
+        this.newsvc = "";
+        this.newvc = "";
+        this.newfc = "";
+        this.cullmq = "";
+        this.shcullmq = "";
+        this.reqpl = false;
     }
     recpostg(gfx){
         this.postbindGroup = device.createBindGroup({
@@ -955,7 +997,7 @@ export class Gfxmesh{
                 { 
                     binding: 0, 
                     resource: { 
-                        buffer: this.uniformBuffer 
+                        buffer: this.uniformBuffers[0][this.currentubo]  
                     }},
                 {
                     binding: 1,
@@ -998,15 +1040,15 @@ export class Gfxmesh{
             ],
         });
     }
-    recg(gfx){
-        this.bindGroup = device.createBindGroup({
+    recg(gfx, i){
+        this.bindGroup[i] = device.createBindGroup({
             label: "mainBindGroup",
             layout: this.pipeline.getBindGroupLayout(0),
             entries: [
                 { 
                     binding: 0, 
                     resource: { 
-                        buffer: this.uniformBuffer 
+                        buffer: this.uniformBuffers[i][this.currentubo] 
                     }},
                 {
                     binding: 1,
@@ -1040,16 +1082,29 @@ export class Gfxmesh{
     }
     set_ubo(uniformValues){
         if(uniformValues.length !== this.ubo.length){
-            this.createub(uniformValues.length);
+            this.recbuf = true;
         }
         this.ubo = uniformValues;
     }
-    draw(gfx){
-        device.queue.writeBuffer(this.uniformBuffer, 0, this.ubo);
+    draw(gfx, i){
+        if(i+1 > this.uniformBuffers.length){
+            this.uniformBuffers.push([device.createBuffer({
+                size: this.ubo.length*4,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                label: "bf0",
+            }), device.createBuffer({
+                size: this.ubo.length*4,
+                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                label: "bf1",
+            })]);
+        }
+        this.ubo[3] = i;
+        device.queue.writeBuffer(this.uniformBuffers[i][this.currentubo], 0, this.ubo);
         if(gfx.isshadowpass){
             if(this.usage === 1 || this.usage === 3){
+                this.preparesbg(i);
                 gfx.pass.setPipeline(this.shadowpipeline);
-                gfx.pass.setBindGroup(0, this.sbindGroup);
+                gfx.pass.setBindGroup(0, this.sbindGroup[i]);
                 gfx.pass.setVertexBuffer(0, this.vertexBuffer);
                 gfx.pass.draw(this.lenght);
             }
@@ -1065,9 +1120,9 @@ export class Gfxmesh{
                 gfx.pass.draw(this.lenght);
             }
             if (!gfx.inpost && (this.usage == 1 || this.usage == 2)){
-                this.recg(gfx);
+                this.recg(gfx, i);
                 gfx.pass.setPipeline(this.pipeline);
-                gfx.pass.setBindGroup(0, this.bindGroup);
+                gfx.pass.setBindGroup(0, this.bindGroup[i]);
                 gfx.pass.setVertexBuffer(0, this.vertexBuffer);
                 gfx.pass.setVertexBuffer(1, this.uvBuffer);
                 gfx.pass.setVertexBuffer(2, this.nBuffer);
@@ -1178,30 +1233,41 @@ var gfxr = null;
 var gfxms = [];
 
 export function drawloop(){
+    for(var i = 0; i != gfxms.length; i+=1){
+        if(gfxms[i].recbuf){
+            gfxms[i].createub(gfxms[i].ubo.length);
+            gfxms[i].recbuf = false;
+        }
+    }
+    for(var i = 0; i != gfxms.length; i+=1){
+        if(gfxms[i].reqpl){
+            gfxms[i].createpipeline(gfxr, gfxms[i].newvc, gfxms[i].newfc, gfxms[i].cullmq);
+            gfxms[i].createshpipeline(gfxms[i].newsvc, gfxms[i].shcullmq);
+            gfxms[i].reqpl = false;
+        }
+    }
     gfxr.gfxcheckchange();
     for(var i = 0; i !== gfxr.rendershadows; i += 1){
         gfxr.gfxbeginshadowpass("clear", i);
         for(var b = 0; b != gfxms.length; b+=1){
             gfxms[b].ubo[2] = gfxr.shadowmapres;
-            gfxms[b].ubo[3] = i;
-            gfxms[b].draw(gfxr);
+            gfxms[b].draw(gfxr, i);
         }
         gfxr.gfxendpass();
     }
     for(var i = 0; i !== gfxr.renderlayers; i += 1){
         gfxr.gfxbeginmainpass("clear", "clear", i);
         for(var b = 0; b != gfxms.length; b+=1){
-            gfxms[b].ubo[0] = gfxr.canvas.width*gfxr.rscale;
-            gfxms[b].ubo[1] = gfxr.canvas.height*gfxr.rscale;
+            gfxms[b].ubo[0] = Math.floor(gfxr.canvas.width*gfxr.rscale);
+            gfxms[b].ubo[1] = Math.floor(gfxr.canvas.height*gfxr.rscale);
             gfxms[b].ubo[2] = gfxr.shadowmapres;
-            gfxms[b].ubo[3] = i;
-            gfxms[b].draw(gfxr);
+            gfxms[b].draw(gfxr, i);
         }
         gfxr.gfxendpass();
     }
     gfxr.gfxbeginpass("clear", "clear");
     for(var i = 0; i != gfxms.length; i+=1){
-        gfxms[i].draw(gfxr);
+        gfxms[i].draw(gfxr, 0);
     }
     gfxr.gfxendpass();
     gfxr.gfxfinishrender();

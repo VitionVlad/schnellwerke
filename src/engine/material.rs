@@ -6,6 +6,7 @@ pub struct Material{
     pub cube_ids: String,
     pub vertex_shader: String,
     pub fragment_shader: String,
+    pub uniend: String,
     pub magfilter: String,
     pub minfilter: String,
     pub culling_mode: String,
@@ -60,7 +61,7 @@ impl MaterialGenerator{
         @vertex
         fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
           var out: OUT;
-          out.position = ubo.mvp[i32(ubo.eng.w)] * ubo.model * vec4f(pos, 1.0);
+          out.position = ubo.mvp[ubo.eng.a] * ubo.model * vec4f(pos, 1.0);
           out.uv = vec2f(uv.x, 1.0-uv.y);
           out.vp = ubo.model * vec4f(pos, 1.0);
           out.norm = n;
@@ -160,7 +161,7 @@ impl MaterialGenerator{
       @vertex
       fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
         var out: OUT;
-        out.position = ubo.mvp[i32(ubo.eng.w)] * ubo.model * vec4f(pos, 1.0);
+        out.position = ubo.mvp[ubo.eng.a] * ubo.model * vec4f(pos, 1.0);
         out.uv = vec2f(uv.x, 1.0-uv.y);
         out.vp = ubo.model * vec4f(pos, 1.0);
         out.norm = n;
@@ -244,6 +245,7 @@ impl MaterialGenerator{
             cube_ids: cube_ids,
             vertex_shader: self.vertex_shader.to_string(),
             fragment_shader: self.fragment_shader.to_string(),
+            uniend: self.shaderbeg.to_owned(),
             magfilter: self.magfilter.to_string(),
             minfilter: self.minfilter.to_string(),
             culling_mode: self.culling_mode.to_string(),

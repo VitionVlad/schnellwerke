@@ -11,6 +11,9 @@ pub struct Object{
     ubo: Vec<f32>,
     startsize: i32,
     addsize: i32,
+    vc: String,
+    svc: String,
+    fc: String,
 }
 
 impl Object{
@@ -56,6 +59,7 @@ impl Object{
         }
         let vc = eng.uniform_beg.to_string() + &material.vertex_shader;
         let fc = eng.uniform_beg.to_string() + &material.fragment_shader;
+        let svc = eng.uniform_beg.to_string() + &material.uniend + &eng.shadow_code;
         let mut smats = 0;
         for i in 0..eng.lights.len(){
             smats+=1;
@@ -65,17 +69,21 @@ impl Object{
         }
         let startsize: i32 = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
         Object{
-            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, &vc, &eng.shadow_code, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
+            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
             pos: Vec3::new(),
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),
             ubo: vec![0f32, 0f32, 0f32, 0f32],
             startsize: startsize,
             addsize: material.ubo_size,
+            vc: material.vertex_shader,
+            svc: material.uniend + &eng.shadow_code,
+            fc: material.fragment_shader,
         }
     }
     #[allow(dead_code)]
     pub fn exec(&mut self, eng: &mut Engine){
+        let ubeg = eng.uniform_beg.to_owned();
         let mut smats = 0;
         for i in 0..eng.lights.len(){
             smats+=1;
@@ -110,5 +118,8 @@ impl Object{
             self.ubo[20*eng.cameras.len()+4+smats*16+eng.lights.len()*8+i] = mmat.mat[i];
         }
         self.mesh.set_ubo(&self.ubo);
+        if eng.rec_pipeline {
+            self.mesh.jsmesh.queuepipeline(&(eng.uniform_beg.to_owned() + &self.svc),  &(ubeg.to_owned() + &self.vc), &(ubeg.to_owned() + &self.fc), &self.mesh.cullmode, &self.mesh.shcullmode);
+        }
     }
 }

@@ -27,6 +27,12 @@ extern {
     pub fn createub(this: &Gfxmesh, ubol: i32);
 
     #[wasm_bindgen(method)]
+    pub fn createshpipeline(this: &Gfxmesh, vertexcode: &str, cullMode: &str);
+
+    #[wasm_bindgen(method)]
+    pub fn queuepipeline(this: &Gfxmesh, svertexcode: &str, vertexcode: &str, fragmentcode: &str, cullMode: &str, shcullMode: &str);
+
+    #[wasm_bindgen(method)]
     pub fn createpipeline(this: &Gfxmesh, gfx: &Gfxrender, vertexcode: &str, fragmentcode: &str, cullMode: &str);
 
     #[wasm_bindgen(constructor)]

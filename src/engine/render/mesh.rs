@@ -3,6 +3,8 @@ use js_sys::Float32Array;
 
 pub struct Mesh{
     pub jsmesh: Gfxmesh,
+    pub cullmode: String,
+    pub shcullmode: String,
 }
 
 #[allow(dead_code)]
@@ -20,6 +22,8 @@ impl Mesh{
         push_mesh(&m);
         Mesh{
             jsmesh: m,
+            cullmode: cull_mode.to_string(),
+            shcullmode: shcull_mode.to_string(),
         }
     }
     #[allow(dead_code)]
