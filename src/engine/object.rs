@@ -34,6 +34,7 @@ impl Object{
         }
         let mut vcnt: u32 = 0;
         let jst = js_sys::Float32Array::new_with_length((size*3) as u32);
+        let jst2 = js_sys::Float32Array::new_with_length((size*3) as u32);
         for i in (0..v.length()).step_by(9){
             let v0 = Vec3::newdefined(v.get_index(i), v.get_index(i+1), v.get_index(i+2));
             let v1 = Vec3::newdefined(v.get_index(i+3), v.get_index(i+4), v.get_index(i+5));
@@ -46,6 +47,7 @@ impl Object{
             let delta_uv1 = Vec2::newdefined(uv1.x-uv0.x, uv1.y-uv0.y);
             let delta_uv2 = Vec2::newdefined(uv2.x-uv0.x, uv2.y-uv0.y);
             let r = 1.0f32 / (delta_uv1.x * delta_uv2.y - delta_uv1.y * delta_uv2.x);
+
             jst.set_index(i, (deltapos1.x * delta_uv2.y - deltapos2.x * delta_uv1.y)*r);
             jst.set_index(i+1, (deltapos1.y * delta_uv2.y - deltapos2.y * delta_uv1.y)*r);
             jst.set_index(i+2, (deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
@@ -55,6 +57,16 @@ impl Object{
             jst.set_index(i+6, (deltapos1.x * delta_uv2.y - deltapos2.x * delta_uv1.y)*r);
             jst.set_index(i+7, (deltapos1.y * delta_uv2.y - deltapos2.y * delta_uv1.y)*r);
             jst.set_index(i+8, (deltapos1.z * delta_uv2.y - deltapos2.z * delta_uv1.y)*r);
+
+            jst2.set_index(i,   (deltapos2.x * delta_uv1.x - deltapos1.x * delta_uv2.x)*r);
+            jst2.set_index(i+1, (deltapos2.y * delta_uv1.x - deltapos1.y * delta_uv2.x)*r);
+            jst2.set_index(i+2, (deltapos2.z * delta_uv1.x - deltapos1.z * delta_uv2.x)*r);
+            jst2.set_index(i+3, (deltapos2.x * delta_uv1.x - deltapos1.x * delta_uv2.x)*r);
+            jst2.set_index(i+4, (deltapos2.y * delta_uv1.x - deltapos1.y * delta_uv2.x)*r);
+            jst2.set_index(i+5, (deltapos2.z * delta_uv1.x - deltapos1.z * delta_uv2.x)*r);
+            jst2.set_index(i+6, (deltapos2.x * delta_uv1.x - deltapos1.x * delta_uv2.x)*r);
+            jst2.set_index(i+7, (deltapos2.y * delta_uv1.x - deltapos1.y * delta_uv2.x)*r);
+            jst2.set_index(i+8, (deltapos2.z * delta_uv1.x - deltapos1.z * delta_uv2.x)*r);
             vcnt+=6
         }
         let vc = eng.uniform_beg.to_string() + &material.vertex_shader;
@@ -69,7 +81,7 @@ impl Object{
         }
         let startsize: i32 = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
         Object{
-            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
+            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, &jst2, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
             pos: Vec3::new(),
             rot: Vec3::new(),
             scale: Vec3::newdefined(1f32, 1f32, 1f32),

@@ -60,14 +60,14 @@ impl MaterialGenerator{
           @location(6) rp: vec4f,
         }
         @vertex
-        fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
+        fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f, @location(4) bt: vec3f) -> OUT {
           var out: OUT;
           out.position = ubo.mvp[ubo.eng.a] * ubo.model * vec4f(pos, 1.0);
           out.uv = vec2f(uv.x, 1.0-uv.y);
           out.vp = ubo.model * vec4f(pos, 1.0);
           out.norm = n;
           out.tangent = t;
-          out.bitangent = cross(n, t);
+          out.bitangent = bt;
           return out;
         }
         ";
@@ -139,7 +139,7 @@ impl MaterialGenerator{
       }
 
       @vertex
-      fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
+      fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f, @location(4) bt: vec3f) -> OUT {
         var out: OUT;
         out.position = vec4f(pos.xyz, 1);
         out.uv = uv;
@@ -162,14 +162,14 @@ impl MaterialGenerator{
         @location(6) rp: vec4f,
       }
       @vertex
-      fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
+      fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f, @location(4) bt: vec3f) -> OUT {
         var out: OUT;
         out.position = ubo.mvp[i32(ubo.eng.a)] * ubo.model * vec4f(pos, 1.0);
         out.uv = vec2f(uv.x, 1.0-uv.y);
         out.vp = ubo.model * vec4f(pos, 1.0);
         out.norm = n;
         out.tangent = t;
-        out.bitangent = cross(n, t);
+        out.bitangent = bt;
         out.rp = vec4f(pos, 1.0);
         return out;
       }";
@@ -200,6 +200,42 @@ impl MaterialGenerator{
 
       struct OUT{
         @location(0) uv: vec2f,
+      }
+
+      const PI = 3.14159265359;
+
+      fn DistributionGGX(N: vec3f, H: vec3f, roughness: f32) -> f32{
+          let a      = roughness*roughness;
+          let a2     = a*a;
+          let NdotH  = max(dot(N, H), 0.0);
+          let NdotH2 = NdotH*NdotH;
+
+          let num   = a2;
+          var denom = (NdotH2 * (a2 - 1.0) + 1.0);
+          denom = PI * denom * denom;
+
+          return num / denom;
+      }
+
+      fn GeometrySchlickGGX(NdotV: f32, roughness: f32) -> f32{
+          let r = (roughness + 1.0);
+          let k = (r*r) / 8.0;
+
+          let num   = NdotV;
+          let denom = NdotV * (1.0 - k) + k;
+
+          return num / denom;
+      }
+      fn GeometrySmith(N: vec3f, V: vec3f, L: vec3f, roughness: f32) -> f32{
+          let NdotV = max(dot(N, V), 0.0);
+          let NdotL = max(dot(N, L), 0.0);
+          let ggx2  = GeometrySchlickGGX(NdotV, roughness);
+          let ggx1  = GeometrySchlickGGX(NdotL, roughness);
+
+          return ggx1 * ggx2;
+      }
+      fn fresnelSchlick(cosTheta: f32, F0: vec3f) -> vec3f{
+          return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
       }
 
       @fragment

@@ -39,7 +39,7 @@ impl Engine {
                 smvp: array<mat4x4<f32>, 1>,
                 lpos: array<vec4f, 1>,
                 lcolor: array<vec4f, 1>,
-                len: vec4i,
+                len: vec4f,
                 model: mat4x4<f32>,".to_string(),
             last_cam_size: 1,
             last_light_size: 1,

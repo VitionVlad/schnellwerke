@@ -21,6 +21,7 @@ extern {
 pub fn main() {
   const SPEED: f32 = 0.1f32;
   let mut eng: Engine = Engine::new("render");
+  eng.shadowmap_resolution = 4000;
   let mut res: Objreader = Objreader::new("groundmd");
 
   let mut matgen = MaterialGenerator::new(vec![]);
@@ -34,11 +35,11 @@ pub fn main() {
     output.material.b = textureSample(myTexture, mySampler, in.uv, 2).r;
 
     let TBN = mat3x3<f32>(
-      in.norm,
       in.tangent,
       in.bitangent,
+      in.norm,
     );
-    output.normal = vec4f(TBN * textureSample(myTexture, mySampler, in.uv, 3).rgb, 1.0);
+    output.normal = vec4f(TBN * (textureSample(myTexture, mySampler, in.uv, 3).rgb * 2.0 - 1.0), 1.0);
     output.position = in.vp;
     return output;";
   matgen.gen_frag_end();
@@ -191,12 +192,14 @@ pub fn main() {
   matgen.gen_post_vertex();
   matgen.gen_fragpost_beg();
   matgen.fragment_shader += "
-  let col = textureSample(mainMap, mySampler, in.uv, 0).rgb;
-  let pos = vec4f(textureSample(positionMap, mySampler, in.uv, 0).rgb, 1.0);
+  let albedo = pow(textureSample(mainMap, mySampler, in.uv, 0).rgb, vec3f(2.2));
+  let WorldPos = textureSample(positionMap, mySampler, in.uv, 0).rgb;
+  let norm = textureSample(normalMap, mySampler, in.uv, 0).rgb;
+  let mat = textureSample(matMap, mySampler, in.uv, 0).rgb;
 
   var visibility = 0.0;
   for (var i = 0; i < 1; i++) {
-    let smv = ubo.smvp[i] * pos;
+    let smv = ubo.smvp[i] * vec4f(WorldPos, 1.0);
     let proj = vec3f((smv.x / smv.w)*0.5+0.5, (smv.y / smv.w)*-0.5+0.5, smv.z / smv.w);
     let oneOverShadowDepthTextureSize = 1.0 / 1000.0;
     for (var y = -1; y <= 1; y++) {
@@ -210,8 +213,47 @@ pub fn main() {
     }
   }
   let shadow = 1.0 - (visibility / 9.0);
+  let metallic = mat.g;
+  let roughness = mat.r;
 
-  return vec4f(col.r - shadow/2, col.g - shadow/2, col.b - shadow/2, 1.0);";
+  let N = normalize(norm);
+  let V = normalize(ubo.pos[0].xyz - WorldPos);
+
+  var F0 = vec3f(0.04); 
+  F0 = mix(F0, albedo, mat.g);
+	         
+  var Lo = vec3f(0.0);
+
+  for(var i = 0; i < 1; i++) {
+    let L = normalize(ubo.lpos[i].xyz - WorldPos);
+    let H = normalize(V + L);
+    let distance    = length(ubo.lpos[i].xyz - WorldPos);
+    let attenuation = 1.0 / (distance * distance);
+    let radiance     = (ubo.lcolor[i].xyz * 100.0) * attenuation;        
+    
+    let NDF = DistributionGGX(N, H, roughness);        
+    let G   = GeometrySmith(N, V, L, roughness);      
+    let F   = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+    
+    let kS = F;
+    var kD = vec3(1.0) - kS;
+    kD *= 1.0 - metallic;	  
+    
+    let numerator    = NDF * G * F;
+    let denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+    let specular     = numerator / denominator;  
+        
+    let NdotL = max(dot(N, L), 0.0);                
+    Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
+  }
+
+  let ambient = vec3(0.03) * albedo * mat.b;
+  var color = ambient + (Lo - shadow);
+
+  color = color / (color + vec3(1.0));
+  color = pow(color, vec3(1.0/2.2));  
+
+  return vec4f(color, 1.0);";
   matgen.gen_frag_end();
 
   let mut renderplane: Object = Object::new(&eng, PLANE.to_vec(), matgen.generate_material("".to_string(), "".to_string()), engine::render::mesh::MUsages::PostProcessing);
