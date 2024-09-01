@@ -21,7 +21,6 @@ extern {
 pub fn main() {
   const SPEED: f32 = 0.1f32;
   let mut eng: Engine = Engine::new("render");
-  eng.shadowmap_resolution = 4000;
   let mut res: Objreader = Objreader::new("groundmd");
 
   let mut matgen = MaterialGenerator::new(vec![]);
