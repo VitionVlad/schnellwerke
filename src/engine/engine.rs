@@ -33,12 +33,13 @@ impl Engine {
             ubo_beg_values: vec![0f32, 0f32, 0f32, 0f32],
             uniform_beg: "
             struct uniforms {
-                eng: vec4i,
+                eng: vec4f,
                 mvp: array<mat4x4<f32>, 1>,
                 pos: array<vec4f, 1>,
                 smvp: array<mat4x4<f32>, 1>,
                 lpos: array<vec4f, 1>,
                 lcolor: array<vec4f, 1>,
+                len: vec4i,
                 model: mat4x4<f32>,".to_string(),
             last_cam_size: 1,
             last_light_size: 1,
@@ -48,7 +49,7 @@ impl Engine {
             @group(0) @binding(0) var<uniform> ubo: uniforms;
             @vertex
             fn vertexMain(@location(0) pos: vec3f) -> @builtin(position) vec4f {
-              return ubo.smvp[ubo.eng.a] * ubo.model * vec4f(pos, 1.0);
+              return ubo.smvp[i32(ubo.eng.a)] * ubo.model * vec4f(pos, 1.0);
             }".to_string(),
             rec_pipeline: false,
         }
@@ -68,7 +69,7 @@ impl Engine {
         if self.last_cam_size != self.cameras.len() || self.last_light_size != self.lights.len(){
             self.uniform_beg = "
                 struct uniforms {
-                    eng: vec4i,
+                    eng: vec4f,
                     mvp: array<mat4x4<f32>, ".to_string();
             self.uniform_beg += &self.cameras.len().to_string();
             self.uniform_beg += ">,
@@ -84,6 +85,7 @@ impl Engine {
                     lcolor: array<vec4f, ";
             self.uniform_beg += &self.lights.len().to_string();
             self.uniform_beg += ">,
+                    len: vec4f,
                     model: mat4x4<f32>,";
             self.last_cam_size = self.cameras.len();
             self.last_light_size = self.lights.len();
@@ -101,7 +103,7 @@ impl Engine {
         }
             
         let aspect = self.render.get_canvas_size_x() as f32/self.render.get_canvas_size_y() as f32;
-        self.ubo_beg_values.resize(20*self.cameras.len()+4+smats*16+self.lights.len()*8, 0f32);
+        self.ubo_beg_values.resize(20*self.cameras.len()+8+smats*16+self.lights.len()*8, 0f32);
         for i1 in 0..self.cameras.len(){
             let ubm = self.cameras[i1].get_projection(aspect);
             for i in 0..16 {
@@ -142,6 +144,10 @@ impl Engine {
             self.ubo_beg_values[20*self.cameras.len()+6+smats*16+self.lights.len()*4+i*4] = self.lights[i].color.z;
             self.ubo_beg_values[20*self.cameras.len()+7+smats*16+self.lights.len()*4+i*4] = 0f32;
         }
+
+        self.ubo_beg_values[20*self.cameras.len()+4+smats*16+self.lights.len()*8] = self.cameras.len() as f32;
+        self.ubo_beg_values[20*self.cameras.len()+5+smats*16+self.lights.len()*8] = self.lights.len() as f32;
+        self.ubo_beg_values[20*self.cameras.len()+6+smats*16+self.lights.len()*8] = smats as f32;
     }
 }
 

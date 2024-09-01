@@ -37,7 +37,11 @@ impl Light{
         }
     }
     #[allow(dead_code)]
-    pub fn getvec(&self) -> Vec<f32>{
+    pub fn getvec(&mut self) -> Vec<f32>{
+        for i in  0..self.cameras.len(){
+            self.cameras[i].pos = self.pos;
+            self.cameras[i].rot = self.rot;
+        }
         let mut ret: Vec<f32> = vec![];
         for l in 0..self.cameras.len(){
             let cmm = self.cameras[l].get_projection(1f32);

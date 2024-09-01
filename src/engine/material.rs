@@ -57,6 +57,7 @@ impl MaterialGenerator{
           @location(3) norm: vec3f,
           @location(4) tangent: vec3f,
           @location(5) bitangent: vec3f,
+          @location(6) rp: vec4f,
         }
         @vertex
         fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
@@ -92,6 +93,7 @@ impl MaterialGenerator{
           @location(3) norm: vec3f,
           @location(4) tangent: vec3f,
           @location(5) bitangent: vec3f,
+          @location(6) rp: vec4f,
         }
 
         struct GBufferOutput {
@@ -157,16 +159,18 @@ impl MaterialGenerator{
         @location(3) norm: vec3f,
         @location(4) tangent: vec3f,
         @location(5) bitangent: vec3f,
+        @location(6) rp: vec4f,
       }
       @vertex
       fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f) -> OUT {
         var out: OUT;
-        out.position = ubo.mvp[ubo.eng.a] * ubo.model * vec4f(pos, 1.0);
+        out.position = ubo.mvp[i32(ubo.eng.a)] * ubo.model * vec4f(pos, 1.0);
         out.uv = vec2f(uv.x, 1.0-uv.y);
         out.vp = ubo.model * vec4f(pos, 1.0);
         out.norm = n;
         out.tangent = t;
         out.bitangent = cross(n, t);
+        out.rp = vec4f(pos, 1.0);
         return out;
       }";
     }
@@ -192,6 +196,8 @@ impl MaterialGenerator{
 
       @group(0) @binding(8) var mainDepthMap: texture_depth_2d_array;
 
+      @group(0) @binding(9) var shadowSampler: sampler_comparison;
+
       struct OUT{
         @location(0) uv: vec2f,
       }
@@ -203,6 +209,8 @@ impl MaterialGenerator{
     pub fn gen_frag_beg(&mut self){
       self.fragment_shader = self.shaderbeg.to_string();
       self.fragment_shader += "
+      @group(0) @binding(0) var<uniform> ubo: uniforms;
+
       @group(0) @binding(1) var mySampler: sampler;
 
       @group(0) @binding(2) var myTexture: texture_2d_array<f32>;
@@ -221,6 +229,7 @@ impl MaterialGenerator{
         @location(3) norm: vec3f,
         @location(4) tangent: vec3f,
         @location(5) bitangent: vec3f,
+        @location(6) rp: vec4f,
       }
 
       struct GBufferOutput {

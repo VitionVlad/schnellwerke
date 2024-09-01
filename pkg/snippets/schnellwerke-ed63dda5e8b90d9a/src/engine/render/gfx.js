@@ -1098,6 +1098,9 @@ export class Gfxmesh{
                 label: "bf1",
             })]);
         }
+        this.ubo[0] = Math.floor(gfx.canvas.width*gfxr.rscale);
+        this.ubo[1] = Math.floor(gfx.canvas.height*gfxr.rscale);
+        this.ubo[2] = gfx.shadowmapres;
         this.ubo[3] = i;
         device.queue.writeBuffer(this.uniformBuffers[i][this.currentubo], 0, this.ubo);
         if(gfx.isshadowpass){
@@ -1250,7 +1253,6 @@ export function drawloop(){
     for(var i = 0; i !== gfxr.rendershadows; i += 1){
         gfxr.gfxbeginshadowpass("clear", i);
         for(var b = 0; b != gfxms.length; b+=1){
-            gfxms[b].ubo[2] = gfxr.shadowmapres;
             gfxms[b].draw(gfxr, i);
         }
         gfxr.gfxendpass();
@@ -1258,9 +1260,6 @@ export function drawloop(){
     for(var i = 0; i !== gfxr.renderlayers; i += 1){
         gfxr.gfxbeginmainpass("clear", "clear", i);
         for(var b = 0; b != gfxms.length; b+=1){
-            gfxms[b].ubo[0] = Math.floor(gfxr.canvas.width*gfxr.rscale);
-            gfxms[b].ubo[1] = Math.floor(gfxr.canvas.height*gfxr.rscale);
-            gfxms[b].ubo[2] = gfxr.shadowmapres;
             gfxms[b].draw(gfxr, i);
         }
         gfxr.gfxendpass();
