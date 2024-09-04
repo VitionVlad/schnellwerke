@@ -8,3 +8,4 @@ pub mod object;
 pub mod plane;
 pub mod light;
 pub mod material;
+pub mod scene;

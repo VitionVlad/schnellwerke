@@ -18,6 +18,16 @@ extern {
 
     #[wasm_bindgen(method)]
     pub fn getlen(this: &Jsrelod) -> i32;
+
+    pub type Jsloadsdf;
+    #[wasm_bindgen(constructor)]
+    pub fn new(iframeid: &str) -> Jsloadsdf;
+
+    #[wasm_bindgen(method)]
+    pub fn getmd(this: &Jsloadsdf) -> Float32Array;
+
+    #[wasm_bindgen(method)]
+    pub fn getcb(this: &Jsloadsdf) -> Float32Array;
 }
 
 #[allow(dead_code)]
@@ -46,6 +56,35 @@ impl Objreader{
         Objreader{
             load: t,
             arr: a,
+        }
+    }
+}
+
+#[allow(dead_code)]
+pub struct Sdfreader{
+    load: Jsloadsdf,
+    pub mdd: Vec<f32>,
+    pub cdd: Vec<f32>,
+}
+
+impl Sdfreader{
+    #[allow(dead_code)]
+    pub fn new(id: &str) -> Sdfreader{
+        let t = Jsloadsdf::new(id);
+        let v = t.getmd();
+        let c = t.getcb();
+        let mut a: Vec<f32> = vec![];
+        let mut b: Vec<f32> = vec![];
+        for i in 0..v.length(){
+            a.push(v.get_index(i as u32));
+        }
+        for i in 0..c.length(){
+            b.push(c.get_index(i as u32));
+        }
+        Sdfreader{
+            load: t,
+            mdd: a,
+            cdd: b,
         }
     }
 }

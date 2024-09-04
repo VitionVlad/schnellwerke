@@ -105,3 +105,45 @@ export class Jsrelod{
         return this.len;
     }
 }
+
+export class Jsloadsdf{
+    constructor(iframeid){
+        var modeltext = document.getElementById(iframeid).contentWindow.document.body.innerText;
+        var st = modeltext.split('\n').join(' ').split(' ');
+        console.log("SepSceneSize="+ st.length);
+        var arr1 = [];
+        var arr2 = [];
+        for(var i = 0; i != st.length; i+=10){
+            if(st[i] == "md"){ 
+                arr1.push(parseFloat(st[i+1]));
+                arr1.push(parseFloat(st[i+2]));
+                arr1.push(parseFloat(st[i+3]));
+                arr1.push(parseFloat(st[i+4]));
+                arr1.push(parseFloat(st[i+5]));
+                arr1.push(parseFloat(st[i+6]));
+                arr1.push(parseFloat(st[i+7]));
+                arr1.push(parseFloat(st[i+8]));
+                arr1.push(parseFloat(st[i+9]));
+            }
+            if(st[i] == "cb"){ 
+                arr2.push(parseFloat(st[i+1]));
+                arr2.push(parseFloat(st[i+2]));
+                arr2.push(parseFloat(st[i+3]));
+                arr2.push(parseFloat(st[i+4]));
+                arr2.push(parseFloat(st[i+5]));
+                arr2.push(parseFloat(st[i+6]));
+                arr2.push(parseFloat(st[i+7]));
+                arr2.push(parseFloat(st[i+8]));
+                arr2.push(parseFloat(st[i+9]));
+            }
+        }
+        this.mdarr = new Float32Array(arr1);
+        this.cbarr = new Float32Array(arr2);
+    }
+    getmd(){
+        return this.mdarr;
+    }
+    getcb(){
+        return this.cbarr;
+    }
+}
