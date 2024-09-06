@@ -103,10 +103,10 @@ impl Object{
                 smats+=5;
             }
         }
-        self.ubo.resize(20*eng.cameras.len()+24+smats*16+eng.lights.len()*8 + self.addsize as usize, 0f32);
+        self.ubo.resize(20*eng.cameras.len()+20+smats*16+eng.lights.len()*8 + self.addsize as usize, 0f32);
         self.startsize = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
         
-        for i in 0..(20*eng.cameras.len()+8+smats*16+eng.lights.len()*8){
+        for i in 0..(20*eng.cameras.len()+4+smats*16+eng.lights.len()*8){
             self.ubo[i] = eng.ubo_beg_values[i];
         }
 
@@ -127,7 +127,7 @@ impl Object{
         mmat.transpose();
 
         for i in 0..16{
-            self.ubo[20*eng.cameras.len()+8+smats*16+eng.lights.len()*8+i] = mmat.mat[i];
+            self.ubo[20*eng.cameras.len()+4+smats*16+eng.lights.len()*8+i] = mmat.mat[i];
         }
         self.mesh.set_ubo(&self.ubo);
         if eng.rec_pipeline {

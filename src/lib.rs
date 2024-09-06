@@ -1,6 +1,7 @@
 use engine::engine::{start_loop, Engine};
 use engine::input::keyboard::is_key_pressed;
-use engine::input::mouse::{get_mouse_left_click, get_mouse_x, get_mouse_y};
+use engine::input::mouse::{get_mouse_middle_click, get_mouse_right_click, get_mouse_x, get_mouse_y};
+use engine::light::Light;
 use engine::material::MaterialGenerator;
 use engine::object::Object;
 use engine::plane::PLANE;
@@ -115,7 +116,7 @@ pub fn main() {
   let mat = textureSample(matMap, mySampler, in.uv, 0).rgb;
 
   var visibility = 0.0;
-  for (var i = 0; i < 1; i++) {
+  for (var i = 0; i < LIGHTMN; i++) {
     let smv = ubo.smvp[i] * vec4f(WorldPos, 1.0);
     let proj = vec3f((smv.x / smv.w)*0.5+0.5, (smv.y / smv.w)*-0.5+0.5, smv.z / smv.w);
     let oneOverShadowDepthTextureSize = 1.0 / 1000.0;
@@ -141,12 +142,12 @@ pub fn main() {
 	         
   var Lo = vec3f(0.0);
 
-  for(var i = 0; i < 1; i++) {
+  for(var i = 0; i < LIGHTN; i++) {
     let L = normalize(ubo.lpos[i].xyz - WorldPos);
     let H = normalize(V + L);
     let distance    = length(ubo.lpos[i].xyz - WorldPos);
     let attenuation = 1.0 / (distance * distance);
-    let radiance     = (ubo.lcolor[i].xyz * 100.0) * attenuation;        
+    let radiance     = (ubo.lcolor[i].xyz) * attenuation;        
     
     let NDF = DistributionGGX(N, H, roughness);        
     let G   = GeometrySmith(N, V, L, roughness);      
@@ -200,9 +201,24 @@ pub fn main() {
       eng.cameras[0].pos.x += f32::cos(eng.cameras[0].rot.x) * f32::cos(eng.cameras[0].rot.y) * -SPEED;
       eng.cameras[0].pos.z += f32::cos(eng.cameras[0].rot.x) * f32::sin(eng.cameras[0].rot.y) * -SPEED;
     }
-    if get_mouse_left_click(){
-      eng.lights[0].pos = Vec3::newdefined(eng.cameras[0].pos.x, eng.cameras[0].pos.y, eng.cameras[0].pos.z);
-      eng.lights[0].rot = Vec3::newdefined(eng.cameras[0].rot.x, eng.cameras[0].rot.y, eng.cameras[0].rot.z);
+    if get_mouse_right_click(){
+      let ind = eng.lights.len()-1;
+      eng.lights[ind].pos = Vec3::newdefined(eng.cameras[0].pos.x, eng.cameras[0].pos.y, eng.cameras[0].pos.z);
+      eng.lights[ind].rot = Vec3::newdefined(eng.cameras[0].rot.x, eng.cameras[0].rot.y, eng.cameras[0].rot.z);
+      eng.lights[ind].color = Vec3::newdefined(10f32, 10f32, 9.9f32);
+    }
+    if get_mouse_middle_click(){
+      let ind = eng.lights.len();
+      eng.lights.push(Light::new(engine::light::LightType::Spot));
+      eng.lights[ind].pos = Vec3::newdefined(eng.cameras[0].pos.x, eng.cameras[0].pos.y, eng.cameras[0].pos.z);
+      eng.lights[ind].rot = Vec3::newdefined(eng.cameras[0].rot.x, eng.cameras[0].rot.y, eng.cameras[0].rot.z);
+      eng.lights[ind].color = Vec3::newdefined(10f32, 10f32, 9.9f32);
+    }
+    if is_key_pressed(38){
+      eng.renderscale = 0.5f32;
+    }
+    if is_key_pressed(39){
+      eng.renderscale = 1.0f32;
     }
     eng.start();
     for i in 0..mesharr.len(){
