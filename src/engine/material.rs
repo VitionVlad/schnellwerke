@@ -205,37 +205,93 @@ impl MaterialGenerator{
       const PI = 3.14159265359;
 
       fn DistributionGGX(N: vec3f, H: vec3f, roughness: f32) -> f32{
-          let a      = roughness*roughness;
-          let a2     = a*a;
-          let NdotH  = max(dot(N, H), 0.0);
-          let NdotH2 = NdotH*NdotH;
-
-          let num   = a2;
-          var denom = (NdotH2 * (a2 - 1.0) + 1.0);
-          denom = PI * denom * denom;
-
-          return num / denom;
+        let a      = roughness*roughness;
+        let a2     = a*a;
+        let NdotH  = max(dot(N, H), 0.0);
+        let NdotH2 = NdotH*NdotH;
+        let num   = a2;
+        var denom = (NdotH2 * (a2 - 1.0) + 1.0);
+        denom = PI * denom * denom;
+        return num / denom;
       }
 
       fn GeometrySchlickGGX(NdotV: f32, roughness: f32) -> f32{
-          let r = (roughness + 1.0);
-          let k = (r*r) / 8.0;
-
-          let num   = NdotV;
-          let denom = NdotV * (1.0 - k) + k;
-
-          return num / denom;
+        let r = (roughness + 1.0);
+        let k = (r*r) / 8.0;
+        let num   = NdotV;
+        let denom = NdotV * (1.0 - k) + k;
+        return num / denom;
       }
+
       fn GeometrySmith(N: vec3f, V: vec3f, L: vec3f, roughness: f32) -> f32{
-          let NdotV = max(dot(N, V), 0.0);
-          let NdotL = max(dot(N, L), 0.0);
-          let ggx2  = GeometrySchlickGGX(NdotV, roughness);
-          let ggx1  = GeometrySchlickGGX(NdotL, roughness);
-
-          return ggx1 * ggx2;
+        let NdotV = max(dot(N, V), 0.0);
+        let NdotL = max(dot(N, L), 0.0);
+        let ggx2  = GeometrySchlickGGX(NdotV, roughness);
+        let ggx1  = GeometrySchlickGGX(NdotL, roughness);
+        return ggx1 * ggx2;
       }
+
       fn fresnelSchlick(cosTheta: f32, F0: vec3f) -> vec3f{
-          return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+        return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+      }
+
+      fn shcalc(WorldPos: vec3f) -> f32{
+        var visibility = 0.0;
+        for (var i = 0; i < LIGHTMN; i++) {
+          let smv = ubo.smvp[i] * vec4f(WorldPos, 1.0);
+          let proj = vec3f((smv.x / smv.w)*0.5+0.5, (smv.y / smv.w)*-0.5+0.5, smv.z / smv.w);
+          let oneOverShadowDepthTextureSize = 1.0 / 1000.0;
+          for (var y = -1; y <= 1; y++) {
+            for (var x = -1; x <= 1; x++) {
+              let offset = vec2f(vec2(x, y)) * oneOverShadowDepthTextureSize;
+              visibility += textureSampleCompare(
+                shadowMap, shadowSampler,
+                proj.xy + offset, i, proj.z
+              );
+            }
+          }
+        }
+        return visibility / 9.0;
+      }
+
+      fn PBR(norm: vec3f, albedo: vec3f, shadow: f32, metallic: f32, roughness: f32, ao: f32, WorldPos: vec3f) -> vec3f{
+        let N = normalize(norm);
+        let V = normalize(ubo.pos[0].xyz - WorldPos);
+
+        var F0 = vec3f(0.04); 
+        F0 = mix(F0, albedo, metallic);
+
+        var Lo = vec3f(0.0);
+
+        for(var i = 0; i < LIGHTN; i++) {
+          let L = normalize(ubo.lpos[i].xyz - WorldPos);
+          let H = normalize(V + L);
+          let distance    = length(ubo.lpos[i].xyz - WorldPos);
+          let attenuation = 1.0 / (distance * distance);
+          let radiance     = (ubo.lcolor[i].xyz) * attenuation;        
+
+          let NDF = DistributionGGX(N, H, roughness);        
+          let G   = GeometrySmith(N, V, L, roughness);      
+          let F   = fresnelSchlick(max(dot(H, V), 0.0), F0);       
+
+          let kS = F;
+          var kD = vec3(1.0) - kS;
+          kD *= 1.0 - metallic;	  
+
+          let numerator    = NDF * G * F;
+          let denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+          let specular     = numerator / denominator;  
+
+          let NdotL = max(dot(N, L), 0.0);                
+          Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
+        }
+
+        let ambient = vec3(0.001) * albedo * ao;
+        var color = ambient + shadow * Lo;
+
+        color = color / (color + vec3(1.0));
+        color = pow(color, vec3(1.0/2.2));  
+        return color;
       }
 
       @fragment

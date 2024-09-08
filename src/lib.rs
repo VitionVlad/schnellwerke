@@ -115,61 +115,12 @@ pub fn main() {
   let norm = textureSample(normalMap, mySampler, in.uv, 0).rgb;
   let mat = textureSample(matMap, mySampler, in.uv, 0).rgb;
 
-  var visibility = 0.0;
-  for (var i = 0; i < LIGHTMN; i++) {
-    let smv = ubo.smvp[i] * vec4f(WorldPos, 1.0);
-    let proj = vec3f((smv.x / smv.w)*0.5+0.5, (smv.y / smv.w)*-0.5+0.5, smv.z / smv.w);
-    let oneOverShadowDepthTextureSize = 1.0 / 1000.0;
-    for (var y = -1; y <= 1; y++) {
-      for (var x = -1; x <= 1; x++) {
-        let offset = vec2f(vec2(x, y)) * oneOverShadowDepthTextureSize;
-        visibility += textureSampleCompare(
-          shadowMap, shadowSampler,
-          proj.xy + offset, i, proj.z
-        );
-      }
-    }
-  }
-  let shadow = visibility / 9.0;
+  let shadow = shcalc(WorldPos);
   let metallic = mat.g;
   let roughness = mat.r;
+  let ao = mat.b;
 
-  let N = normalize(norm);
-  let V = normalize(ubo.pos[0].xyz - WorldPos);
-
-  var F0 = vec3f(0.04); 
-  F0 = mix(F0, albedo, mat.g);
-	         
-  var Lo = vec3f(0.0);
-
-  for(var i = 0; i < LIGHTN; i++) {
-    let L = normalize(ubo.lpos[i].xyz - WorldPos);
-    let H = normalize(V + L);
-    let distance    = length(ubo.lpos[i].xyz - WorldPos);
-    let attenuation = 1.0 / (distance * distance);
-    let radiance     = (ubo.lcolor[i].xyz) * attenuation;        
-    
-    let NDF = DistributionGGX(N, H, roughness);        
-    let G   = GeometrySmith(N, V, L, roughness);      
-    let F   = fresnelSchlick(max(dot(H, V), 0.0), F0);       
-    
-    let kS = F;
-    var kD = vec3(1.0) - kS;
-    kD *= 1.0 - metallic;	  
-    
-    let numerator    = NDF * G * F;
-    let denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
-    let specular     = numerator / denominator;  
-        
-    let NdotL = max(dot(N, L), 0.0);                
-    Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
-  }
-
-  let ambient = vec3(0.001) * albedo * mat.b;
-  var color = ambient + shadow * Lo;
-
-  color = color / (color + vec3(1.0));
-  color = pow(color, vec3(1.0/2.2));  
+  let color = PBR(norm, albedo, shadow, metallic, roughness, ao, WorldPos);
 
   return vec4f(color, 1.0);";
   matgen.gen_frag_end();
