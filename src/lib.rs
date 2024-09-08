@@ -180,7 +180,6 @@ pub fn main() {
   eng.cameras[0].rot = Vec3::newdefined(0f32, -2f32, 0f32);
 
   eng.lights[0].pos = Vec3::newdefined(26f32, 40f32, -12f32);
-  eng.lights[0].rot = Vec3::newdefined(1.57f32, 0f32, 0f32);
 
   start_loop(Closure::new(move || {
     eng.cameras[0].rot.x += get_mouse_y() as f32/eng.render.get_canvas_size_y()as f32;

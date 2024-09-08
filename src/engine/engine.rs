@@ -15,6 +15,7 @@ pub struct Engine{
     last_light_size: usize,
     last_renderscale: f32,
     last_shs: i32,
+    last_smat: usize,
     pub shadow_code: String,
     pub rec_pipeline: bool,
 }
@@ -47,6 +48,7 @@ impl Engine {
             last_light_size: 1,
             last_renderscale: 1f32,
             last_shs: 1000,
+            last_smat: 1,
             shadow_code: "
             @group(0) @binding(0) var<uniform> ubo: uniforms;
             @vertex
@@ -63,12 +65,9 @@ impl Engine {
         for i in 0..self.lights.len(){
             if self.lights[i].shadow {
                 smats+=1;
-                if self.lights[i].light_type == LightType::Point{
-                    smats+=5;
-                }
             }
         }
-        if self.last_cam_size != self.cameras.len() || self.last_light_size != self.lights.len(){
+        if self.last_cam_size != self.cameras.len() || self.last_light_size != self.lights.len() || self.last_smat != smats{
             self.uniform_beg = "
             const LIGHTN = ".to_string();
             self.uniform_beg += &self.lights.len().to_string();
@@ -100,6 +99,7 @@ impl Engine {
             self.last_cam_size = self.cameras.len();
             self.last_light_size = self.lights.len();
             self.rec_pipeline = true;
+            self.last_smat = smats;
             self.render.change_render_scale(self.renderscale, self.last_cam_size as u32);
             self.render.change_shadow_map_resolution(self.shadowmap_resolution, smats as u32);
         }
@@ -135,9 +135,6 @@ impl Engine {
                     self.ubo_beg_values[20*self.cameras.len()+4+fl+i] = vc[i];
                 }
                 fl+=16;
-                if self.lights[l].light_type == LightType::Point{
-                    fl += 80;
-                }
             }
         }
 

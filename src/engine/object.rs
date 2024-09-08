@@ -1,6 +1,6 @@
 use js_sys::Float32Array;
 
-use super::{engine::Engine, light::LightType, material::Material, math::{mat4::Mat4, vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
+use super::{engine::Engine, material::Material, math::{mat4::Mat4, vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
 
 #[allow(dead_code)]
 pub struct Object{
@@ -74,9 +74,8 @@ impl Object{
         let svc = eng.uniform_beg.to_string() + &material.uniend + &eng.shadow_code;
         let mut smats = 0;
         for i in 0..eng.lights.len(){
-            smats+=1;
-            if eng.lights[i].light_type == LightType::Point{
-                smats+=5;
+            if eng.lights[i].shadow {
+                smats+=1;
             }
         }
         let startsize: i32 = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
@@ -98,9 +97,8 @@ impl Object{
         let ubeg = eng.uniform_beg.to_owned();
         let mut smats = 0;
         for i in 0..eng.lights.len(){
-            smats+=1;
-            if eng.lights[i].light_type == LightType::Point{
-                smats+=5;
+            if eng.lights[i].shadow {
+                smats+=1;
             }
         }
         self.ubo.resize(20*eng.cameras.len()+20+smats*16+eng.lights.len()*8 + self.addsize as usize, 0f32);
