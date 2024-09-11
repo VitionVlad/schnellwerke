@@ -18,7 +18,7 @@ pub struct Object{
 
 impl Object{
     #[allow(dead_code)]
-    pub fn new(eng: &Engine, vertex_data: Vec<f32>, material: Material, usage: MUsages) -> Object{
+    pub fn new(eng: &Engine, vertex_data: Vec<f32>, material: &Material, usage: MUsages) -> Object{
         let size = vertex_data.len()/8;
         let v = Float32Array::new_with_length((size*3) as u32);
         let u = Float32Array::new_with_length((size*2) as u32);
@@ -87,9 +87,9 @@ impl Object{
             ubo: vec![0f32, 0f32, 0f32, 0f32],
             startsize: startsize,
             addsize: material.ubo_size,
-            vc: material.vertex_shader,
-            svc: material.uniend + &eng.shadow_code,
-            fc: material.fragment_shader,
+            vc: material.vertex_shader.to_owned(),
+            svc: material.uniend.to_owned() + &eng.shadow_code,
+            fc: material.fragment_shader.to_owned(),
         }
     }
     #[allow(dead_code)]

@@ -5,10 +5,9 @@ use engine::light::Light;
 use engine::material::MaterialGenerator;
 use engine::object::Object;
 use engine::plane::PLANE;
-use engine::scene::Scene;
+use engine::scene::{ObjectM, Scene};
 use wasm_bindgen::prelude::*;
 use engine::render::render::*;
-use engine::resourceloader::resourceloader::Objreader;
 use engine::math::vec3::Vec3;
 mod engine;
 
@@ -45,47 +44,28 @@ pub fn main() {
   matgen.gen_frag_end();
 
   let mut scn = Scene::new("charliesdf");
-
-  let mut res: Objreader = Objreader::new("groundmd");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1ground;roug1ground;ao1ground;norm1ground".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("roadmd");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1road;roug1road;ao1road;norm1road".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("pavmd");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1pav;roug1pav;ao1pav;norm1pav".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("pavmd");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1pav;roug1pav;ao1pav;norm1pav".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("fencemd");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1fence;roug1fence;ao1fence;norm1fence".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("fencemd");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1fence;roug1fence;ao1fence;norm1fence".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("build1md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1build;roug1build;ao1build;norm1build".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("build1md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1build;roug1build;ao1build;norm1build".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("build2md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1build;roug1build;ao1build;norm1build".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("checkpointmd");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1checkpoint;roug1checkpoint;ao1checkpoint;norm1checkpoint".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("checkpointmd");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1checkpoint;roug1checkpoint;ao1checkpoint;norm1checkpoint".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("b1md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1b;roug1b;ao1b;norm1b".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("b2md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb2b;roug2b;ao2b;norm2b".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("s2md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("s2md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("s1md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("s1md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("s3md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("s3md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("s3md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
+  scn.model_objects = vec![
+    ObjectM{ md: "groundmd".to_string(), mat: matgen.generate_material("alb1ground;roug1ground;ao1ground;norm1ground".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "roadmd".to_string(), mat: matgen.generate_material("alb1road;roug1road;ao1road;norm1road".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "pavmd".to_string(), mat: matgen.generate_material("alb1pav;roug1pav;ao1pav;norm1pav".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "pavmd".to_string(), mat: matgen.generate_material("alb1pav;roug1pav;ao1pav;norm1pav".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "fencemd".to_string(), mat: matgen.generate_material("alb1fence;roug1fence;ao1fence;norm1fence".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "fencemd".to_string(), mat: matgen.generate_material("alb1fence;roug1fence;ao1fence;norm1fence".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "build1md".to_string(), mat: matgen.generate_material("alb1build;roug1build;ao1build;norm1build".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "build1md".to_string(), mat: matgen.generate_material("alb1build;roug1build;ao1build;norm1build".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "build2md".to_string(), mat: matgen.generate_material("alb1build;roug1build;ao1build;norm1build".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "checkpointmd".to_string(), mat: matgen.generate_material("alb1checkpoint;roug1checkpoint;ao1checkpoint;norm1checkpoint".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "checkpointmd".to_string(), mat: matgen.generate_material("alb1checkpoint;roug1checkpoint;ao1checkpoint;norm1checkpoint".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "b1md".to_string(), mat: matgen.generate_material("alb1b;roug1b;ao1b;norm1b".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "b2md".to_string(), mat: matgen.generate_material("alb2b;roug2b;ao2b;norm2b".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "s2md".to_string(), mat: matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "s2md".to_string(), mat: matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "s1md".to_string(), mat: matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "s1md".to_string(), mat: matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "s3md".to_string(), mat: matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "s3md".to_string(), mat: matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+    ObjectM{ md: "s3md".to_string(), mat: matgen.generate_material("alb1s;roug1s;ao1s;norm1s".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain},
+  ];
 
   matgen.culling_mode_shadow = "none".to_string();
   matgen.gen_vertex();
@@ -97,12 +77,10 @@ pub fn main() {
     return output;";
   matgen.gen_frag_end();
 
-  res = Objreader::new("f1md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("us".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("f2md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("ddr".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
-  res = Objreader::new("f3md");
-  scn.objects.push(Object::new(&eng, res.arr, matgen.generate_material("ussr".to_string(), "".to_string()), engine::render::mesh::MUsages::ShadowAndMain));
+  scn.model_objects.push(ObjectM{ md: "f1md".to_string(), mat: matgen.generate_material("us".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain});
+  scn.model_objects.push(ObjectM{ md: "f2md".to_string(), mat: matgen.generate_material("ddr".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain});
+  scn.model_objects.push(ObjectM{ md: "f3md".to_string(), mat: matgen.generate_material("ussr".to_string(), "".to_string()), usage: engine::render::mesh::MUsages::ShadowAndMain});
+  scn.create_objects(&mut eng);
   scn.set_objects();
 
   matgen.gen_post_vertex();
@@ -123,7 +101,7 @@ pub fn main() {
   return vec4f(color, 1.0);";
   matgen.gen_frag_end();
 
-  let mut renderplane: Object = Object::new(&eng, PLANE.to_vec(), matgen.generate_material("".to_string(), "".to_string()), engine::render::mesh::MUsages::PostProcessing);
+  let mut renderplane: Object = Object::new(&eng, PLANE.to_vec(), &matgen.generate_material("".to_string(), "".to_string()), engine::render::mesh::MUsages::PostProcessing);
 
   eng.cameras[0].pos = Vec3::newdefined(26f32, 4f32, -12f32);
   eng.cameras[0].rot = Vec3::newdefined(0f32, -2f32, 0f32);

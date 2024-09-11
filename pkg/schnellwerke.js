@@ -127,6 +127,12 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
+        takeObject(arg0);
+    };
+    imports.wbg.__wbg_setlfunc_b04671b3dac03214 = function(arg0) {
+        set_lfunc(getObject(arg0));
+    };
     imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
         const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
         return addHeapObject(ret);
@@ -147,12 +153,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_gfxgetcanvassizey_d4439ec9439134c5 = function(arg0) {
         const ret = getObject(arg0).gfxgetcanvassizey();
         return ret;
-    };
-    imports.wbg.__wbg_setlfunc_b04671b3dac03214 = function(arg0) {
-        set_lfunc(getObject(arg0));
-    };
-    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
-        takeObject(arg0);
     };
     imports.wbg.__wbg_queuepipeline_10fba820203e5ffd = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
         getObject(arg0).queuepipeline(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4), getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10));
@@ -232,7 +232,7 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper72 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper81 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 9, __wbg_adapter_8);
         return addHeapObject(ret);
     };

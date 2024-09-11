@@ -8,6 +8,7 @@ pub struct Mesh{
 }
 
 #[allow(dead_code)]
+#[derive(Clone, Copy)]
 pub enum MUsages{
     ShadowAndMain,
     OnlyMain,
