@@ -6,6 +6,7 @@ pub mod engine;
 pub mod camera;
 pub mod object;
 pub mod plane;
+pub mod cube;
 pub mod light;
 pub mod material;
 pub mod scene;
