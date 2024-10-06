@@ -6,5 +6,6 @@ Version 2.0, work in progress...
 - [x] Deffered render  
 - [x] PBR
 - [x] Maps/Scenes (partially implemented, in dev...)
-- [ ] New physics engine  
+- [x] New physics engine (partially implemented, in dev...)  
 - [ ] new input system
+- [ ] new audio system
