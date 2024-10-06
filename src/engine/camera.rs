@@ -1,9 +1,8 @@
-use super::math::{mat4::Mat4, vec3::Vec3};
+use super::{math::{mat4::Mat4, vec3::Vec3}, physics::PhysicsObject};
 
 #[allow(dead_code)]
 pub struct Camera{
-    pub pos: Vec3,
-    pub rot: Vec3,
+    pub physic_object: PhysicsObject,
     pub fov: f32,
     pub znear: f32,
     pub zfar: f32,
@@ -20,16 +19,16 @@ impl Camera{
             ubm.orthographic(self.fov, -self.fov, self.fov, -self.fov, self.znear, self.zfar);
         }
         let mut t: Mat4 = Mat4::new();
-        t.xrot(self.rot.x);
+        t.xrot(self.physic_object.rot.x);
         ubm.mul(&t);
         t = Mat4::new();
-        t.yrot(self.rot.y);
+        t.yrot(self.physic_object.rot.y);
         ubm.mul(&t);
         t = Mat4::new();
-        t.zrot(self.rot.z);
+        t.zrot(self.physic_object.rot.z);
         ubm.mul(&t);
         t = Mat4::new();
-        t.trans(Vec3::newdefined(-self.pos.x, -self.pos.y, -self.pos.z));
+        t.trans(Vec3::newdefined(-self.physic_object.pos.x, -self.physic_object.pos.y, -self.physic_object.pos.z));
         ubm.mul(&t);
         ubm.transpose();
         return ubm;

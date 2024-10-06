@@ -1,13 +1,11 @@
 use js_sys::Float32Array;
 
-use super::{engine::Engine, material::Material, math::{mat4::Mat4, vec2::Vec2, vec3::Vec3}, render::mesh::{MUsages, Mesh}};
+use super::{engine::Engine, material::Material, math::{mat4::Mat4, vec2::Vec2, vec3::Vec3}, physics::{getpoints, PhysicsObject}, render::mesh::{MUsages, Mesh}};
 
 #[allow(dead_code)]
 pub struct Object{
     pub mesh: Mesh,
-    pub pos: Vec3,
-    pub rot: Vec3,
-    pub scale: Vec3,
+    pub physic_object: PhysicsObject,
     pub ubo: Vec<f32>,
     startsize: i32,
     addsize: i32,
@@ -18,7 +16,7 @@ pub struct Object{
 
 impl Object{
     #[allow(dead_code)]
-    pub fn new(eng: &Engine, vertex_data: Vec<f32>, material: &Material, usage: MUsages) -> Object{
+    pub fn new(eng: &Engine, vertex_data: Vec<f32>, material: &Material, usage: MUsages, is_static: bool) -> Object{
         let size = vertex_data.len()/8;
         let v = Float32Array::new_with_length((size*3) as u32);
         let u = Float32Array::new_with_length((size*2) as u32);
@@ -81,9 +79,7 @@ impl Object{
         let startsize: i32 = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
         Object{
             mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, &jst2, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
-            pos: Vec3::new(),
-            rot: Vec3::new(),
-            scale: Vec3::newdefined(1f32, 1f32, 1f32),
+            physic_object: PhysicsObject::new(getpoints(v.to_vec()), is_static),
             ubo: vec![0f32, 0f32, 0f32, 0f32],
             startsize: startsize,
             addsize: material.ubo_size,
@@ -109,18 +105,18 @@ impl Object{
         }
 
         let mut mmat = Mat4::new();
-        mmat.trans(self.pos);
+        mmat.trans(self.physic_object.pos);
         let mut t: Mat4 = Mat4::new();
-        t.yrot(self.rot.y);
+        t.yrot(self.physic_object.rot.y);
         mmat.mul(&t);
         t = Mat4::new();
-        t.xrot(self.rot.x);
+        t.xrot(self.physic_object.rot.x);
         mmat.mul(&t);
         t = Mat4::new();
-        t.zrot(self.rot.z);
+        t.zrot(self.physic_object.rot.z);
         mmat.mul(&t);
         t = Mat4::new();
-        t.scale(self.scale);
+        t.scale(self.physic_object.scale);
         mmat.mul(&t);
         mmat.transpose();
 
@@ -130,6 +126,12 @@ impl Object{
         self.mesh.set_ubo(&self.ubo);
         if eng.rec_pipeline {
             self.mesh.jsmesh.queuepipeline(&(eng.uniform_beg.to_owned() + &self.svc),  &(ubeg.to_owned() + &self.vc), &(ubeg.to_owned() + &self.fc), &self.mesh.cullmode, &self.mesh.shcullmode);
+        }
+
+        self.physic_object.exec();
+        self.physic_object.reset_states();
+        for i in 0..eng.cameras.len(){
+            eng.cameras[i].physic_object.interact_with_other_object(self.physic_object);
         }
     }
 }

@@ -4,6 +4,7 @@ pub mod input;
 pub mod resourceloader;
 pub mod engine;
 pub mod camera;
+pub mod physics;
 pub mod object;
 pub mod plane;
 pub mod cube;

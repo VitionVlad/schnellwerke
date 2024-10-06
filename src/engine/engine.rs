@@ -1,4 +1,4 @@
-use engine::light::{Light, LightType};
+use engine::{light::{Light, LightType}, physics::PhysicsObject};
 use crate::*;
 use super::camera::Camera;
 
@@ -29,7 +29,7 @@ impl Engine {
             render: ren,
             renderscale: 1.0f32,
             shadowmap_resolution: 1000,
-            cameras: vec![Camera{ pos: Vec3::new(), rot: Vec3::new(), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: false }],
+            cameras: vec![Camera{ physic_object: PhysicsObject::new(vec![Vec3::newdefined(0.1, 0f32, 0.1), Vec3::newdefined(-0.1, -5f32, -0.1)], false), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: false }],
             lights: vec![Light::new(LightType::Directional)],
             ubo_beg_values: vec![0f32, 0f32, 0f32, 0f32],
             uniform_beg: "
@@ -115,15 +115,17 @@ impl Engine {
         let aspect = self.render.get_canvas_size_x() as f32/self.render.get_canvas_size_y() as f32;
         self.ubo_beg_values.resize(20*self.cameras.len()+4+smats*16+self.lights.len()*8, 0f32);
         for i1 in 0..self.cameras.len(){
+            self.cameras[i1].physic_object.exec();
+            self.cameras[i1].physic_object.reset_states();
             let ubm = self.cameras[i1].get_projection(aspect);
             for i in 0..16 {
                 self.ubo_beg_values[i1*16+i+4] = ubm.mat[i];
             }
         }
         for i in 0..self.cameras.len(){
-            self.ubo_beg_values[16*self.cameras.len()+4+i*4] = self.cameras[i].pos.x;
-            self.ubo_beg_values[16*self.cameras.len()+5+i*4] = self.cameras[i].pos.y;
-            self.ubo_beg_values[16*self.cameras.len()+6+i*4] = self.cameras[i].pos.z;
+            self.ubo_beg_values[16*self.cameras.len()+4+i*4] = self.cameras[i].physic_object.pos.x;
+            self.ubo_beg_values[16*self.cameras.len()+5+i*4] = self.cameras[i].physic_object.pos.y;
+            self.ubo_beg_values[16*self.cameras.len()+6+i*4] = self.cameras[i].physic_object.pos.z;
             self.ubo_beg_values[16*self.cameras.len()+7+i*4] = 0f32;
         }
         
