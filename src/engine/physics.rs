@@ -134,7 +134,7 @@ impl PhysicsObject{
             check_for_intersection(p2fv2.x, p2fv1.x, p1fv2.x, p1fv1.x) && 
             check_for_intersection(p2fv2.z, p2fv1.z, p1fv2.z, p1fv1.z) {
             self.is_interacting = true;
-            if self.solid && ph2.solid{
+            if self.solid && !self.is_static && ph2.solid{
                 self.acceleration.y = 0f32;
                 self.speed.y = -self.speed.y * self.elasticity;
                 if p1fv2.y + 1f32 <= p2fv1.y{
@@ -143,6 +143,8 @@ impl PhysicsObject{
                     self.acceleration.z = 0f32;
                     self.speed.z = -self.speed.z * self.elasticity;
                     self.retur = true;
+                }else{
+                    self.pos.y = p2fv1.y + f32::abs(self.v2.y);
                 }
             }
         }
