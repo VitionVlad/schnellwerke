@@ -71,12 +71,12 @@ impl Object{
         let fc = eng.uniform_beg.to_string() + &material.fragment_shader;
         let svc = eng.uniform_beg.to_string() + &material.uniend + &eng.shadow_code;
         let mut smats = 0;
-        for i in 0..eng.lights.len(){
+        for i in 0..eng.last_light_size{
             if eng.lights[i].shadow {
                 smats+=1;
             }
         }
-        let startsize: i32 = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
+        let startsize: i32 = (20*eng.last_cam_size+20+smats*16+eng.last_light_size*8) as i32;
         Object{
             mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, &jst2, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
             physic_object: PhysicsObject::new(getpoints(v.to_vec()), is_static),
@@ -92,15 +92,15 @@ impl Object{
     pub fn exec(&mut self, eng: &mut Engine){
         let ubeg = eng.uniform_beg.to_owned();
         let mut smats = 0;
-        for i in 0..eng.lights.len(){
+        for i in 0..eng.last_light_size{
             if eng.lights[i].shadow {
                 smats+=1;
             }
         }
-        self.ubo.resize(20*eng.cameras.len()+20+smats*16+eng.lights.len()*8 + self.addsize as usize, 0f32);
-        self.startsize = (20*eng.cameras.len()+20+smats*16+eng.lights.len()*8) as i32;
+        self.ubo.resize(20*eng.last_cam_size+20+smats*16+eng.last_light_size*8 + self.addsize as usize, 0f32);
+        self.startsize = (20*eng.last_cam_size+20+smats*16+eng.last_light_size*8) as i32;
         
-        for i in 0..(20*eng.cameras.len()+4+smats*16+eng.lights.len()*8){
+        for i in 0..(20*eng.last_cam_size+4+smats*16+eng.last_light_size*8){
             self.ubo[i] = eng.ubo_beg_values[i];
         }
 
@@ -121,16 +121,16 @@ impl Object{
         mmat.transpose();
 
         for i in 0..16{
-            self.ubo[20*eng.cameras.len()+4+smats*16+eng.lights.len()*8+i] = mmat.mat[i];
+            self.ubo[20*eng.last_cam_size+4+smats*16+eng.last_light_size*8+i] = mmat.mat[i];
         }
         self.mesh.set_ubo(&self.ubo);
         if eng.rec_pipeline {
             self.mesh.jsmesh.queuepipeline(&(eng.uniform_beg.to_owned() + &self.svc),  &(ubeg.to_owned() + &self.vc), &(ubeg.to_owned() + &self.fc), &self.mesh.cullmode, &self.mesh.shcullmode);
         }
 
-        self.physic_object.exec();
         self.physic_object.reset_states();
-        for i in 0..eng.cameras.len(){
+        self.physic_object.exec();
+        for i in 0..eng.last_cam_size{
             eng.cameras[i].physic_object.interact_with_other_object(self.physic_object);
         }
     }

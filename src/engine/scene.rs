@@ -106,8 +106,10 @@ impl Scene {
         }
         for i in 0..self.all_objects.len(){
             for b in 0..self.all_objects.len(){
-                let o = self.all_objects[b].physic_object.to_owned();
-                self.all_objects[i].physic_object.interact_with_other_object(o);
+                if b != i {
+                    let o = self.all_objects[b].physic_object.to_owned();
+                    self.all_objects[i].physic_object.interact_with_other_object(o);
+                }
             }
         }
     }

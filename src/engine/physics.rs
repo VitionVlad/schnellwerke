@@ -51,7 +51,7 @@ pub struct PhysicsObject{
     pub mat: Mat4,
     pub solid: bool,
     pub mass: f32,
-    retur: bool,
+    pub retur: bool,
     oldpos: Vec3,
     oldrot: Vec3,
     oldscale: Vec3,
