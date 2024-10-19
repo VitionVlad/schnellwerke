@@ -1,6 +1,7 @@
 use super::math::uniformstruct::Uniformstruct;
 
 #[allow(dead_code)]
+#[derive(Clone)]
 pub struct Material{
     pub tex_ids: String,
     pub cube_ids: String,
@@ -175,6 +176,25 @@ impl MaterialGenerator{
       }";
     }
     #[allow(dead_code)]
+    pub fn gen_vertex_beg(&mut self){
+      self.vertex_shader = self.shaderbeg.to_string();
+      self.vertex_shader += "
+      @group(0) @binding(0) var<uniform> ubo: uniforms;
+      struct OUT{
+        @builtin(position) position: vec4f,
+        @location(0) uv: vec2f,
+        @location(1) vp: vec4f,
+        @location(2) smv: vec4f,
+        @location(3) norm: vec3f,
+        @location(4) tangent: vec3f,
+        @location(5) bitangent: vec3f,
+        @location(6) rp: vec4f,
+      }
+      @vertex
+      fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f, @location(4) bt: vec3f) -> OUT {
+        var out: OUT;";
+    }
+    #[allow(dead_code)]
     pub fn gen_fragpost_beg(&mut self){
       self.fragment_shader = self.shaderbeg.to_string();
       self.fragment_shader += "
@@ -235,7 +255,7 @@ impl MaterialGenerator{
         return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
       }
 
-      fn shcalc(WorldPos: vec3f) -> f32{
+      fn shcalc(WorldPos: vec3f, bias: f32) -> f32{
         var visibility = 0.0;
         for (var i = 0; i < LIGHTMN; i++) {
           let smv = ubo.smvp[i] * vec4f(WorldPos, 1.0);
@@ -246,7 +266,7 @@ impl MaterialGenerator{
               let offset = vec2f(vec2(x, y)) * oneOverShadowDepthTextureSize;
               visibility += textureSampleCompare(
                 shadowMap, shadowSampler,
-                proj.xy + offset, i, proj.z
+                proj.xy + offset, i, proj.z - bias
               );
             }
           }
@@ -338,6 +358,10 @@ impl MaterialGenerator{
     #[allow(dead_code)]
     pub fn gen_frag_end(&mut self){
       self.fragment_shader += "}";
+    }
+    #[allow(dead_code)]
+    pub fn gen_vert_end(&mut self){
+      self.vertex_shader += "}";
     }
     #[allow(dead_code)]
     pub fn generate_material(&mut self, tex_ids: String, cube_ids: String) -> Material{

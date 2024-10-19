@@ -1,4 +1,4 @@
-use js_sys::Float32Array;
+use js_sys::{Float32Array, JsString};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(module = "/src/engine/resourceloader/resloader.js")]
@@ -34,6 +34,17 @@ extern {
 
     #[wasm_bindgen(method)]
     pub fn getpl(this: &Jsloadsdf) -> Float32Array;
+
+    #[wasm_bindgen(method)]
+    pub fn getmat(this: &Jsloadsdf) -> Float32Array;
+
+    pub fn get_text_iframe(id: &str) -> JsString;
+    pub fn remove_elem(id: &str);
+}
+
+#[allow(dead_code)]
+pub fn get_text_from_iframe(id: &str) -> String{
+    return get_text_iframe(id).into();
 }
 
 #[allow(dead_code)]
@@ -73,6 +84,7 @@ pub struct Sdfreader{
     pub cdd: Vec<f32>,
     pub cdu: Vec<f32>,
     pub pl: Vec<f32>,
+    pub mat: Vec<f32>,
 }
 
 impl Sdfreader{
@@ -83,10 +95,12 @@ impl Sdfreader{
         let c = t.getcb();
         let u = t.getcu();
         let p = t.getpl();
+        let m = t.getmat();
         let mut a: Vec<f32> = vec![];
         let mut b: Vec<f32> = vec![];
         let mut cu: Vec<f32> = vec![];
         let mut pl: Vec<f32> = vec![];
+        let mut mat: Vec<f32> = vec![];
         for i in 0..v.length(){
             a.push(v.get_index(i as u32));
         }
@@ -99,12 +113,16 @@ impl Sdfreader{
         for i in 0..p.length(){
             pl.push(p.get_index(i as u32));
         }
+        for i in 0..m.length(){
+            mat.push(m.get_index(i as u32));
+        }
         Sdfreader{
             load: t,
             mdd: a,
             cdd: b,
             cdu: cu,
             pl: pl,
+            mat: mat,
         }
     }
 }
