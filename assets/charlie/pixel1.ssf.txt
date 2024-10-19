@@ -1,0 +1,12 @@
+output.albedo = textureSample(myTexture, mySampler, in.uv, 0).rgba;
+output.material.r = textureSample(myTexture, mySampler, in.uv, 1).r;
+output.material.g = 1.0 - textureSample(myTexture, mySampler, in.uv, 1).r;
+output.material.b = textureSample(myTexture, mySampler, in.uv, 2).r;
+let TBN = mat3x3<f32>(
+  in.tangent,
+  in.bitangent,
+  in.norm,
+);
+output.normal = vec4f(TBN * (textureSample(myTexture, mySampler, in.uv, 3).rgb * 2.0 - 1.0), 1.0);
+output.position = in.vp;
+return output;
