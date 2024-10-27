@@ -67,6 +67,26 @@ impl Scene {
         let mut mv: Vec<Material> = vec![];
         let mut it = 0usize;
         while sdf.mat.len() > it{
+            if sdf.mat[it] == 0f32 {
+                self.material_gen.culling_mode = "none".to_string();
+            }
+            if sdf.mat[it] == 1f32 {
+                self.material_gen.culling_mode = "back".to_string();
+            }
+            if sdf.mat[it] == 2f32 {
+                self.material_gen.culling_mode = "front".to_string();
+            }
+            it+=1;
+            if sdf.mat[it] == 0f32 {
+                self.material_gen.culling_mode_shadow = "none".to_string();
+            }
+            if sdf.mat[it] == 1f32 {
+                self.material_gen.culling_mode_shadow = "back".to_string();
+            }
+            if sdf.mat[it] == 2f32 {
+                self.material_gen.culling_mode_shadow = "front".to_string();
+            }
+            it+=1;
             log(&("SDFParser: vertex shader id = ".to_string() + &(sdf.mat[it] as i32).to_string() + " at location = " + &it.to_string()));
             if sdf.mat[it] as i32 > 0{
                 self.material_gen.gen_vertex_beg();
@@ -98,56 +118,64 @@ impl Scene {
             it+=1;
         }
         let mut mt: usize = 0;
-        for i in (0..sdf.mdd.len()).step_by(10){
-            self.objects_to_create.push(ObjectCreateInfo{ 
-                md: ("md".to_string() + &(sdf.mdd[i] as i32).to_string()), 
-                mat: mv[mt].clone(),
-                usage: MUsages::ShadowAndMain,
-                object_type: ObjectType::Model,
-                is_static: true,
-                pos: Vec3::newdefined(sdf.mdd[i+1], sdf.mdd[i+2], sdf.mdd[i+3]),
-                rot: Vec3::newdefined(sdf.mdd[i+4], sdf.mdd[i+5], sdf.mdd[i+6]),
-                scale: Vec3::newdefined(sdf.mdd[i+7], sdf.mdd[i+8], sdf.mdd[i+9]),
-            });
-            mt+=1;
-        }
-        for i in (0..sdf.cdd.len()).step_by(9){
-            self.objects_to_create.push(ObjectCreateInfo{ 
-                md: "".to_string(), 
-                mat: mv[mt].clone(),
-                usage: MUsages::ShadowAndMain,
-                object_type: ObjectType::Cube,
-                is_static: true,
-                pos: Vec3::newdefined(sdf.cdd[i], sdf.cdd[i+1], sdf.cdd[i+2]),
-                rot: Vec3::newdefined(sdf.cdd[i+3], sdf.cdd[i+4], sdf.cdd[i+5]),
-                scale: Vec3::newdefined(sdf.cdd[i+6], sdf.cdd[i+7], sdf.cdd[i+8]),
-            });
-            mt+=1;
-        }
-        for i in (0..sdf.cdu.len()).step_by(9){
-            self.objects_to_create.push(ObjectCreateInfo{ 
-                md: "".to_string(), 
-                mat: mv[mt].clone(),
-                usage: MUsages::ShadowAndMain,
-                object_type: ObjectType::CubeUV,
-                is_static: true,
-                pos: Vec3::newdefined(sdf.cdu[i], sdf.cdu[i+1], sdf.cdu[i+2]),
-                rot: Vec3::newdefined(sdf.cdu[i+3], sdf.cdu[i+4], sdf.cdu[i+5]),
-                scale: Vec3::newdefined(sdf.cdu[i+6], sdf.cdu[i+7], sdf.cdu[i+8]),
-            });
-            mt+=1;
-        }
-        for i in (0..sdf.pl.len()).step_by(9){
-            self.objects_to_create.push(ObjectCreateInfo{ 
-                md: "".to_string(), 
-                mat: mv[mt].clone(),
-                usage: MUsages::ShadowAndMain,
-                object_type: ObjectType::Plane,
-                is_static: true,
-                pos: Vec3::newdefined(sdf.pl[i], sdf.pl[i+1], sdf.pl[i+2]),
-                rot: Vec3::newdefined(sdf.pl[i+3], sdf.pl[i+4], sdf.pl[i+5]),
-                scale: Vec3::newdefined(sdf.pl[i+6], sdf.pl[i+7], sdf.pl[i+8]),
-            });
+        it = 0;
+        while it < sdf.mdd.len(){
+            if sdf.mdd[it] == 1f32{
+                it+=1;
+                self.objects_to_create.push(ObjectCreateInfo{ 
+                    md: ("md".to_string() + &(sdf.mdd[it] as i32).to_string()), 
+                    mat: mv[mt].clone(),
+                    usage: MUsages::ShadowAndMain,
+                    object_type: ObjectType::Model,
+                    is_static: true,
+                    pos: Vec3::newdefined(sdf.mdd[it+1], sdf.mdd[it+2], sdf.mdd[it+3]),
+                    rot: Vec3::newdefined(sdf.mdd[it+4], sdf.mdd[it+5], sdf.mdd[it+6]),
+                    scale: Vec3::newdefined(sdf.mdd[it+7], sdf.mdd[it+8], sdf.mdd[it+9]),
+                });
+                it+=10;
+            }
+            if sdf.mdd[it] == 2f32{
+                it+=1;
+                self.objects_to_create.push(ObjectCreateInfo{ 
+                    md: "".to_string(), 
+                    mat: mv[mt].clone(),
+                    usage: MUsages::ShadowAndMain,
+                    object_type: ObjectType::Cube,
+                    is_static: true,
+                    pos: Vec3::newdefined(sdf.mdd[it], sdf.mdd[it+1], sdf.mdd[it+2]),
+                    rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
+                    scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
+                });
+                it+=9;
+            }
+            if sdf.mdd[it] == 3f32{
+                it+=1;
+                self.objects_to_create.push(ObjectCreateInfo{ 
+                    md: "".to_string(), 
+                    mat: mv[mt].clone(),
+                    usage: MUsages::ShadowAndMain,
+                    object_type: ObjectType::CubeUV,
+                    is_static: true,
+                    pos: Vec3::newdefined(sdf.mdd[it], sdf.mdd[it+1], sdf.mdd[it+2]),
+                    rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
+                    scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
+                });
+                it+=9;
+            }
+            if sdf.mdd[it] == 4f32{
+                it+=1;
+                self.objects_to_create.push(ObjectCreateInfo{ 
+                    md: "".to_string(), 
+                    mat: mv[mt].clone(),
+                    usage: MUsages::ShadowAndMain,
+                    object_type: ObjectType::Plane,
+                    is_static: true,
+                    pos: Vec3::newdefined(sdf.mdd[it], sdf.mdd[it+1], sdf.mdd[it+2]),
+                    rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
+                    scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
+                });
+                it+=9;
+            }
             mt+=1;
         }
     }
