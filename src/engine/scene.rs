@@ -120,7 +120,7 @@ impl Scene {
         let mut mt: usize = 0;
         it = 0;
         while it < sdf.mdd.len(){
-            if sdf.mdd[it] == 1f32{
+            if sdf.mdd[it] as i32 == 1{
                 it+=1;
                 self.objects_to_create.push(ObjectCreateInfo{ 
                     md: ("md".to_string() + &(sdf.mdd[it] as i32).to_string()), 
@@ -133,8 +133,9 @@ impl Scene {
                     scale: Vec3::newdefined(sdf.mdd[it+7], sdf.mdd[it+8], sdf.mdd[it+9]),
                 });
                 it+=10;
+                mt+=1;
             }
-            if sdf.mdd[it] == 2f32{
+            if sdf.mdd[it] as i32 == 2{
                 it+=1;
                 self.objects_to_create.push(ObjectCreateInfo{ 
                     md: "".to_string(), 
@@ -147,8 +148,9 @@ impl Scene {
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
                 });
                 it+=9;
+                mt+=1;
             }
-            if sdf.mdd[it] == 3f32{
+            if sdf.mdd[it] as i32 == 3{
                 it+=1;
                 self.objects_to_create.push(ObjectCreateInfo{ 
                     md: "".to_string(), 
@@ -161,8 +163,9 @@ impl Scene {
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
                 });
                 it+=9;
+                mt+=1;
             }
-            if sdf.mdd[it] == 4f32{
+            if sdf.mdd[it] as i32 == 4{
                 it+=1;
                 self.objects_to_create.push(ObjectCreateInfo{ 
                     md: "".to_string(), 
@@ -175,8 +178,8 @@ impl Scene {
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
                 });
                 it+=9;
+                mt+=1;
             }
-            mt+=1;
         }
     }
     #[allow(dead_code)]

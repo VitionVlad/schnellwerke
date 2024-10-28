@@ -167,7 +167,7 @@ export class Jsloadsdf{
         }
         this.mdarr = new Float32Array(arr1);
         this.matarr = new Float32Array(arr5);
-        console.log("SDFLoader: SceneArrLen="+ this.mdarr.length/10 + " " + this.matarr.length);
+        console.log("SDFLoader: SceneArrLen="+ this.mdarr.length + " " + this.matarr.length);
     }
     getmd(){
         return this.mdarr;
