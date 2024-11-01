@@ -113,6 +113,7 @@ export class Jsloadsdf{
                 arr1.push(parseFloat(st[i+8]));
                 arr1.push(parseFloat(st[i+9]));
                 arr1.push(parseFloat(st[i+10]));
+                arr1.push(parseFloat(st[i+11]));
             }
             if(st[i] == "cs"){ 
                 console.log("SDFLoader: found cube mesh at index ="+ i);
@@ -126,6 +127,7 @@ export class Jsloadsdf{
                 arr1.push(parseFloat(st[i+7]));
                 arr1.push(parseFloat(st[i+8]));
                 arr1.push(parseFloat(st[i+9]));
+                arr1.push(parseFloat(st[i+10]));
             }
             if(st[i] == "cu"){ 
                 console.log("SDFLoader: found cubeuv mesh at index ="+ i);
@@ -139,6 +141,7 @@ export class Jsloadsdf{
                 arr1.push(parseFloat(st[i+7]));
                 arr1.push(parseFloat(st[i+8]));
                 arr1.push(parseFloat(st[i+9]));
+                arr1.push(parseFloat(st[i+10]));
             }
             if(st[i] == "pl"){ 
                 arr1.push(4);
@@ -151,6 +154,7 @@ export class Jsloadsdf{
                 arr1.push(parseFloat(st[i+7]));
                 arr1.push(parseFloat(st[i+8]));
                 arr1.push(parseFloat(st[i+9]));
+                arr1.push(parseFloat(st[i+10]));
                 console.log("SDFLoader: found plane mesh at index ="+ i);
             }
             if(st[i] == "mat"){ 

@@ -122,12 +122,14 @@ impl Scene {
         while it < sdf.mdd.len(){
             if sdf.mdd[it] as i32 == 1{
                 it+=1;
+                let iss = sdf.mdd[it] == 1f32;
+                it+=1;
                 self.objects_to_create.push(ObjectCreateInfo{ 
                     md: ("md".to_string() + &(sdf.mdd[it] as i32).to_string()), 
                     mat: mv[mt].clone(),
                     usage: MUsages::ShadowAndMain,
                     object_type: ObjectType::Model,
-                    is_static: true,
+                    is_static: iss,
                     pos: Vec3::newdefined(sdf.mdd[it+1], sdf.mdd[it+2], sdf.mdd[it+3]),
                     rot: Vec3::newdefined(sdf.mdd[it+4], sdf.mdd[it+5], sdf.mdd[it+6]),
                     scale: Vec3::newdefined(sdf.mdd[it+7], sdf.mdd[it+8], sdf.mdd[it+9]),
@@ -137,12 +139,14 @@ impl Scene {
             }
             if sdf.mdd[it] as i32 == 2{
                 it+=1;
+                let iss = sdf.mdd[it] == 1f32;
+                it+=1;
                 self.objects_to_create.push(ObjectCreateInfo{ 
                     md: "".to_string(), 
                     mat: mv[mt].clone(),
                     usage: MUsages::ShadowAndMain,
                     object_type: ObjectType::Cube,
-                    is_static: true,
+                    is_static: iss,
                     pos: Vec3::newdefined(sdf.mdd[it], sdf.mdd[it+1], sdf.mdd[it+2]),
                     rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
@@ -152,12 +156,14 @@ impl Scene {
             }
             if sdf.mdd[it] as i32 == 3{
                 it+=1;
+                let iss = sdf.mdd[it] == 1f32;
+                it+=1;
                 self.objects_to_create.push(ObjectCreateInfo{ 
                     md: "".to_string(), 
                     mat: mv[mt].clone(),
                     usage: MUsages::ShadowAndMain,
                     object_type: ObjectType::CubeUV,
-                    is_static: true,
+                    is_static: iss,
                     pos: Vec3::newdefined(sdf.mdd[it], sdf.mdd[it+1], sdf.mdd[it+2]),
                     rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
@@ -167,12 +173,14 @@ impl Scene {
             }
             if sdf.mdd[it] as i32 == 4{
                 it+=1;
+                let iss = sdf.mdd[it] == 1f32;
+                it+=1;
                 self.objects_to_create.push(ObjectCreateInfo{ 
                     md: "".to_string(), 
                     mat: mv[mt].clone(),
                     usage: MUsages::ShadowAndMain,
                     object_type: ObjectType::Plane,
-                    is_static: true,
+                    is_static: iss,
                     pos: Vec3::newdefined(sdf.mdd[it], sdf.mdd[it+1], sdf.mdd[it+2]),
                     rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
