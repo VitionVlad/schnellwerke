@@ -1,6 +1,6 @@
 use crate::log;
 
-use super::{cube::{CUBE, CUBEUV}, engine::Engine, material::{Material, MaterialGenerator}, math::{uniformstruct::Uniformstruct, vec3::Vec3}, object::Object, plane::PLANE, render::mesh::MUsages, resourceloader::resourceloader::{get_text_from_iframe, Objreader, Sdfreader}};
+use super::{cube::{CUBE, CUBEUV}, engine::Engine, light::Light, material::{Material, MaterialGenerator}, math::{uniformstruct::Uniformstruct, vec3::Vec3}, object::Object, plane::PLANE, render::mesh::MUsages, resourceloader::resourceloader::{get_text_from_iframe, Objreader, Sdfreader}};
 
 #[allow(dead_code)]
 #[derive(PartialEq)]
@@ -62,7 +62,7 @@ impl Scene {
         }
     }
     #[allow(dead_code)]
-    pub fn load_objects(&mut self, id: &str){
+    pub fn load_objects(&mut self, eng: &mut Engine, id: &str){
         let sdf = Sdfreader::new(id);
         let mut mv: Vec<Material> = vec![];
         let mut it = 0usize;
@@ -188,6 +188,20 @@ impl Scene {
                 it+=9;
                 mt+=1;
             }
+        }
+        for i in (0..sdf.light.len()).step_by(10){
+            let ind = eng.lights.len();
+            let pos = Vec3::newdefined(sdf.light[i+1], sdf.light[i+2], sdf.light[i+3]);
+            let rot = Vec3::newdefined(sdf.light[i+4], sdf.light[i+5], sdf.light[i+6]);
+            let col = Vec3::newdefined(sdf.light[i+7], sdf.light[i+8], sdf.light[i+9]);
+            if sdf.light[i] == 0.0f32 {
+                eng.lights.push(Light::new(super::light::LightType::Spot));
+            }else{
+                eng.lights.push(Light::new(super::light::LightType::Directional));
+            }
+            eng.lights[ind].pos = pos;
+            eng.lights[ind].rot = rot;
+            eng.lights[ind].color = col;
         }
     }
     #[allow(dead_code)]

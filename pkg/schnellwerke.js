@@ -206,6 +206,14 @@ function __wbg_get_imports() {
         const ret = get_text_iframe(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_gfxgetcanvassizey_d4439ec9439134c5 = function(arg0) {
+        const ret = getObject(arg0).gfxgetcanvassizey();
+        return ret;
+    };
+    imports.wbg.__wbg_gfxgetcanvassizex_f04fe36b4cb8f74a = function(arg0) {
+        const ret = getObject(arg0).gfxgetcanvassizex();
+        return ret;
+    };
     imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
         const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
         return addHeapObject(ret);
@@ -218,14 +226,6 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_gfxsetshadowmapres_9c39b6ea5100a8d8 = function(arg0, arg1, arg2) {
         getObject(arg0).gfxsetshadowmapres(arg1, arg2 >>> 0);
-    };
-    imports.wbg.__wbg_gfxgetcanvassizex_f04fe36b4cb8f74a = function(arg0) {
-        const ret = getObject(arg0).gfxgetcanvassizex();
-        return ret;
-    };
-    imports.wbg.__wbg_gfxgetcanvassizey_d4439ec9439134c5 = function(arg0) {
-        const ret = getObject(arg0).gfxgetcanvassizey();
-        return ret;
     };
     imports.wbg.__wbg_setlfunc_b04671b3dac03214 = function(arg0) {
         set_lfunc(getObject(arg0));
@@ -260,6 +260,10 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_getmat_4e41d8baa3daf857 = function(arg0) {
         const ret = getObject(arg0).getmat();
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_getlight_50043bafea0602b3 = function(arg0) {
+        const ret = getObject(arg0).getlight();
         return addHeapObject(ret);
     };
     imports.wbg.__wbg_queuepipeline_10fba820203e5ffd = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
@@ -320,8 +324,8 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper95 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 14, __wbg_adapter_10);
+    imports.wbg.__wbindgen_closure_wrapper53 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 9, __wbg_adapter_10);
         return addHeapObject(ret);
     };
     imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/keyboard.js'] = __wbg_star0;

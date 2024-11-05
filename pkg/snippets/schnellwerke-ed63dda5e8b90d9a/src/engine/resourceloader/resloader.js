@@ -99,6 +99,7 @@ export class Jsloadsdf{
         console.log("SDFLoader: SepSceneSize="+ st.length);
         var arr1 = [];
         var arr5 = [];
+        var arrl = [];
         for(var i = 0; i != st.length; i+=1){
             if(st[i] == "md"){ 
                 console.log("SDFLoader: found model mesh at index ="+ i);
@@ -157,6 +158,19 @@ export class Jsloadsdf{
                 arr1.push(parseFloat(st[i+10]));
                 console.log("SDFLoader: found plane mesh at index ="+ i);
             }
+            if(st[i] == "lt"){ 
+                arrl.push(parseFloat(st[i+1]));
+                arrl.push(parseFloat(st[i+2]));
+                arrl.push(parseFloat(st[i+3]));
+                arrl.push(parseFloat(st[i+4]));
+                arrl.push(parseFloat(st[i+5]));
+                arrl.push(parseFloat(st[i+6]));
+                arrl.push(parseFloat(st[i+7]));
+                arrl.push(parseFloat(st[i+8]));
+                arrl.push(parseFloat(st[i+9]));
+                arrl.push(parseFloat(st[i+10]));
+                console.log("SDFLoader: found light at index ="+ i);
+            }
             if(st[i] == "mat"){ 
                 console.log("SDFLoader: found material at index ="+ i);
                 arr5.push(parseFloat(st[i+1]));
@@ -171,6 +185,7 @@ export class Jsloadsdf{
         }
         this.mdarr = new Float32Array(arr1);
         this.matarr = new Float32Array(arr5);
+        this.larr = new Float32Array(arrl);
         console.log("SDFLoader: SceneArrLen="+ this.mdarr.length + " " + this.matarr.length);
     }
     getmd(){
@@ -178,6 +193,9 @@ export class Jsloadsdf{
     }
     getmat(){
         return this.matarr;
+    }
+    getlight(){
+        return this.larr;
     }
 }
 

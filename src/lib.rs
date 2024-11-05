@@ -23,7 +23,7 @@ pub fn main() {
   let mut eng: Engine = Engine::new("render");
 
   let mut scn = Scene::new(vec![]);
-  scn.load_objects("charliesdf");
+  scn.load_objects(&mut eng, "charliesdf");
   scn.create_objects(&mut eng);
 
   let mut matgen = MaterialGenerator::new(vec![]);
@@ -37,7 +37,7 @@ pub fn main() {
 
   let shadow = shcalc(WorldPos, 0.0);
   let metallic = mat.g;
-  let roughness = mat.r;
+  let roughness = mat.r; 
   let ao = mat.b;
 
   let color = PBR(norm, albedo, shadow, metallic, roughness, ao, WorldPos);
@@ -78,6 +78,7 @@ pub fn main() {
       eng.lights[ind].pos = Vec3::newdefined(eng.cameras[0].physic_object.pos.x, eng.cameras[0].physic_object.pos.y, eng.cameras[0].physic_object.pos.z);
       eng.lights[ind].rot = Vec3::newdefined(eng.cameras[0].physic_object.rot.x, eng.cameras[0].physic_object.rot.y, eng.cameras[0].physic_object.rot.z);
       eng.lights[ind].color = Vec3::newdefined(10f32, 10f32, 9.9f32);
+      log(&("lstat ".to_string() + &eng.lights[ind].pos.x.to_string() + &" ".to_string() + &eng.lights[ind].pos.y.to_string() + &" ".to_string() + &eng.lights[ind].pos.z.to_string() + &" ".to_string() + &eng.lights[ind].rot.x.to_string() + &" ".to_string() + &eng.lights[ind].rot.y.to_string() + &" ".to_string() + &eng.lights[ind].rot.z.to_string()));
     }
     if get_mouse_middle_click(){
       let ind = eng.lights.len();
@@ -85,6 +86,7 @@ pub fn main() {
       eng.lights[ind].pos = Vec3::newdefined(eng.cameras[0].physic_object.pos.x, eng.cameras[0].physic_object.pos.y, eng.cameras[0].physic_object.pos.z);
       eng.lights[ind].rot = Vec3::newdefined(eng.cameras[0].physic_object.rot.x, eng.cameras[0].physic_object.rot.y, eng.cameras[0].physic_object.rot.z);
       eng.lights[ind].color = Vec3::newdefined(10f32, 10f32, 9.9f32);
+      log(&("lstat ".to_string() + &eng.lights[ind].pos.x.to_string() + &" ".to_string() + &eng.lights[ind].pos.y.to_string() + &" ".to_string() + &eng.lights[ind].pos.z.to_string() + &" ".to_string() + &eng.lights[ind].rot.x.to_string() + &" ".to_string() + &eng.lights[ind].rot.y.to_string() + &" ".to_string() + &eng.lights[ind].rot.z.to_string()));
     }
     if is_key_pressed(38){
       eng.renderscale = 0.5f32;
