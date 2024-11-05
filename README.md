@@ -5,7 +5,7 @@ Version 2.0, work in progress...
 - [x] Multiple cameras  
 - [x] Deffered render  
 - [x] PBR
-- [x] Maps/Scenes (partially implemented, in dev...)
+- [x] Maps/Scenes
 - [x] New physics engine  
 - [ ] new input system
 - [ ] new audio system
