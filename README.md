@@ -7,5 +7,5 @@ Version 2.0, work in progress...
 - [x] PBR
 - [x] Maps/Scenes
 - [x] New physics engine  
-- [ ] new input system
+- [ ] new input system (new keyboard input implemented, working on improving touch support and adding gamepad support)
 - [ ] new audio system
