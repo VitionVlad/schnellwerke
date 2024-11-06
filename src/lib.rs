@@ -19,7 +19,7 @@ extern {
 
 #[wasm_bindgen]
 pub fn main() {
-  const SPEED: f32 = 0.1f32;
+  const SPEED: f32 = 0.01f32;
   let mut eng: Engine = Engine::new("render");
 
   let mut scn = Scene::new(vec![]);
@@ -58,20 +58,20 @@ pub fn main() {
     eng.cameras[0].physic_object.rot.x += get_mouse_y() as f32/eng.render.get_canvas_size_y()as f32;
     eng.cameras[0].physic_object.rot.y += get_mouse_x() as f32/eng.render.get_canvas_size_x()as f32;
     if is_key_pressed(11){
-      eng.cameras[0].physic_object.speed.z = f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * SPEED;
-      eng.cameras[0].physic_object.speed.x = f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * -SPEED;
+      eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * SPEED;
+      eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * -SPEED;
     }
     if is_key_pressed(1){
-      eng.cameras[0].physic_object.speed.z = f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * -SPEED;
-      eng.cameras[0].physic_object.speed.x = f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * SPEED;
+      eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * -SPEED;
+      eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * SPEED;
     }
     if is_key_pressed(12){
-      eng.cameras[0].physic_object.speed.x = f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * SPEED;
-      eng.cameras[0].physic_object.speed.z = f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * SPEED;
+      eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * SPEED;
+      eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * SPEED;
     }
     if is_key_pressed(10){
-      eng.cameras[0].physic_object.speed.x = f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * -SPEED;
-      eng.cameras[0].physic_object.speed.z = f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * -SPEED;
+      eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * -SPEED;
+      eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * -SPEED;
     }
     if get_mouse_right_click(){
       let ind = eng.lights.len()-1;
