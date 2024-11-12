@@ -24,6 +24,14 @@ export function jgetty(){
     return Number(ty); 
 }
 
+export function jmaxx(){
+    return Number(tx); 
+}
+
+export function jmaxy(){
+    return Number(ty); 
+}
+
 export function jgetuse(){
     return Number(inuse); 
 }

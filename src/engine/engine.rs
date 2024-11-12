@@ -1,4 +1,4 @@
-use engine::{light::{Light, LightType}, physics::PhysicsObject};
+use engine::{input::{keyboard::Keyboard, mouse::Mouse, touch::Touch}, light::{Light, LightType}, physics::PhysicsObject};
 use crate::*;
 use super::camera::Camera;
 
@@ -18,6 +18,9 @@ pub struct Engine{
     last_smat: usize,
     pub shadow_code: String,
     pub rec_pipeline: bool,
+    pub keyboard: Keyboard,
+    pub mouse: Mouse,
+    pub touch: Touch,
 }
 
 impl Engine {
@@ -56,6 +59,9 @@ impl Engine {
               return ubo.smvp[i32(ubo.eng.a)] * ubo.model * vec4f(pos, 1.0);
             }".to_string(),
             rec_pipeline: false,
+            keyboard: Keyboard::new(),
+            mouse: Mouse::new(),
+            touch: Touch::new(),
         }
     }
     #[allow(dead_code)]

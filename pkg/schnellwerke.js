@@ -1,8 +1,7 @@
+import { Jskeyboard, Jsmouse, Jstouch } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/input.js';
 import { Gfxrender, Gfxmesh, push_mesh, set_render, set_lfunc } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 import { Jsrelod, Jsloadsdf, get_text_iframe } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/resourceloader/resloader.js';
-import * as __wbg_star0 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/keyboard.js';
-import * as __wbg_star1 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/mouse.js';
-import * as __wbg_star2 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
+import * as __wbg_star0 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 
 let wasm;
 
@@ -206,12 +205,44 @@ function __wbg_get_imports() {
         const ret = get_text_iframe(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_gfxgetcanvassizey_d4439ec9439134c5 = function(arg0) {
-        const ret = getObject(arg0).gfxgetcanvassizey();
+    imports.wbg.__wbg_jgetuse_b2367a2fbc7cd4cd = function(arg0) {
+        const ret = getObject(arg0).jgetuse();
+        return ret;
+    };
+    imports.wbg.__wbg_jgettx_a36ea2edacf2c7de = function(arg0) {
+        const ret = getObject(arg0).jgettx();
         return ret;
     };
     imports.wbg.__wbg_gfxgetcanvassizex_f04fe36b4cb8f74a = function(arg0) {
         const ret = getObject(arg0).gfxgetcanvassizex();
+        return ret;
+    };
+    imports.wbg.__wbg_jgetty_55d047a4b756a9bb = function(arg0) {
+        const ret = getObject(arg0).jgetty();
+        return ret;
+    };
+    imports.wbg.__wbg_gfxgetcanvassizey_d4439ec9439134c5 = function(arg0) {
+        const ret = getObject(arg0).gfxgetcanvassizey();
+        return ret;
+    };
+    imports.wbg.__wbg_jgety_ad535a94ab759a8f = function(arg0) {
+        const ret = getObject(arg0).jgety();
+        return ret;
+    };
+    imports.wbg.__wbg_jgetx_e839f46b3423674b = function(arg0) {
+        const ret = getObject(arg0).jgetx();
+        return ret;
+    };
+    imports.wbg.__wbg_getkey_e5428afc406f732e = function(arg0, arg1) {
+        const ret = getObject(arg0).getkey(arg1);
+        return ret;
+    };
+    imports.wbg.__wbg_getmrc_8146631d372fd51a = function(arg0) {
+        const ret = getObject(arg0).getmrc();
+        return ret;
+    };
+    imports.wbg.__wbg_getmmc_62f1c5a106f80686 = function(arg0) {
+        const ret = getObject(arg0).getmmc();
         return ret;
     };
     imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
@@ -220,6 +251,18 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_setrender_e632d4306c50c59d = function(arg0) {
         set_render(getObject(arg0));
+    };
+    imports.wbg.__wbg_new_857c1f281e8a1af9 = function() {
+        const ret = new Jskeyboard();
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_new_f7edebfa2f59b5fd = function() {
+        const ret = new Jsmouse();
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_new_3373bc622a4b5b66 = function() {
+        const ret = new Jstouch();
+        return addHeapObject(ret);
     };
     imports.wbg.__wbg_gfxsetrenderscale_b8e9b2e9c6279ed6 = function(arg0, arg1, arg2) {
         getObject(arg0).gfxsetrenderscale(arg1, arg2 >>> 0);
@@ -324,13 +367,11 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper53 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper59 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 9, __wbg_adapter_10);
         return addHeapObject(ret);
     };
-    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/keyboard.js'] = __wbg_star0;
-    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/mouse.js'] = __wbg_star1;
-    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js'] = __wbg_star2;
+    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js'] = __wbg_star0;
 
     return imports;
 }

@@ -1,6 +1,4 @@
 use engine::engine::{start_loop, Engine};
-use engine::input::keyboard::is_key_pressed;
-use engine::input::mouse::{get_mouse_middle_click, get_mouse_right_click, get_mouse_x, get_mouse_y};
 use engine::light::Light;
 use engine::material::MaterialGenerator;
 use engine::object::Object;
@@ -55,32 +53,45 @@ pub fn main() {
   start_loop(Closure::new(move || {
     eng.start();
 
-    eng.cameras[0].physic_object.rot.x += get_mouse_y() as f32/eng.render.get_canvas_size_y()as f32;
-    eng.cameras[0].physic_object.rot.y += get_mouse_x() as f32/eng.render.get_canvas_size_x()as f32;
-    if is_key_pressed(11){
+    if eng.touch.is_touching(){
+      let xp = eng.touch.get_x_touch() as f32 / eng.render.get_canvas_size_x()as f32;
+      let yp = 1.0 - eng.touch.get_y_touch() as f32 / eng.render.get_canvas_size_y()as f32;
+      if xp <= 0.5{
+        eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * ((yp*2.0)-1.0)*-SPEED;
+        eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * ((yp*2.0)-1.0)*SPEED;
+        eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * ((xp*4.0)-1.0)* SPEED;
+        eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * ((xp*4.0)-1.0)* SPEED;
+      }else{
+        eng.cameras[0].physic_object.rot.x += -((yp*2.0)-1.0)/100.0;
+        eng.cameras[0].physic_object.rot.y += (((xp-0.5)*4.0)-1.0)/100.0;
+      }
+    }
+    eng.cameras[0].physic_object.rot.x += eng.mouse.get_y_coords() as f32/eng.render.get_canvas_size_y()as f32;
+    eng.cameras[0].physic_object.rot.y += eng.mouse.get_x_coords() as f32/eng.render.get_canvas_size_x()as f32;
+    if eng.keyboard.is_key_pressed(11){
       eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * SPEED;
       eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * -SPEED;
     }
-    if is_key_pressed(1){
+    if eng.keyboard.is_key_pressed(1){
       eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * -SPEED;
       eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * SPEED;
     }
-    if is_key_pressed(12){
+    if eng.keyboard.is_key_pressed(12){
       eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * SPEED;
       eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * SPEED;
     }
-    if is_key_pressed(10){
+    if eng.keyboard.is_key_pressed(10){
       eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * -SPEED;
       eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * -SPEED;
     }
-    if get_mouse_right_click(){
+    if eng.mouse.get_right_mouse_button(){
       let ind = eng.lights.len()-1;
       eng.lights[ind].pos = Vec3::newdefined(eng.cameras[0].physic_object.pos.x, eng.cameras[0].physic_object.pos.y, eng.cameras[0].physic_object.pos.z);
       eng.lights[ind].rot = Vec3::newdefined(eng.cameras[0].physic_object.rot.x, eng.cameras[0].physic_object.rot.y, eng.cameras[0].physic_object.rot.z);
       eng.lights[ind].color = Vec3::newdefined(10f32, 10f32, 9.9f32);
       log(&("lstat ".to_string() + &eng.lights[ind].pos.x.to_string() + &" ".to_string() + &eng.lights[ind].pos.y.to_string() + &" ".to_string() + &eng.lights[ind].pos.z.to_string() + &" ".to_string() + &eng.lights[ind].rot.x.to_string() + &" ".to_string() + &eng.lights[ind].rot.y.to_string() + &" ".to_string() + &eng.lights[ind].rot.z.to_string()));
     }
-    if get_mouse_middle_click(){
+    if eng.mouse.get_middle_mouse_button(){
       let ind = eng.lights.len();
       eng.lights.push(Light::new(engine::light::LightType::Spot));
       eng.lights[ind].pos = Vec3::newdefined(eng.cameras[0].physic_object.pos.x, eng.cameras[0].physic_object.pos.y, eng.cameras[0].physic_object.pos.z);
@@ -88,10 +99,10 @@ pub fn main() {
       eng.lights[ind].color = Vec3::newdefined(10f32, 10f32, 9.9f32);
       log(&("lstat ".to_string() + &eng.lights[ind].pos.x.to_string() + &" ".to_string() + &eng.lights[ind].pos.y.to_string() + &" ".to_string() + &eng.lights[ind].pos.z.to_string() + &" ".to_string() + &eng.lights[ind].rot.x.to_string() + &" ".to_string() + &eng.lights[ind].rot.y.to_string() + &" ".to_string() + &eng.lights[ind].rot.z.to_string()));
     }
-    if is_key_pressed(38){
+    if eng.keyboard.is_key_pressed(38){
       eng.renderscale = 0.5f32;
     }
-    if is_key_pressed(39){
+    if eng.keyboard.is_key_pressed(39){
       eng.renderscale = 1.0f32;
     }
 
