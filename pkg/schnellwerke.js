@@ -1,7 +1,6 @@
-import { Jskeyboard, Jsmouse, Jstouch } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/input.js';
-import { Gfxrender, Gfxmesh, push_mesh, set_render, set_lfunc } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
+import { Jskeyboard, Jsmouse, Jstouch, Jsgamepad } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/input.js';
+import { Jsloop, snlll, Gfxrender, Gfxmesh } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 import { Jsrelod, Jsloadsdf, get_text_iframe } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/resourceloader/resloader.js';
-import * as __wbg_star0 from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 
 let wasm;
 
@@ -249,8 +248,9 @@ function __wbg_get_imports() {
         const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_setrender_e632d4306c50c59d = function(arg0) {
-        set_render(getObject(arg0));
+    imports.wbg.__wbg_new_d6c2c92dfc7893b6 = function(arg0) {
+        const ret = new Jsloop(getObject(arg0));
+        return addHeapObject(ret);
     };
     imports.wbg.__wbg_new_857c1f281e8a1af9 = function() {
         const ret = new Jskeyboard();
@@ -264,14 +264,34 @@ function __wbg_get_imports() {
         const ret = new Jstouch();
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_new_836307f2f8909e62 = function() {
+        const ret = new Jsgamepad();
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_drawloop_2b149d4be94d54fd = function(arg0) {
+        getObject(arg0).drawloop();
+    };
     imports.wbg.__wbg_gfxsetrenderscale_b8e9b2e9c6279ed6 = function(arg0, arg1, arg2) {
         getObject(arg0).gfxsetrenderscale(arg1, arg2 >>> 0);
     };
     imports.wbg.__wbg_gfxsetshadowmapres_9c39b6ea5100a8d8 = function(arg0, arg1, arg2) {
         getObject(arg0).gfxsetshadowmapres(arg1, arg2 >>> 0);
     };
-    imports.wbg.__wbg_setlfunc_b04671b3dac03214 = function(arg0) {
-        set_lfunc(getObject(arg0));
+    imports.wbg.__wbg_setubo_52def3822cd560c5 = function(arg0, arg1) {
+        getObject(arg0).set_ubo(getObject(arg1));
+    };
+    imports.wbg.__wbg_queuepipeline_10fba820203e5ffd = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
+        getObject(arg0).queuepipeline(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4), getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10));
+    };
+    imports.wbg.__wbg_create_0b9fe6d5be161aee = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24, arg25, arg26, arg27, arg28) {
+        const ret = new Gfxmesh(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3), getObject(arg4), getObject(arg5), arg6 >>> 0, getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10), getStringFromWasm0(arg11, arg12), arg13, getStringFromWasm0(arg14, arg15), getStringFromWasm0(arg16, arg17), getStringFromWasm0(arg18, arg19), getStringFromWasm0(arg20, arg21), getStringFromWasm0(arg22, arg23), getStringFromWasm0(arg24, arg25), getStringFromWasm0(arg26, arg27), arg28 >>> 0);
+        return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_pushmesh_d57554b8216cec15 = function(arg0, arg1) {
+        getObject(arg0).push_mesh(getObject(arg1));
+    };
+    imports.wbg.__wbg_snlll_ec2e0ecc8bf72e86 = function(arg0, arg1) {
+        snlll(getObject(arg0), arg1 >>> 0);
     };
     imports.wbg.__wbg_new_766710a7adac36ef = function(arg0, arg1) {
         const ret = new Jsrelod(getStringFromWasm0(arg0, arg1));
@@ -308,19 +328,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_getlight_50043bafea0602b3 = function(arg0) {
         const ret = getObject(arg0).getlight();
         return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_queuepipeline_10fba820203e5ffd = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
-        getObject(arg0).queuepipeline(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4), getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10));
-    };
-    imports.wbg.__wbg_create_0b9fe6d5be161aee = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24, arg25, arg26, arg27, arg28) {
-        const ret = new Gfxmesh(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3), getObject(arg4), getObject(arg5), arg6 >>> 0, getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10), getStringFromWasm0(arg11, arg12), arg13, getStringFromWasm0(arg14, arg15), getStringFromWasm0(arg16, arg17), getStringFromWasm0(arg18, arg19), getStringFromWasm0(arg20, arg21), getStringFromWasm0(arg22, arg23), getStringFromWasm0(arg24, arg25), getStringFromWasm0(arg26, arg27), arg28 >>> 0);
-        return addHeapObject(ret);
-    };
-    imports.wbg.__wbg_setubo_52def3822cd560c5 = function(arg0, arg1) {
-        getObject(arg0).set_ubo(getObject(arg1));
-    };
-    imports.wbg.__wbg_pushmesh_ad91b1ecd9519656 = function(arg0) {
-        push_mesh(getObject(arg0));
     };
     imports.wbg.__wbindgen_string_get = function(arg0, arg1) {
         const obj = getObject(arg1);
@@ -371,7 +378,6 @@ function __wbg_get_imports() {
         const ret = makeMutClosure(arg0, arg1, 9, __wbg_adapter_10);
         return addHeapObject(ret);
     };
-    imports['./snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js'] = __wbg_star0;
 
     return imports;
 }

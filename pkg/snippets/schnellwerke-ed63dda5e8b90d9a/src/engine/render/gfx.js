@@ -1110,8 +1110,8 @@ export class Gfxmesh{
                 label: "bf1",
             })]);
         }
-        this.ubo[0] = Math.floor(gfx.canvas.width*gfxr.rscale);
-        this.ubo[1] = Math.floor(gfx.canvas.height*gfxr.rscale);
+        this.ubo[0] = Math.floor(gfx.canvas.width*gfx.rscale);
+        this.ubo[1] = Math.floor(gfx.canvas.height*gfx.rscale);
         this.ubo[2] = gfx.shadowmapres;
         this.ubo[3] = i;
         device.queue.writeBuffer(this.uniformBuffers[i][this.currentubo], 0, this.ubo);
@@ -1245,66 +1245,67 @@ export class Gpucompute{
     }
 }
 
-var gfxr = null;
-
-var gfxms = [];
-
-export function drawloop(){
-    for(var i = 0; i != gfxms.length; i+=1){
-        if(gfxms[i].recbuf){
-            gfxms[i].createub(gfxms[i].ubo.length);
-            gfxms[i].recbuf = false;
+export class Jsloop{
+    constructor(gfxr){
+        this.gfxr = gfxr;
+        this.gfxms = [];
+    }
+    drawloop(){
+        let self = this;
+        function fr(){
+            for(var i = 0; i != self.gfxms.length; i+=1){
+                if(self.gfxms[i].recbuf){
+                    self.gfxms[i].createub(self.gfxms[i].ubo.length);
+                    self.gfxms[i].recbuf = false;
+                }
+            }
+            for(var i = 0; i != self.gfxms.length; i+=1){
+                if(self.gfxms[i].reqpl){
+                    self.gfxms[i].createpipeline(self.gfxr, self.gfxms[i].newvc, self.gfxms[i].newfc, self.gfxms[i].cullmq);
+                    self.gfxms[i].createshpipeline(self.gfxms[i].newsvc, self.gfxms[i].shcullmq);
+                    self.gfxms[i].reqpl = false;
+                }
+            }
+            self.gfxr.gfxcheckchange();
+            for(var i = 0; i !== self.gfxr.rendershadows; i += 1){
+                self.gfxr.gfxbeginshadowpass("clear", i);
+                for(var b = 0; b != self.gfxms.length; b+=1){
+                    self.gfxms[b].draw(self.gfxr, i);
+                }
+                self.gfxr.gfxendpass();
+            }
+            for(var i = 0; i !== self.gfxr.renderlayers; i += 1){
+                self.gfxr.gfxbeginmainpass("clear", "clear", i);
+                for(var b = 0; b != self.gfxms.length; b+=1){
+                    self.gfxms[b].draw(self.gfxr, i);
+                }
+                self.gfxr.gfxendpass();
+            }
+            self.gfxr.gfxbeginpass("clear", "clear");
+            for(var i = 0; i != self.gfxms.length; i+=1){
+                self.gfxms[i].draw(self.gfxr, 0);
+            }
+            self.gfxr.gfxendpass();
+            self.gfxr.gfxfinishrender();
+            requestAnimationFrame(fr);
         }
+        requestAnimationFrame(fr);
     }
-    for(var i = 0; i != gfxms.length; i+=1){
-        if(gfxms[i].reqpl){
-            gfxms[i].createpipeline(gfxr, gfxms[i].newvc, gfxms[i].newfc, gfxms[i].cullmq);
-            gfxms[i].createshpipeline(gfxms[i].newsvc, gfxms[i].shcullmq);
-            gfxms[i].reqpl = false;
+    push_mesh(mesh){
+        if(mesh.index === -1){
+            mesh.index = this.gfxms.length;
         }
+        this.gfxms[mesh.index] = mesh;
     }
-    gfxr.gfxcheckchange();
-    for(var i = 0; i !== gfxr.rendershadows; i += 1){
-        gfxr.gfxbeginshadowpass("clear", i);
-        for(var b = 0; b != gfxms.length; b+=1){
-            gfxms[b].draw(gfxr, i);
-        }
-        gfxr.gfxendpass();
+    set_render(ren){
+        this.gfxr = ren;
     }
-    for(var i = 0; i !== gfxr.renderlayers; i += 1){
-        gfxr.gfxbeginmainpass("clear", "clear", i);
-        for(var b = 0; b != gfxms.length; b+=1){
-            gfxms[b].draw(gfxr, i);
-        }
-        gfxr.gfxendpass();
-    }
-    gfxr.gfxbeginpass("clear", "clear");
-    for(var i = 0; i != gfxms.length; i+=1){
-        gfxms[i].draw(gfxr, 0);
-    }
-    gfxr.gfxendpass();
-    gfxr.gfxfinishrender();
-    requestAnimationFrame(drawloop);
 }
 
-export function push_mesh(mesh){
-    if(mesh.index === -1){
-        mesh.index = gfxms.length;
+export function snlll(fun, to){
+    function ll(){
+        fun();
+        setTimeout(ll, to);
     }
-    gfxms[mesh.index] = mesh;
-}
-
-export function set_render(ren){
-    gfxr = ren;
-}
-
-var logicfunc = null;
-
-export function logicloop(){
-    logicfunc();
-    setTimeout(logicloop, 4);
-}
-
-export function set_lfunc(func){
-    logicfunc = func;
+    ll();
 }

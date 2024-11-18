@@ -1,9 +1,10 @@
-use engine::{input::{keyboard::Keyboard, mouse::Mouse, touch::Touch}, light::{Light, LightType}, physics::PhysicsObject};
+use engine::{input::{gamepad::Gamepad, keyboard::Keyboard, mouse::Mouse, touch::Touch}, light::{Light, LightType}, physics::PhysicsObject, render::rloop::Rloop};
 use crate::*;
 use super::camera::Camera;
 
 #[allow(dead_code)]
 pub struct Engine{
+    pub rloop: Rloop,
     pub render: Render,
     pub renderscale: f32,
     pub shadowmap_resolution: i32,
@@ -21,14 +22,16 @@ pub struct Engine{
     pub keyboard: Keyboard,
     pub mouse: Mouse,
     pub touch: Touch,
+    pub gamepads: Gamepad,
+    sr: bool,
 }
 
 impl Engine {
     #[allow(dead_code)]
     pub fn new(canvasid: &str) -> Engine{
         let ren = Render::init(canvasid, 1f32, 1000); 
-        set_render(&ren.jsren);
         Engine{
+            rloop: Rloop::new(&ren),
             render: ren,
             renderscale: 1.0f32,
             shadowmap_resolution: 1000,
@@ -62,10 +65,16 @@ impl Engine {
             keyboard: Keyboard::new(),
             mouse: Mouse::new(),
             touch: Touch::new(),
+            gamepads: Gamepad::new(),
+            sr: false,
         }
     }
     #[allow(dead_code)]
     pub fn start(&mut self){
+        if !self.sr {
+            self.rloop.drawloop();
+            self.sr = !self.sr;
+        }
         self.rec_pipeline = false;
         let mut smats = 0;
         for i in 0..self.lights.len(){
@@ -160,12 +169,4 @@ impl Engine {
             self.ubo_beg_values[20*self.cameras.len()+7+smats*16+self.lights.len()*4+i*4] = 0f32;
         }
     }
-}
-
-#[allow(dead_code)]
-pub fn start_loop(func: Closure<dyn FnMut()>){
-    set_lfunc(&func);
-    logicloop();
-    func.forget();
-    drawloop();
 }

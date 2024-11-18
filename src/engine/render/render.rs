@@ -53,13 +53,6 @@ extern {
 
     #[wasm_bindgen(method)]
     pub fn getresult(this: &Gpucompute) -> Float32Array;
-
-    pub fn push_mesh(mesh: &Gfxmesh);
-    pub fn set_render(reb: &Gfxrender);
-    pub fn drawloop();
-
-    pub fn logicloop();
-    pub fn set_lfunc(func: &Closure<dyn FnMut()>);
 }
 
 pub struct Render{

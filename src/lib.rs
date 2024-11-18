@@ -1,8 +1,9 @@
-use engine::engine::{start_loop, Engine};
+use engine::engine::Engine;
 use engine::light::Light;
 use engine::material::MaterialGenerator;
 use engine::object::Object;
 use engine::plane::PLANE;
+use engine::render::rloop::logic_loop;
 use engine::scene::Scene;
 use wasm_bindgen::prelude::*;
 use engine::render::render::*;
@@ -43,14 +44,14 @@ pub fn main() {
   return vec4f(color, 1.0);";
   matgen.gen_frag_end();
 
-  let mut renderplane: Object = Object::new(&eng, PLANE.to_vec(), &matgen.generate_material("".to_string(), "".to_string()), engine::render::mesh::MUsages::PostProcessing, true);
+  let mut renderplane: Object = Object::new(&mut eng, PLANE.to_vec(), &matgen.generate_material("".to_string(), "".to_string()), engine::render::mesh::MUsages::PostProcessing, true);
 
   eng.cameras[0].physic_object.pos = Vec3::newdefined(26f32, 80f32, -12f32);
   eng.cameras[0].physic_object.rot = Vec3::newdefined(0f32, -2f32, 0f32);
 
   eng.lights[0].pos = Vec3::newdefined(26f32, 40f32, -12f32);
 
-  start_loop(Closure::new(move || {
+  logic_loop(Closure::new(move || {
     eng.start();
 
     if eng.touch.is_touching(){
@@ -108,5 +109,5 @@ pub fn main() {
 
     scn.exec(&mut eng);
     renderplane.exec(&mut eng);
-  }));
+  }), 4);
 }

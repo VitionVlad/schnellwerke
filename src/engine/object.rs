@@ -16,7 +16,7 @@ pub struct Object{
 
 impl Object{
     #[allow(dead_code)]
-    pub fn new(eng: &Engine, vertex_data: Vec<f32>, material: &Material, usage: MUsages, is_static: bool) -> Object{
+    pub fn new(eng: &mut Engine, vertex_data: Vec<f32>, material: &Material, usage: MUsages, is_static: bool) -> Object{
         let size = vertex_data.len()/8;
         let v = Float32Array::new_with_length((size*3) as u32);
         let u = Float32Array::new_with_length((size*2) as u32);
@@ -78,7 +78,7 @@ impl Object{
         }
         let startsize: i32 = (20*eng.last_cam_size+20+smats*16+eng.last_light_size*8) as i32;
         Object{
-            mesh: Mesh::create(&eng.render, &v, &u, &n, &jst, &jst2, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
+            mesh: Mesh::create(&eng.render, &mut eng.rloop, &v, &u, &n, &jst, &jst2, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
             physic_object: PhysicsObject::new(getpoints(v.to_vec()), is_static),
             ubo: vec![0f32, 0f32, 0f32, 0f32],
             startsize: startsize,

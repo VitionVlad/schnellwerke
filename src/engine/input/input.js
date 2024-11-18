@@ -279,3 +279,31 @@ export class Jstouch{
         this.index = lindex;
     }
 }
+
+export class Jsgamepad{
+    constructor(){
+        this.gamepad = [];
+        var self = this;
+        window.addEventListener("gamepadconnected", function(e){
+            self.gamepad.push(e.gamepad);
+        });
+        window.addEventListener("gamepaddisconnected", function(e){
+            self.gamepad.push(e.gamepad);
+        });
+    }
+    getgamepadnum(){
+        return this.gamepad.length;
+    }
+    getgamepadbnum(gi){
+        return this.gamepad[gi].button.length;
+    }
+    getgamepadanum(gi){
+        return this.gamepad[gi].axis.length;
+    }
+    getgamepadaxis(gi, ai){
+        return this.gamepad[gi].axis[ai];
+    }
+    getbuttonpressed(gi, bi){
+        return this.gamepad[gi].button[bi].pressed;
+    }
+}
