@@ -9,4 +9,5 @@ Version 2.0, work in progress...
 - [x] New physics engine  
 - [x] new input system  
       ⚠ Unfortunately, i am not able to check if gamepad works, because i dont have one.
-- [ ] new audio system
+- [x] new audio system  
+Working on some small details..... version 2.0 soon....
