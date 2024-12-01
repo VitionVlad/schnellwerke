@@ -100,6 +100,7 @@ export class Jsloadsdf{
         var arr1 = [];
         var arr5 = [];
         var arrl = [];
+        var arrs = [];
         for(var i = 0; i != st.length; i+=1){
             if(st[i] == "md"){ 
                 console.log("SDFLoader: found model mesh at index ="+ i);
@@ -171,6 +172,15 @@ export class Jsloadsdf{
                 arrl.push(parseFloat(st[i+10]));
                 console.log("SDFLoader: found light at index ="+ i);
             }
+            if(st[i] == "sp"){ 
+                arrs.push(parseFloat(st[i+1]));
+                arrs.push(parseFloat(st[i+2]));
+                arrs.push(parseFloat(st[i+3]));
+                arrs.push(parseFloat(st[i+4]));
+                arrs.push(parseFloat(st[i+5]));
+                arrs.push(parseFloat(st[i+6]));
+                console.log("SDFLoader: found speaker at index ="+ i);
+            }
             if(st[i] == "mat"){ 
                 console.log("SDFLoader: found material at index ="+ i);
                 arr5.push(parseFloat(st[i+1]));
@@ -186,6 +196,7 @@ export class Jsloadsdf{
         this.mdarr = new Float32Array(arr1);
         this.matarr = new Float32Array(arr5);
         this.larr = new Float32Array(arrl);
+        this.sarr = new Float32Array(arrs);
         console.log("SDFLoader: SceneArrLen="+ this.mdarr.length + " " + this.matarr.length);
     }
     getmd(){
@@ -196,6 +207,9 @@ export class Jsloadsdf{
     }
     getlight(){
         return this.larr;
+    }
+    getspeaker(){
+        return this.sarr;
     }
 }
 

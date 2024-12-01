@@ -32,6 +32,9 @@ extern {
     #[wasm_bindgen(method)]
     pub fn getlight(this: &Jsloadsdf) -> Float32Array;
 
+    #[wasm_bindgen(method)]
+    pub fn getspeaker(this: &Jsloadsdf) -> Float32Array;
+
     pub fn get_text_iframe(id: &str) -> JsString;
     pub fn remove_elem(id: &str);
 }
@@ -77,6 +80,7 @@ pub struct Sdfreader{
     pub mdd: Vec<f32>,
     pub mat: Vec<f32>,
     pub light: Vec<f32>,
+    pub speakers: Vec<f32>,
 }
 
 impl Sdfreader{
@@ -86,9 +90,11 @@ impl Sdfreader{
         let v = t.getmd();
         let m = t.getmat();
         let l = t.getlight();
+        let s = t.getspeaker();
         let mut a: Vec<f32> = vec![];
         let mut mat: Vec<f32> = vec![];
         let mut light: Vec<f32> = vec![];
+        let mut sp: Vec<f32> = vec![];
         for i in 0..v.length(){
             a.push(v.get_index(i as u32));
         }
@@ -98,11 +104,15 @@ impl Sdfreader{
         for i in 0..l.length(){
             light.push(l.get_index(i as u32));
         }
+        for i in 0..s.length(){
+            sp.push(s.get_index(i as u32));
+        }
         Sdfreader{
             load: t,
             mdd: a,
             mat: mat,
             light: light,
+            speakers: sp,
         }
     }
 }

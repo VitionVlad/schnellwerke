@@ -205,6 +205,10 @@ function __wbg_get_imports() {
         const ret = get_text_iframe(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_new_dce8990958dc098e = function(arg0, arg1, arg2) {
+        const ret = new Jsaudiosource(getObject(arg0), getStringFromWasm0(arg1, arg2));
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbg_jgetuse_b2367a2fbc7cd4cd = function(arg0) {
         const ret = getObject(arg0).jgetuse();
         return ret;
@@ -288,10 +292,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_queuepipeline_10fba820203e5ffd = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
         getObject(arg0).queuepipeline(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4), getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10));
     };
-    imports.wbg.__wbg_new_dce8990958dc098e = function(arg0, arg1, arg2) {
-        const ret = new Jsaudiosource(getObject(arg0), getStringFromWasm0(arg1, arg2));
-        return addHeapObject(ret);
-    };
     imports.wbg.__wbg_setrelxy_3bb0f57e0d9122e3 = function(arg0, arg1) {
         getObject(arg0).setrelxy(arg1);
     };
@@ -347,6 +347,10 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).getlight();
         return addHeapObject(ret);
     };
+    imports.wbg.__wbg_getspeaker_ab9154f7d40e4acc = function(arg0) {
+        const ret = getObject(arg0).getspeaker();
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbindgen_string_get = function(arg0, arg1) {
         const obj = getObject(arg1);
         const ret = typeof(obj) === 'string' ? obj : undefined;
@@ -392,7 +396,7 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper64 = function(arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper65 = function(arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 9, __wbg_adapter_10);
         return addHeapObject(ret);
     };

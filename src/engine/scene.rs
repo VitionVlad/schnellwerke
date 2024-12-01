@@ -1,6 +1,6 @@
 use crate::log;
 
-use super::{cube::{CUBE, CUBEUV}, engine::Engine, light::Light, material::{Material, MaterialGenerator}, math::{uniformstruct::Uniformstruct, vec3::Vec3}, object::Object, plane::PLANE, render::mesh::MUsages, resourceloader::resourceloader::{get_text_from_iframe, Objreader, Sdfreader}};
+use super::{cube::{CUBE, CUBEUV}, engine::Engine, light::Light, material::{Material, MaterialGenerator}, math::{uniformstruct::Uniformstruct, vec3::Vec3}, object::Object, plane::PLANE, render::mesh::MUsages, resourceloader::resourceloader::{get_text_from_iframe, Objreader, Sdfreader}, speaker::Speaker};
 
 #[allow(dead_code)]
 #[derive(PartialEq)]
@@ -28,6 +28,7 @@ pub struct Scene{
     pub material_gen: MaterialGenerator,
     pub objects_to_create: Vec<ObjectCreateInfo>,
     pub all_objects: Vec<Object>,
+    pub all_speakers: Vec<Speaker>,
 }
 
 impl Scene {
@@ -37,6 +38,7 @@ impl Scene {
             material_gen: MaterialGenerator::new(uniform_struct),
             objects_to_create: vec![],
             all_objects: vec![],
+            all_speakers: vec![],
         }
     }
     #[allow(dead_code)]
@@ -203,9 +205,19 @@ impl Scene {
             eng.lights[ind].rot = rot;
             eng.lights[ind].color = col;
         }
+        for i in (0..sdf.speakers.len()).step_by(6){
+            let spid = "spk".to_string() + &(sdf.speakers[i] as i32).to_string();
+            let pw = sdf.speakers[i+1];
+            let vl = sdf.speakers[i+2];
+            let pos = Vec3::newdefined(sdf.speakers[i+3], sdf.speakers[i+4], sdf.speakers[i+5]);
+            self.all_speakers.push(Speaker::new(eng, &spid, pos, pw, vl));
+        }
     }
     #[allow(dead_code)]
     pub fn exec(&mut self, eng: &mut Engine){
+        for i in 0..self.all_speakers.len(){
+            self.all_speakers[i].play(eng);
+        }
         for i in 0..self.all_objects.len(){
             self.all_objects[i].exec(eng);
         }

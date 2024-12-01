@@ -10,11 +10,11 @@ pub struct Speaker{
 
 impl Speaker {
     #[allow(dead_code)]
-    pub fn new(eng: &mut Engine, id: &str, pos: Vec3, power: f32) -> Speaker{
+    pub fn new(eng: &mut Engine, id: &str, pos: Vec3, power: f32, volume: f32) -> Speaker{
         Speaker{
             audio: AudioSource::new(&eng.audioctx, id),
             pos: pos,
-            volume: 1f32,
+            volume: volume,
             power: power,
         }
     }
