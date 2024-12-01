@@ -1,4 +1,4 @@
-use engine::{input::{gamepad::Gamepad, keyboard::Keyboard, mouse::Mouse, touch::Touch}, light::{Light, LightType}, physics::PhysicsObject, render::rloop::Rloop};
+use engine::{audio::audiocontext::AudioContext, input::{gamepad::Gamepad, keyboard::Keyboard, mouse::Mouse, touch::Touch}, light::{Light, LightType}, physics::PhysicsObject, render::rloop::Rloop};
 use crate::*;
 use super::camera::Camera;
 
@@ -24,6 +24,7 @@ pub struct Engine{
     pub touch: Touch,
     pub gamepads: Gamepad,
     sr: bool,
+    pub audioctx: AudioContext,
 }
 
 impl Engine {
@@ -67,6 +68,7 @@ impl Engine {
             touch: Touch::new(),
             gamepads: Gamepad::new(),
             sr: false,
+            audioctx: AudioContext::new(0),
         }
     }
     #[allow(dead_code)]

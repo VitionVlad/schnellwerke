@@ -5,6 +5,7 @@ use engine::object::Object;
 use engine::plane::PLANE;
 use engine::render::rloop::logic_loop;
 use engine::scene::Scene;
+use engine::speaker::Speaker;
 use wasm_bindgen::prelude::*;
 use engine::render::render::*;
 use engine::math::vec3::Vec3;
@@ -51,8 +52,12 @@ pub fn main() {
 
   eng.lights[0].pos = Vec3::newdefined(26f32, 40f32, -12f32);
 
+  let mut sp: Speaker = Speaker::new(&mut eng, "audio1", Vec3::newdefined(0f32, 0f32, 0f32), 50f32);
+  sp.volume = 0.25f32;
+
   logic_loop(Closure::new(move || {
     eng.start();
+    sp.play(&mut eng);
 
     if eng.touch.is_touching(){
       let xp = eng.touch.get_x_touch() as f32 / eng.render.get_canvas_size_x()as f32;

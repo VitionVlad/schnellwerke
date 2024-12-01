@@ -11,3 +11,5 @@ pub mod cube;
 pub mod light;
 pub mod material;
 pub mod scene;
+pub mod audio;
+pub mod speaker;
