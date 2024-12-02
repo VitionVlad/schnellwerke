@@ -205,12 +205,12 @@ impl Scene {
             eng.lights[ind].rot = rot;
             eng.lights[ind].color = col;
         }
-        for i in (0..sdf.speakers.len()).step_by(6){
+        for i in (0..sdf.speakers.len()).step_by(7){
             let spid = "spk".to_string() + &(sdf.speakers[i] as i32).to_string();
             let pw = sdf.speakers[i+1];
             let vl = sdf.speakers[i+2];
-            let pos = Vec3::newdefined(sdf.speakers[i+3], sdf.speakers[i+4], sdf.speakers[i+5]);
-            self.all_speakers.push(Speaker::new(eng, &spid, pos, pw, vl));
+            let pos = Vec3::newdefined(sdf.speakers[i+4], sdf.speakers[i+5], sdf.speakers[i+6]);
+            self.all_speakers.push(Speaker::new(eng, &spid, pos, pw, vl, sdf.speakers[i+3] == 1f32));
         }
     }
     #[allow(dead_code)]

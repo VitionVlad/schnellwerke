@@ -6,16 +6,18 @@ pub struct Speaker{
     pub pos: Vec3,
     pub volume: f32,
     pub power: f32,
+    pub pan: bool,
 }
 
 impl Speaker {
     #[allow(dead_code)]
-    pub fn new(eng: &mut Engine, id: &str, pos: Vec3, power: f32, volume: f32) -> Speaker{
+    pub fn new(eng: &mut Engine, id: &str, pos: Vec3, power: f32, volume: f32, pan: bool) -> Speaker{
         Speaker{
             audio: AudioSource::new(&eng.audioctx, id),
             pos: pos,
             volume: volume,
             power: power,
+            pan: pan,
         }
     }
     #[allow(dead_code)]
@@ -33,7 +35,11 @@ impl Speaker {
     #[allow(dead_code)]
     pub fn play(&mut self, eng: &mut Engine){
         self.audio.volume =  (self.power - f32::sqrt(f32::powi(eng.cameras[eng.audioctx.camera_id].physic_object.pos.x - self.pos.x, 2) + f32::powi(eng.cameras[eng.audioctx.camera_id].physic_object.pos.y - self.pos.y, 2) + f32::powi(eng.cameras[eng.audioctx.camera_id].physic_object.pos.z - self.pos.z, 2)))/self.power * self.volume * eng.audioctx.volume;
-        self.audio.pan = Self::calcpan(Vec2::newdefined(self.pos.x, self.pos.z), Vec2::newdefined(eng.cameras[eng.audioctx.camera_id].physic_object.pos.x, eng.cameras[eng.audioctx.camera_id].physic_object.pos.z), Vec2::newdefined(eng.cameras[eng.audioctx.camera_id].physic_object.rot.y.sin(), eng.cameras[eng.audioctx.camera_id].physic_object.rot.y.cos()));
+        if self.pan{
+            self.audio.pan = Self::calcpan(Vec2::newdefined(self.pos.x, self.pos.z), Vec2::newdefined(eng.cameras[eng.audioctx.camera_id].physic_object.pos.x, eng.cameras[eng.audioctx.camera_id].physic_object.pos.z), Vec2::newdefined(eng.cameras[eng.audioctx.camera_id].physic_object.rot.y.sin(), eng.cameras[eng.audioctx.camera_id].physic_object.rot.y.cos()));
+        }else{
+            self.audio.pan = 0f32;
+        }
         self.audio.play();
     }
     #[allow(dead_code)]

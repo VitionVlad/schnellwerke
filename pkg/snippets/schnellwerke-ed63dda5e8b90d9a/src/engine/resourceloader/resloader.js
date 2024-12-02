@@ -179,6 +179,7 @@ export class Jsloadsdf{
                 arrs.push(parseFloat(st[i+4]));
                 arrs.push(parseFloat(st[i+5]));
                 arrs.push(parseFloat(st[i+6]));
+                arrs.push(parseFloat(st[i+7]));
                 console.log("SDFLoader: found speaker at index ="+ i);
             }
             if(st[i] == "mat"){ 
