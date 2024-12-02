@@ -1,13 +1,13 @@
 # <p align="center"> <img src="https://github.com/VitionVlad/schnellwerke/blob/main/assets/logo_long.png"> </p>
-Version 2.0, work in progress...
-# Progress  
-- [x] Multiple shadowmaps
-- [x] Multiple cameras  
-- [x] Deffered render  
-- [x] PBR
-- [x] Maps/Scenes
-- [x] New physics engine  
-- [x] new input system  
-      ⚠ Unfortunately, i am not able to check if gamepad works, because i dont have one.
-- [x] new audio system  
-Working on some small details..... version 2.0 soon....
+Writing advanced 3D or 2D applications can be an exciting challenge, but it often becomes complex when dealing with the details of porting or ensuring the application works seamlessly on the web. To address these challenges, I developed my own 3D graphics engine, Schnellwerke, designed specifically for the web.  
+The core idea behind Schnellwerke is to maximize performance by leveraging WebAssembly and WebGPU technologies while optimizing the engine’s internal architecture for efficiency. It takes into account various crucial details to ensure high performance and smooth functionality across platforms.  
+⚠️ The engine requires WebGPU and WebAssembly support to function!  
+![image](https://github.com/user-attachments/assets/b304d9b0-a353-4ba1-b987-e47910f605a0)
+# <p align="center"> Internal structure </p>  
+Since the first versions, I’ve made several changes to the internal structure. The engine now operates using two asynchronous loops: one managed by requestAnimationFrame and the other by a timer. This approach achieves two key goals:  
+1. It decouples app logic and physics from the renderer, ensuring independence between them.  
+2. Theoretically, it allows the browser to run these two tasks on different threads.  
+
+Additionally, the entire rendering process is handled in JavaScript, which is faster since it avoids Rust-to-JavaScript calls. This is important because rendering cannot be done directly from Rust.  
+![image](https://github.com/user-attachments/assets/f95a01ae-7d87-44e3-ba83-228db0d2b574)  
+Still in writing...  
