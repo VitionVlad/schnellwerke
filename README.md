@@ -44,6 +44,23 @@ matgen.gen_frag_end();
 
 It automatically handles many tasks, such as shadow mapping and others.
 
+Light sources may or may not cast shadows, and the two main types of light sources are directional lights and spotlights.
+
+```rust
+pub enum LightType{
+    Directional,
+    Spot,
+}
+
+pub struct Light{
+    pub light_type: LightType,
+    pub pos: Vec3,
+    pub rot: Vec3,
+    pub color: Vec3,
+    pub shadow: bool,
+}
+```
+
 # <p align="center"> Objects and scenes </p>  
 
 Objects are actually created from two other structures: a renderable mesh and a physics object. Additionally, they include a UBO, which is managed automatically. Most of the properties, such as position and rotation, are controlled through the physics object field.
@@ -150,3 +167,35 @@ if eng.keyboard.is_key_pressed(11){
 ```
 
 To make everything more logical, even the camera has a physics object, allowing it to collide with other objects.
+
+To calculate physics, I am using the AABB algorithm because it is simple and fast. This time, I am avoiding my previous mistake of putting everything related to physics on the GPU. Instead, there are fewer calculations, and they are performed on the CPU.  
+
+To get this algorithm working, you need two vectors: one indicating the smallest and lowest point, and the other indicating the highest and biggest point of the model. You can either define them manually or let the system calculate them automatically for objects.
+
+```rust
+PhysicsObject::new(vec![Vec3::newdefined(0.1, 0f32, 0.1), Vec3::newdefined(-0.1, -5f32, -0.1)], false)
+...
+PhysicsObject::new(getpoints(v.to_vec()), is_static)
+```
+
+# <p align="center"> Camera </p>  
+
+As previously mentioned, the engine supports multiple cameras. Furthermore, if a light source has shadows, it calculates a projection based on a camera. Cameras have various properties, which can be seen in the struct:  
+
+```rust
+pub struct Camera{
+    pub physic_object: PhysicsObject,
+    pub fov: f32,
+    pub znear: f32,
+    pub zfar: f32,
+    pub is_orthographic: bool,
+}
+```
+
+*If is_orthographic is true, then fov will act as a size modifier for the clip space.:
+
+```rust
+ubm.orthographic(self.fov, -self.fov, self.fov, -self.fov, self.znear, self.zfar);
+```
+
+still in writing :)...
