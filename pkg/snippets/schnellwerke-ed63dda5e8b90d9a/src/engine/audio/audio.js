@@ -3,8 +3,10 @@ export class Jsaudioctx{
         this.audioCtx = null;
         let self = this;
         document.addEventListener("click", () => {
-            self.audioCtx = new AudioContext();
-            self.audioCtx.resume();
+            if(self.audioCtx == null){
+                self.audioCtx = new AudioContext();
+                self.audioCtx.resume();
+            }
         })
     }
 }
