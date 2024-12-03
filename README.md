@@ -15,4 +15,5 @@ Since its initial versions, the renderer has undergone several changes. Firstly,
 The rendering method has also evolved, transitioning from the older forward rendering approach to a modern deferred renderer. This switch enables the use of significantly more lights and improves overall performance. As a result, the engine can achieve relatively good performance even on older hardware, such as Haswell iGPUs.  
 Additionally, you can adjust the render resolution, shadow map resolution, and the number of cameras and shadow maps in real time. The engine automatically manages the generation of uniform buffers, processes them across all cameras, and handles other tasks seamlessly. 
 <p align="center"> <img src="https://github.com/user-attachments/assets/cf1c680b-a74a-4fe0-af21-f5172281333f"> </p>  
-![sch](https://github.com/user-attachments/assets/2d19e8f7-dcfe-45db-9133-91c943194405)
+<p align="center"> <img src="https://github.com/user-attachments/assets/2d19e8f7-dcfe-45db-9133-91c943194405"> </p>  
+
