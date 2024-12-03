@@ -10,4 +10,8 @@ Since the first versions, I’ve made several changes to the internal structure.
 
 Additionally, the entire rendering process is handled in JavaScript, which is faster since it avoids Rust-to-JavaScript calls. This is important because rendering cannot be done directly from Rust.  
 ![image](https://github.com/user-attachments/assets/f95a01ae-7d87-44e3-ba83-228db0d2b574)  
-Still in writing...  
+# <p align="center"> Render </p>  
+Since its initial versions, the renderer has undergone several changes. Firstly, it now supports multiple cameras and shadow maps, made possible by layered framebuffers. The only limits to the number of light sources in a scene are your imagination and available memory.  
+The rendering method has also evolved, transitioning from the older forward rendering approach to a modern deferred renderer. This switch enables the use of significantly more lights and improves overall performance. As a result, the engine can achieve relatively good performance even on older hardware, such as Haswell iGPUs.  
+Additionally, you can adjust the render resolution, shadow map resolution, and the number of cameras and shadow maps in real time. The engine automatically manages the generation of uniform buffers, processes them across all cameras, and handles other tasks seamlessly. 
+still in writing...
