@@ -20,6 +20,7 @@ extern {
 pub fn main() {
   const SPEED: f32 = 0.01f32;
   let mut eng: Engine = Engine::new("render");
+  eng.lights = vec![];
 
   let mut scn = Scene::new(vec![]);
   scn.load_objects(&mut eng, "charliesdf");
@@ -48,8 +49,6 @@ pub fn main() {
 
   eng.cameras[0].physic_object.pos = Vec3::newdefined(26f32, 80f32, -12f32);
   eng.cameras[0].physic_object.rot = Vec3::newdefined(0f32, -2f32, 0f32);
-
-  eng.lights[0].pos = Vec3::newdefined(26f32, 40f32, -12f32);
 
   logic_loop(Closure::new(move || {
     eng.start();

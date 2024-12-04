@@ -284,24 +284,28 @@ impl MaterialGenerator{
         var Lo = vec3f(0.0);
 
         for(var i = 0; i < LIGHTN; i++) {
-          let L = normalize(ubo.lpos[i].xyz - WorldPos);
-          let H = normalize(V + L);
+          var L = ubo.lpos[i].xyz;
+          var H = normalize(V + L);
+          if ubo.lpos[i].w == 1.0 {
+            L = normalize(ubo.lpos[i].xyz - WorldPos);
+            H = normalize(V + L);
+          }
           let distance    = length(ubo.lpos[i].xyz - WorldPos);
-          let attenuation = 1.0 / (distance * distance);
-          let radiance     = (ubo.lcolor[i].xyz) * attenuation;        
+          let attenuation = 1.0 / (distance * distance); 
+          let radiance     = (ubo.lcolor[i].xyz) * attenuation;    
 
           let NDF = DistributionGGX(N, H, roughness);        
           let G   = GeometrySmith(N, V, L, roughness);      
           let F   = fresnelSchlick(max(dot(H, V), 0.0), F0);       
-
+    
           let kS = F;
           var kD = vec3(1.0) - kS;
           kD *= 1.0 - metallic;	  
-
+    
           let numerator    = NDF * G * F;
           let denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
           let specular     = numerator / denominator;  
-
+    
           let NdotL = max(dot(N, L), 0.0);                
           Lo += (kD * albedo / PI + specular) * radiance * NdotL; 
         }

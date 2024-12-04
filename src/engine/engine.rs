@@ -161,7 +161,7 @@ impl Engine {
             self.ubo_beg_values[20*self.cameras.len()+4+smats*16+i*4] = self.lights[i].pos.x;
             self.ubo_beg_values[20*self.cameras.len()+5+smats*16+i*4] = self.lights[i].pos.y;
             self.ubo_beg_values[20*self.cameras.len()+6+smats*16+i*4] = self.lights[i].pos.z;
-            self.ubo_beg_values[20*self.cameras.len()+7+smats*16+i*4] = 0f32;
+            self.ubo_beg_values[20*self.cameras.len()+7+smats*16+i*4] = self.lights[i].light_type as i32 as f32;
         }
 
         for i in 0..self.lights.len(){

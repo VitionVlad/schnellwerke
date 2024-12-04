@@ -1,5 +1,5 @@
-import { Jsaudioctx, Jsaudiosource } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/audio/audio.js';
-import { Jstouch, Jskeyboard, Jsmouse, Jsgamepad } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/input.js';
+import { Jsaudiosource, Jsaudioctx } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/audio/audio.js';
+import { Jskeyboard, Jsmouse, Jstouch, Jsgamepad } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/input.js';
 import { Jsloop, snlll, Gfxrender, Gfxmesh } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 import { Jsrelod, Jsloadsdf, get_text_iframe } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/resourceloader/resloader.js';
 

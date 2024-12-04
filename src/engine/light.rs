@@ -4,6 +4,7 @@ use super::{camera::Camera, math::vec3::Vec3, physics::PhysicsObject};
 
 #[allow(dead_code)]
 #[derive(PartialEq)]
+#[derive(Copy, Clone)]
 pub enum LightType{
     Directional,
     Spot,
@@ -28,7 +29,7 @@ impl Light{
             rot: Vec3::new(),
             color: Vec3::newdefined(1f32, 1f32, 1f32),
             shadow: true,
-            cameras: Camera{ physic_object: PhysicsObject::new(vec![Vec3::new(), Vec3::new()], true), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: false },
+            cameras: Camera{ physic_object: PhysicsObject::new(vec![Vec3::new(), Vec3::new()], true), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: light_type == LightType::Directional },
         }
     }
     #[allow(dead_code)]
