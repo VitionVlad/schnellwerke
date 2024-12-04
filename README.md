@@ -10,7 +10,33 @@ Since the first versions, I’ve made several changes to the internal structure.
 
 Additionally, the entire rendering process is handled in JavaScript, which is faster since it avoids Rust-to-JavaScript calls. This is important because rendering cannot be done directly from Rust.  
 ![image](https://github.com/user-attachments/assets/f95a01ae-7d87-44e3-ba83-228db0d2b574)  
+
+# <p align="center"> Initialization </p>  
+
+Initialization is a fairly simple task. It only requires creating an engine handle and then starting the loop.  
+
+```rust
+let mut eng: Engine = Engine::new("render");
+...
+logic_loop(Closure::new(move || {
+...
+}), 4);
+```  
+
+To create an engine handle, you only need the ID of a canvas HTML element.  
+
+```rust
+new(canvasid: &str) -> Engine
+```  
+
+To start a loop, you need a function to execute and a timeout to set. This loop runs asynchronously from the render loop, so the timeout value does not affect render time. However, it does influence the application's speed and responsiveness. A lower timeout value results in faster input response and overall execution but consumes more resources.  
+
+```rust
+logic_loop(fun: Closure<dyn FnMut()>, to: u32)
+```  
+
 # <p align="center"> Render </p>  
+
 Since its initial versions, the renderer has undergone several changes. Firstly, it now supports multiple cameras and shadow maps, made possible by layered framebuffers. The only limits to the number of light sources in a scene are your imagination and available memory.  
 The rendering method has also evolved, transitioning from the older forward rendering approach to a modern deferred renderer. This switch enables the use of significantly more lights and improves overall performance. As a result, the engine can achieve relatively good performance even on older hardware, such as Haswell iGPUs.  
 Additionally, you can adjust the render resolution, shadow map resolution, and the number of cameras and shadow maps in real time. The engine automatically manages the generation of uniform buffers, processes them across all cameras, and handles other tasks seamlessly. 
@@ -198,4 +224,14 @@ pub struct Camera{
 ubm.orthographic(self.fov, -self.fov, self.fov, -self.fov, self.znear, self.zfar);
 ```
 
-still in writing :)...
+# <p align="center"> Audio </p>  
+
+Audio in the engine is represented through a speaker object. Speaker objects handle all aspects related to audio management. Technically, an audio context is created by the engine during initialization, but it is not directly visible or accessible to the programmer/user. Speakers have attributes such as position, power, and volume. Additionally, the engine itself has a master volume setting, which affects the overall audio output.  
+
+```rust
+new(eng: &mut Engine, id: &str, pos: Vec3, power: f32, volume: f32, pan: bool) -> Speaker
+...
+play(&mut self, eng: &mut Engine)
+```
+
+If pan is set to true, the audio from the speaker will be heard more distinctly in different ears depending on its position. The id refers to the HTML audio element containing the required audio.  
