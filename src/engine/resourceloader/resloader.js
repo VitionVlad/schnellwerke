@@ -1,6 +1,12 @@
 export class Jsrelod{
     constructor(iframeid){
-        var modeltext = document.getElementById(iframeid).contentWindow.document.body.innerText;
+        var modeltext = "";
+        if(document.getElementById(iframeid).nodeName === "IFRAME"){
+            modeltext = document.getElementById(iframeid).contentWindow.document.body.innerText;
+        }
+        if(document.getElementById(iframeid).nodeName === "P"){
+            modeltext = document.getElementById(iframeid).textContent;
+        }
         var st = modeltext.split('\n').join(' ').split(' ');
         var xverts = [];
         var yverts = [];
