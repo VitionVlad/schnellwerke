@@ -9,7 +9,7 @@ extern {
     pub fn new(gfxr: &Gfxrender) -> Jsloop;
 
     #[wasm_bindgen(method)]
-    pub fn push_mesh(this: &Jsloop, mesh: &Gfxmesh);
+    pub fn push_mesh(this: &Jsloop, mesh: &Gfxmesh, index: i32);
 
     #[wasm_bindgen(method)]
     pub fn set_render(this: &Jsloop, reb: &Gfxrender);
@@ -33,8 +33,8 @@ impl Rloop {
         }
     }
     #[allow(dead_code)]
-    pub fn push_mesh(&mut self, mesh: &Gfxmesh){
-        self.rloop.push_mesh(&mesh);
+    pub fn push_mesh(&mut self, mesh: &Gfxmesh, index: i32){
+        self.rloop.push_mesh(&mesh, index);
     }
     #[allow(dead_code)]
     pub fn set_render(&mut self, ren: Render){

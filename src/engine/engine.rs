@@ -25,6 +25,7 @@ pub struct Engine{
     pub gamepads: Gamepad,
     sr: bool,
     pub audioctx: AudioContext,
+    pub mindeces: Vec<bool>,
 }
 
 impl Engine {
@@ -69,6 +70,7 @@ impl Engine {
             gamepads: Gamepad::new(),
             sr: false,
             audioctx: AudioContext::new(0),
+            mindeces: vec![],
         }
     }
     #[allow(dead_code)]

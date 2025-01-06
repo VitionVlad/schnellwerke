@@ -996,7 +996,6 @@ export class Gfxmesh{
             this.preparpostrender(vertexcode, fragmentcode, texid, gfx, magfilter, minfilter, repeatmode);
         }
         this.preparesh(shadowvertexcode, shcullMode);
-        this.index = -1;
         this.recbuf = false;
         this.newsvc = "";
         this.newvc = "";
@@ -1291,11 +1290,8 @@ export class Jsloop{
         }
         requestAnimationFrame(fr);
     }
-    push_mesh(mesh){
-        if(mesh.index === -1){
-            mesh.index = this.gfxms.length;
-        }
-        this.gfxms[mesh.index] = mesh;
+    push_mesh(mesh, index){
+        this.gfxms[index] = mesh;
     }
     set_render(ren){
         this.gfxr = ren;

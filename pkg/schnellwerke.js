@@ -305,8 +305,8 @@ function __wbg_get_imports() {
         const ret = new Gfxmesh(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3), getObject(arg4), getObject(arg5), arg6 >>> 0, getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10), getStringFromWasm0(arg11, arg12), arg13, getStringFromWasm0(arg14, arg15), getStringFromWasm0(arg16, arg17), getStringFromWasm0(arg18, arg19), getStringFromWasm0(arg20, arg21), getStringFromWasm0(arg22, arg23), getStringFromWasm0(arg24, arg25), getStringFromWasm0(arg26, arg27), arg28 >>> 0);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbg_pushmesh_d57554b8216cec15 = function(arg0, arg1) {
-        getObject(arg0).push_mesh(getObject(arg1));
+    imports.wbg.__wbg_pushmesh_d57554b8216cec15 = function(arg0, arg1, arg2) {
+        getObject(arg0).push_mesh(getObject(arg1), arg2);
     };
     imports.wbg.__wbg_snlll_ec2e0ecc8bf72e86 = function(arg0, arg1) {
         snlll(getObject(arg0), arg1 >>> 0);

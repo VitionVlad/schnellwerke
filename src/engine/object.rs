@@ -7,6 +7,7 @@ pub struct Object{
     pub mesh: Mesh,
     pub physic_object: PhysicsObject,
     pub ubo: Vec<f32>,
+    index: i32,
     startsize: i32,
     addsize: i32,
     vc: String,
@@ -77,10 +78,22 @@ impl Object{
             }
         }
         let startsize: i32 = (20*eng.last_cam_size+20+smats*16+eng.last_light_size*8) as i32;
+        let mut index = -1;
+        for i in 0..eng.mindeces.len(){
+            if eng.mindeces[i] == false {
+                index = i as i32;
+                eng.mindeces[i] = true;
+            }
+        }
+        if index == -1 {
+            index = eng.mindeces.len() as i32;
+            eng.mindeces.push(true);
+        }
         Object{
-            mesh: Mesh::create(&eng.render, &mut eng.rloop, &v, &u, &n, &jst, &jst2, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
+            mesh: Mesh::create(&eng.render, &mut eng.rloop, index, &v, &u, &n, &jst, &jst2, size, &vc, &svc, &fc, 64+material.ubo_size, &material.tex_ids, &material.cube_ids, &material.magfilter, &material.minfilter, &material.culling_mode, &material.culling_mode_shadow, &material.repeat_mode, usage),
             physic_object: PhysicsObject::new(getpoints(v.to_vec()), is_static),
             ubo: vec![0f32, 0f32, 0f32, 0f32],
+            index: index,
             startsize: startsize,
             addsize: material.ubo_size,
             vc: material.vertex_shader.to_owned(),
@@ -133,5 +146,9 @@ impl Object{
         for i in 0..eng.last_cam_size{
             eng.cameras[i].physic_object.interact_with_other_object(self.physic_object);
         }
+    }
+    #[allow(dead_code)]
+    pub fn allow_replacing(&mut self, eng: &mut Engine){
+        eng.mindeces[self.index as usize] = false;
     }
 }
