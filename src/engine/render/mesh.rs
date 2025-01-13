@@ -5,6 +5,7 @@ pub struct Mesh{
     pub jsmesh: Gfxmesh,
     pub cullmode: String,
     pub shcullmode: String,
+    pub render: bool,
 }
 
 #[allow(dead_code)]
@@ -25,10 +26,12 @@ impl Mesh{
             jsmesh: m,
             cullmode: cull_mode.to_string(),
             shcullmode: shcull_mode.to_string(),
+            render: true,
         }
     }
     #[allow(dead_code)]
     pub fn set_ubo(&mut self, ubo: &[f32]){
+        self.jsmesh.will_render(self.render);
         let ub = Float32Array::new_with_length(ubo.len() as u32);
         ub.copy_from(&ubo);
         self.jsmesh.set_ubo(&ub);

@@ -7,6 +7,7 @@ pub struct Object{
     pub mesh: Mesh,
     pub physic_object: PhysicsObject,
     pub ubo: Vec<f32>,
+    pub render: bool,
     index: i32,
     startsize: i32,
     addsize: i32,
@@ -94,6 +95,7 @@ impl Object{
             physic_object: PhysicsObject::new(getpoints(v.to_vec()), is_static),
             ubo: vec![0f32, 0f32, 0f32, 0f32],
             index: index,
+            render: true,
             startsize: startsize,
             addsize: material.ubo_size,
             vc: material.vertex_shader.to_owned(),
@@ -103,6 +105,7 @@ impl Object{
     }
     #[allow(dead_code)]
     pub fn exec(&mut self, eng: &mut Engine){
+        self.mesh.render = self.render;
         let ubeg = eng.uniform_beg.to_owned();
         let mut smats = 0;
         for i in 0..eng.last_light_size{

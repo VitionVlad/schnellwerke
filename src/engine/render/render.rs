@@ -41,6 +41,9 @@ extern {
     #[wasm_bindgen(method)]
     pub fn set_ubo(this: &Gfxmesh, uniformValues: &Float32Array);
 
+    #[wasm_bindgen(method)]
+    pub fn will_render(this: &Gfxmesh, render: bool);
+
     pub type Gpucompute;
     #[wasm_bindgen(constructor)]
     pub fn createcompute(ibs: i32, obs: i32, code: &str) -> Gpucompute;

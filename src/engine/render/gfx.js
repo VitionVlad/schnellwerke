@@ -1003,6 +1003,10 @@ export class Gfxmesh{
         this.cullmq = "";
         this.shcullmq = "";
         this.reqpl = false;
+        this.render = true;
+    }
+    will_render(render){
+        this.render = render;
     }
     recpostg(gfx){
         this.postbindGroup = device.createBindGroup({
@@ -1098,52 +1102,54 @@ export class Gfxmesh{
         this.ubo = uniformValues;
     }
     draw(gfx, i){
-        if(i+1 > this.uniformBuffers.length){
-            this.uniformBuffers.push([device.createBuffer({
-                size: this.ubo.length*4,
-                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-                label: "bf0",
-            }), device.createBuffer({
-                size: this.ubo.length*4,
-                usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
-                label: "bf1",
-            })]);
-        }
-        this.ubo[0] = Math.floor(gfx.canvas.width*gfx.rscale);
-        this.ubo[1] = Math.floor(gfx.canvas.height*gfx.rscale);
-        this.ubo[2] = gfx.shadowmapres;
-        this.ubo[3] = i;
-        device.queue.writeBuffer(this.uniformBuffers[i][this.currentubo], 0, this.ubo);
-        if(gfx.isshadowpass){
-            if(this.usage === 1 || this.usage === 3){
-                this.preparesbg(i);
-                gfx.pass.setPipeline(this.shadowpipeline);
-                gfx.pass.setBindGroup(0, this.sbindGroup[i]);
-                gfx.pass.setVertexBuffer(0, this.vertexBuffer);
-                gfx.pass.draw(this.lenght);
+        if(this.render){
+            if(i+1 > this.uniformBuffers.length){
+                this.uniformBuffers.push([device.createBuffer({
+                    size: this.ubo.length*4,
+                    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                    label: "bf0",
+                }), device.createBuffer({
+                    size: this.ubo.length*4,
+                    usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+                    label: "bf1",
+                })]);
             }
-        }else{
-            if(gfx.inpost && this.usage == 4){
-                this.recpostg(gfx);
-                gfx.pass.setPipeline(this.postpipeline);
-                gfx.pass.setBindGroup(0, this.postbindGroup);
-                gfx.pass.setVertexBuffer(0, this.vertexBuffer);
-                gfx.pass.setVertexBuffer(1, this.uvBuffer);
-                gfx.pass.setVertexBuffer(2, this.nBuffer);
-                gfx.pass.setVertexBuffer(3, this.tBuffer);
-                gfx.pass.setVertexBuffer(4, this.btBuffer);
-                gfx.pass.draw(this.lenght);
-            }
-            if (!gfx.inpost && (this.usage == 1 || this.usage == 2)){
-                this.recg(gfx, i);
-                gfx.pass.setPipeline(this.pipeline);
-                gfx.pass.setBindGroup(0, this.bindGroup[i]);
-                gfx.pass.setVertexBuffer(0, this.vertexBuffer);
-                gfx.pass.setVertexBuffer(1, this.uvBuffer);
-                gfx.pass.setVertexBuffer(2, this.nBuffer);
-                gfx.pass.setVertexBuffer(3, this.tBuffer);
-                gfx.pass.setVertexBuffer(4, this.btBuffer);
-                gfx.pass.draw(this.lenght);
+            this.ubo[0] = Math.floor(gfx.canvas.width*gfx.rscale);
+            this.ubo[1] = Math.floor(gfx.canvas.height*gfx.rscale);
+            this.ubo[2] = gfx.shadowmapres;
+            this.ubo[3] = i;
+            device.queue.writeBuffer(this.uniformBuffers[i][this.currentubo], 0, this.ubo);
+            if(gfx.isshadowpass){
+                if(this.usage === 1 || this.usage === 3){
+                    this.preparesbg(i);
+                    gfx.pass.setPipeline(this.shadowpipeline);
+                    gfx.pass.setBindGroup(0, this.sbindGroup[i]);
+                    gfx.pass.setVertexBuffer(0, this.vertexBuffer);
+                    gfx.pass.draw(this.lenght);
+                }
+            }else{
+                if(gfx.inpost && this.usage == 4){
+                    this.recpostg(gfx);
+                    gfx.pass.setPipeline(this.postpipeline);
+                    gfx.pass.setBindGroup(0, this.postbindGroup);
+                    gfx.pass.setVertexBuffer(0, this.vertexBuffer);
+                    gfx.pass.setVertexBuffer(1, this.uvBuffer);
+                    gfx.pass.setVertexBuffer(2, this.nBuffer);
+                    gfx.pass.setVertexBuffer(3, this.tBuffer);
+                    gfx.pass.setVertexBuffer(4, this.btBuffer);
+                    gfx.pass.draw(this.lenght);
+                }
+                if (!gfx.inpost && (this.usage == 1 || this.usage == 2)){
+                    this.recg(gfx, i);
+                    gfx.pass.setPipeline(this.pipeline);
+                    gfx.pass.setBindGroup(0, this.bindGroup[i]);
+                    gfx.pass.setVertexBuffer(0, this.vertexBuffer);
+                    gfx.pass.setVertexBuffer(1, this.uvBuffer);
+                    gfx.pass.setVertexBuffer(2, this.nBuffer);
+                    gfx.pass.setVertexBuffer(3, this.tBuffer);
+                    gfx.pass.setVertexBuffer(4, this.btBuffer);
+                    gfx.pass.draw(this.lenght);
+                }
             }
         }
     }
