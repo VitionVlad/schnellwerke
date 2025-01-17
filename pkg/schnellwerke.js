@@ -1,4 +1,4 @@
-import { Jsaudioctx, Jsaudiosource } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/audio/audio.js';
+import { Jsaudiosource, Jsaudioctx } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/audio/audio.js';
 import { Jskeyboard, Jsmouse, Jstouch, Jsgamepad } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/input.js';
 import { Jsloop, snlll, Gfxrender, Gfxmesh } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 import { Jsrelod, Jsloadsdf, get_text_iframe } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/resourceloader/resloader.js';
@@ -295,6 +295,15 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_queuepipeline_10fba820203e5ffd = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
         getObject(arg0).queuepipeline(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4), getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10));
     };
+    imports.wbg.__wbg_setrelxy_3bb0f57e0d9122e3 = function(arg0, arg1) {
+        getObject(arg0).setrelxy(arg1);
+    };
+    imports.wbg.__wbg_setvolume_85e664b1bb30318b = function(arg0, arg1) {
+        getObject(arg0).setvolume(arg1);
+    };
+    imports.wbg.__wbg_play_da923e35f933d64f = function(arg0) {
+        getObject(arg0).play();
+    };
     imports.wbg.__wbg_create_0b9fe6d5be161aee = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18, arg19, arg20, arg21, arg22, arg23, arg24, arg25, arg26, arg27, arg28) {
         const ret = new Gfxmesh(getObject(arg0), getObject(arg1), getObject(arg2), getObject(arg3), getObject(arg4), getObject(arg5), arg6 >>> 0, getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10), getStringFromWasm0(arg11, arg12), arg13, getStringFromWasm0(arg14, arg15), getStringFromWasm0(arg16, arg17), getStringFromWasm0(arg18, arg19), getStringFromWasm0(arg20, arg21), getStringFromWasm0(arg22, arg23), getStringFromWasm0(arg24, arg25), getStringFromWasm0(arg26, arg27), arg28 >>> 0);
         return addHeapObject(ret);
@@ -304,15 +313,6 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_snlll_ec2e0ecc8bf72e86 = function(arg0, arg1) {
         snlll(getObject(arg0), arg1 >>> 0);
-    };
-    imports.wbg.__wbg_setrelxy_3bb0f57e0d9122e3 = function(arg0, arg1) {
-        getObject(arg0).setrelxy(arg1);
-    };
-    imports.wbg.__wbg_setvolume_85e664b1bb30318b = function(arg0, arg1) {
-        getObject(arg0).setvolume(arg1);
-    };
-    imports.wbg.__wbg_play_da923e35f933d64f = function(arg0) {
-        getObject(arg0).play();
     };
     imports.wbg.__wbg_new_766710a7adac36ef = function(arg0, arg1) {
         const ret = new Jsrelod(getStringFromWasm0(arg0, arg1));

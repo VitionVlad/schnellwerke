@@ -29,7 +29,7 @@ impl Light{
             rot: Vec3::new(),
             color: Vec3::newdefined(1f32, 1f32, 1f32),
             shadow: true,
-            cameras: Camera{ physic_object: PhysicsObject::new(vec![Vec3::new(), Vec3::new()], true), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: light_type == LightType::Directional },
+            cameras: Camera{ physic_object: PhysicsObject::new(vec![Vec3::new(), Vec3::new()], true), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: light_type == LightType::Directional, rotation_colision_calc: false },
         }
     }
     #[allow(dead_code)]

@@ -7,11 +7,13 @@ pub struct Camera{
     pub znear: f32,
     pub zfar: f32,
     pub is_orthographic: bool,
+    pub rotation_colision_calc: bool,
 }
 
 impl Camera{
     #[allow(dead_code)]
-    pub fn get_projection(&self, aspect: f32) -> Mat4{
+    pub fn get_projection(&mut self, aspect: f32) -> Mat4{
+        self.physic_object.enable_rotation = self.rotation_colision_calc;
         let mut ubm = Mat4::new();
         if !self.is_orthographic{
             ubm.perspective(self.fov, self.zfar, self.znear, aspect);

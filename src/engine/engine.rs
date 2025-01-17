@@ -37,7 +37,7 @@ impl Engine {
             render: ren,
             renderscale: 1.0f32,
             shadowmap_resolution: 1000,
-            cameras: vec![Camera{ physic_object: PhysicsObject::new(vec![Vec3::newdefined(0.1, 0f32, 0.1), Vec3::newdefined(-0.1, -5f32, -0.1)], false), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: false }],
+            cameras: vec![Camera{ physic_object: PhysicsObject::new(vec![Vec3::newdefined(0.1, 0f32, 0.1), Vec3::newdefined(-0.1, -5f32, -0.1)], false), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: false, rotation_colision_calc: false }],
             lights: vec![Light::new(LightType::Directional)],
             ubo_beg_values: vec![0f32, 0f32, 0f32, 0f32],
             uniform_beg: "
