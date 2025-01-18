@@ -1,4 +1,4 @@
-use super::math::{mat4::Mat4, vec3::Vec3, vec4::Vec4};
+use super::math::{mat4::Mat4, vec3::Vec3};
 
 #[allow(dead_code)]
 pub fn check_for_intersection(x1: f32, x2: f32, y1: f32, y2: f32) -> bool{
@@ -85,10 +85,63 @@ impl PhysicsObject{
         }
     }
     #[allow(dead_code)]
-    pub fn swapf32(a: &mut f32, b: &mut f32) {
-        let t = *a;
-        *a = *b;
-        *b = t;
+    fn mat4mat4mulop(m1: Mat4, m2: Mat4) -> Mat4 {
+        let mut t: Mat4 = Mat4::new();
+        t.mat[0] = m1.mat[0] * m2.mat[0] + m1.mat[1] * m2.mat[4] + m1.mat[2] * m2.mat[8] + m1.mat[3] * m2.mat[12];
+        t.mat[1] = m1.mat[0] * m2.mat[1] + m1.mat[1] * m2.mat[5] + m1.mat[2] * m2.mat[9] + m1.mat[3] * m2.mat[13];
+        t.mat[2] = m1.mat[0] * m2.mat[2] + m1.mat[1] * m2.mat[6] + m1.mat[2] * m2.mat[10] +m1.mat[3] * m2.mat[14];
+        t.mat[3] = m1.mat[0] * m2.mat[3] + m1.mat[1] * m2.mat[7] + m1.mat[2] * m2.mat[11] +m1.mat[3] * m2.mat[15];
+
+        t.mat[4] = m1.mat[4] * m2.mat[0] + m1.mat[5] * m2.mat[4] + m1.mat[6] * m2.mat[8] + m1.mat[7] * m2.mat[12];
+        t.mat[5] = m1.mat[4] * m2.mat[1] + m1.mat[5] * m2.mat[5] + m1.mat[6] * m2.mat[9] + m1.mat[7] * m2.mat[13];
+        t.mat[6] = m1.mat[4] * m2.mat[2] + m1.mat[5] * m2.mat[6] + m1.mat[6] * m2.mat[10] + m1.mat[7] * m2.mat[14];
+        t.mat[7] = m1.mat[4] * m2.mat[3] + m1.mat[5] * m2.mat[7] + m1.mat[6] * m2.mat[11] + m1.mat[7] * m2.mat[15];
+
+        t.mat[8] = m1.mat[8] * m2.mat[0] + m1.mat[9] * m2.mat[4] + m1.mat[10] * m2.mat[8] + m1.mat[11] * m2.mat[12];
+        t.mat[9] = m1.mat[8] * m2.mat[1] + m1.mat[9] * m2.mat[5] + m1.mat[10] * m2.mat[9] + m1.mat[11] * m2.mat[13];
+        t.mat[10] = m1.mat[8] * m2.mat[2] + m1.mat[9] * m2.mat[6] + m1.mat[10] * m2.mat[10] + m1.mat[11] * m2.mat[14];
+        t.mat[11] = m1.mat[8] * m2.mat[3] + m1.mat[9] * m2.mat[7] + m1.mat[10] * m2.mat[11] + m1.mat[11] * m2.mat[15];
+        return t;
+    }
+    #[allow(dead_code)]
+    fn mat4vec3mulop(m1: Mat4, vec: Vec3) -> Vec3 {
+        Vec3 { 
+            x: vec.x * m1.mat[0] + vec.y * m1.mat[1] + vec.z * m1.mat[2] + m1.mat[3], 
+            y: vec.x * m1.mat[4] + vec.y * m1.mat[5] + vec.z * m1.mat[6] + m1.mat[7], 
+            z: vec.x * m1.mat[8] + vec.y * m1.mat[9] + vec.z * m1.mat[10] + m1.mat[11], 
+        }
+    }
+    #[allow(dead_code)]
+    fn getbgp(v: Vec<Vec3>) -> Vec3 {
+        let mut f = Vec3::newdefined(v[0].x, v[0].y, v[0].z);
+        for i in 0..v.len(){
+            if v[i].x > f.x{
+                f.x = v[i].x;
+            }
+            if v[i].y > f.y{
+                f.y = v[i].y;
+            }
+            if v[i].z > f.z{
+                f.z = v[i].z;
+            }
+        }
+        return f;
+    }
+    #[allow(dead_code)]
+    fn getbsp(v: Vec<Vec3>) -> Vec3 {
+        let mut f = Vec3::newdefined(v[0].x, v[0].y, v[0].z);
+        for i in 0..v.len(){
+            if v[i].x < f.x{
+                f.x = v[i].x;
+            }
+            if v[i].y < f.y{
+                f.y = v[i].y;
+            }
+            if v[i].z < f.z{
+                f.z = v[i].z;
+            }
+        }
+        return f;
     }
     #[allow(dead_code)]
     pub fn exec(&mut self){
@@ -116,17 +169,17 @@ impl PhysicsObject{
         let mut t: Mat4 = Mat4::new();
         if self.enable_rotation {
             t.yrot(self.rot.y);
-            mmat.mul(&t);
+            mmat = Self::mat4mat4mulop(mmat, t);
             t = Mat4::new();
             t.xrot(self.rot.x);
-            mmat.mul(&t);
+            mmat = Self::mat4mat4mulop(mmat, t);
             t = Mat4::new();
             t.zrot(self.rot.z);
-            mmat.mul(&t);
+            mmat = Self::mat4mat4mulop(mmat, t);
             t = Mat4::new();
         }
         t.scale(self.scale);
-        mmat.mul(&t);
+        mmat = Self::mat4mat4mulop(mmat, t);
         self.mat = mmat;
     }
     #[allow(dead_code)]
@@ -135,18 +188,32 @@ impl PhysicsObject{
     }
     #[allow(dead_code)]
     pub fn interact_with_other_object(&mut self, ph2: PhysicsObject){
-        let mut p1fv1 = self.mat.vec4mul(Vec4::newdefined(self.v1.x, self.v1.y, self.v1.z, 1.0));
-        let mut p1fv2 = self.mat.vec4mul(Vec4::newdefined(self.v2.x, self.v2.y, self.v2.z, 1.0));
-        let mut p2fv1 = ph2.mat.vec4mul(Vec4::newdefined(ph2.v1.x, ph2.v1.y, ph2.v1.z, 1.0));
-        let mut p2fv2 = ph2.mat.vec4mul(Vec4::newdefined(ph2.v2.x, ph2.v2.y, ph2.v2.z, 1.0));
+        let c1 = [
+            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v1.y, self.v1.z)),
+            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v2.y, self.v1.z)),
+            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v2.y, self.v1.z)),
+            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v1.y, self.v1.z)),
+            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v2.y, self.v2.z)),
+            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v2.y, self.v2.z)),
+            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v1.y, self.v2.z)),
+            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v1.y, self.v2.z)),
+        ];
 
-        if p1fv2.x > p1fv1.x { Self::swapf32(&mut p1fv2.x, &mut p1fv1.x); }
-        if p1fv2.y > p1fv1.y { Self::swapf32(&mut p1fv2.y, &mut p1fv1.y); }
-        if p1fv2.z > p1fv1.z { Self::swapf32(&mut p1fv2.z, &mut p1fv1.z); }
+        let c2 = [
+            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v1.x, ph2.v1.y, ph2.v1.z)),
+            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v1.x, ph2.v2.y, ph2.v1.z)),
+            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v2.x, ph2.v2.y, ph2.v1.z)),
+            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v2.x, ph2.v1.y, ph2.v1.z)),
+            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v2.x, ph2.v2.y, ph2.v2.z)),
+            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v1.x, ph2.v2.y, ph2.v2.z)),
+            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v1.x, ph2.v1.y, ph2.v2.z)),
+            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v2.x, ph2.v1.y, ph2.v2.z)),
+        ];
 
-        if p2fv2.x > p2fv1.x { Self::swapf32(&mut p2fv2.x, &mut p2fv1.x); }
-        if p2fv2.y > p2fv1.y { Self::swapf32(&mut p2fv2.y, &mut p2fv1.y); }
-        if p2fv2.z > p2fv1.z { Self::swapf32(&mut p2fv2.z, &mut p2fv1.z); }
+        let p1fv1 = Self::getbgp(c1.to_vec());
+        let p1fv2 = Self::getbsp(c1.to_vec());
+        let p2fv1 = Self::getbgp(c2.to_vec());
+        let p2fv2 = Self::getbsp(c2.to_vec());
 
         if check_for_intersection(p2fv2.y, p2fv1.y, p1fv2.y, p1fv1.y) && 
             check_for_intersection(p2fv2.x, p2fv1.x, p1fv2.x, p1fv1.x) && 
