@@ -1,6 +1,6 @@
 import { Jsaudiosource, Jsaudioctx } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/audio/audio.js';
 import { Jskeyboard, Jsmouse, Jstouch, Jsgamepad } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/input/input.js';
-import { Jsloop, snlll, Gfxrender, Gfxmesh } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
+import { Gfxrender, Gfxmesh, Jsloop, snlll } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/render/gfx.js';
 import { Jsrelod, Jsloadsdf, get_text_iframe } from './snippets/schnellwerke-ed63dda5e8b90d9a/src/engine/resourceloader/resloader.js';
 
 let wasm;
@@ -249,6 +249,15 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).getmmc();
         return ret;
     };
+    imports.wbg.__wbg_willrender_f3b5cf0762b55a73 = function(arg0, arg1) {
+        getObject(arg0).will_render(arg1 !== 0);
+    };
+    imports.wbg.__wbg_setubo_52def3822cd560c5 = function(arg0, arg1) {
+        getObject(arg0).set_ubo(getObject(arg1));
+    };
+    imports.wbg.__wbg_queuepipeline_10fba820203e5ffd = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
+        getObject(arg0).queuepipeline(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4), getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10));
+    };
     imports.wbg.__wbg_new_9c64988031ce378d = function(arg0, arg1, arg2, arg3) {
         const ret = new Gfxrender(getStringFromWasm0(arg0, arg1), arg2, arg3);
         return addHeapObject(ret);
@@ -285,15 +294,6 @@ function __wbg_get_imports() {
     };
     imports.wbg.__wbg_gfxsetshadowmapres_9c39b6ea5100a8d8 = function(arg0, arg1, arg2) {
         getObject(arg0).gfxsetshadowmapres(arg1, arg2 >>> 0);
-    };
-    imports.wbg.__wbg_willrender_f3b5cf0762b55a73 = function(arg0, arg1) {
-        getObject(arg0).will_render(arg1 !== 0);
-    };
-    imports.wbg.__wbg_setubo_52def3822cd560c5 = function(arg0, arg1) {
-        getObject(arg0).set_ubo(getObject(arg1));
-    };
-    imports.wbg.__wbg_queuepipeline_10fba820203e5ffd = function(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10) {
-        getObject(arg0).queuepipeline(getStringFromWasm0(arg1, arg2), getStringFromWasm0(arg3, arg4), getStringFromWasm0(arg5, arg6), getStringFromWasm0(arg7, arg8), getStringFromWasm0(arg9, arg10));
     };
     imports.wbg.__wbg_setrelxy_3bb0f57e0d9122e3 = function(arg0, arg1) {
         getObject(arg0).setrelxy(arg1);

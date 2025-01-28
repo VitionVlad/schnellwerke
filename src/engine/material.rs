@@ -14,6 +14,7 @@ pub struct Material{
     pub culling_mode_shadow: String,
     pub repeat_mode: String,
     pub ubo_size: i32,
+    pub uniforms: Vec<Uniformstruct>,
 }
 
 #[allow(dead_code)]
@@ -27,6 +28,7 @@ pub struct MaterialGenerator{
     pub repeat_mode: String,
     shaderbeg: String,
     pub ubo_size: i32,
+    pub uniforms: Vec<Uniformstruct>,
 }
 
 impl MaterialGenerator{
@@ -126,6 +128,7 @@ impl MaterialGenerator{
             repeat_mode: "repeat".to_string(),
             shaderbeg: shaderbeg,
             ubo_size: plus,
+            uniforms: uniforms,
         }
     }
     #[allow(dead_code)]
@@ -381,6 +384,7 @@ impl MaterialGenerator{
             culling_mode_shadow: self.culling_mode_shadow.to_string(),
             repeat_mode: self.repeat_mode.to_string(),
             ubo_size: self.ubo_size,
+            uniforms: self.uniforms.clone(),
         }
     }
 }
