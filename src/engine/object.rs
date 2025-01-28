@@ -131,7 +131,6 @@ impl Object{
             self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i] = mmat.mat[i];
         }
 
-
         mmat = Mat4::new();
         mmat.scale(self.physic_object.scale);
         mmat.transpose();

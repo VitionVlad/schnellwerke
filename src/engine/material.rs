@@ -68,7 +68,7 @@ impl MaterialGenerator{
           out.position = ubo.mvp[ubo.eng.a] * ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
           out.uv = vec2f(uv.x, 1.0-uv.y);
           out.vp = ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
-          out.norm = n;
+          out.norm = vec4f(ubo.rot * vec4f(n, 1.0)).xyz;
           out.tangent = t;
           out.bitangent = bt;
           return out;
@@ -171,7 +171,7 @@ impl MaterialGenerator{
         out.position = ubo.mvp[i32(ubo.eng.a)] * ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
         out.uv = vec2f(uv.x, 1.0-uv.y);
         out.vp = ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
-        out.norm = n;
+        out.norm = vec4f(ubo.rot * vec4f(n, 1.0)).xyz;
         out.tangent = t;
         out.bitangent = bt;
         out.rp = vec4f(pos, 1.0);
