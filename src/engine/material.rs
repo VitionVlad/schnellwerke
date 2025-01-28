@@ -65,9 +65,9 @@ impl MaterialGenerator{
         @vertex
         fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f, @location(4) bt: vec3f) -> OUT {
           var out: OUT;
-          out.position = ubo.mvp[ubo.eng.a] * ubo.model * vec4f(pos, 1.0);
+          out.position = ubo.mvp[ubo.eng.a] * ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
           out.uv = vec2f(uv.x, 1.0-uv.y);
-          out.vp = ubo.model * vec4f(pos, 1.0);
+          out.vp = ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
           out.norm = n;
           out.tangent = t;
           out.bitangent = bt;
@@ -168,9 +168,9 @@ impl MaterialGenerator{
       @vertex
       fn vertexMain(@location(0) pos: vec3f, @location(1) uv: vec2f, @location(2) n: vec3f, @location(3) t: vec3f, @location(4) bt: vec3f) -> OUT {
         var out: OUT;
-        out.position = ubo.mvp[i32(ubo.eng.a)] * ubo.model * vec4f(pos, 1.0);
+        out.position = ubo.mvp[i32(ubo.eng.a)] * ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
         out.uv = vec2f(uv.x, 1.0-uv.y);
-        out.vp = ubo.model * vec4f(pos, 1.0);
+        out.vp = ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
         out.norm = n;
         out.tangent = t;
         out.bitangent = bt;

@@ -51,7 +51,9 @@ impl Engine {
                 smvp: array<mat4x4<f32>, 1>,
                 lpos: array<vec4f, 1>,
                 lcolor: array<vec4f, 1>,
-                model: mat4x4<f32>,".to_string(),
+                trans: mat4x4<f32>,
+                rot: mat4x4<f32>,
+                scale: mat4x4<f32>,".to_string(),
             last_cam_size: 1,
             last_light_size: 1,
             last_renderscale: 1f32,
@@ -61,7 +63,7 @@ impl Engine {
             @group(0) @binding(0) var<uniform> ubo: uniforms;
             @vertex
             fn vertexMain(@location(0) pos: vec3f) -> @builtin(position) vec4f {
-              return ubo.smvp[i32(ubo.eng.a)] * ubo.model * vec4f(pos, 1.0);
+              return ubo.smvp[i32(ubo.eng.a)] * ubo.trans * ubo.rot * ubo.scale * vec4f(pos, 1.0);
             }".to_string(),
             rec_pipeline: false,
             keyboard: Keyboard::new(),
@@ -114,7 +116,9 @@ impl Engine {
                     lcolor: array<vec4f, ";
             self.uniform_beg += &self.lights.len().to_string();
             self.uniform_beg += ">,
-                    model: mat4x4<f32>,";
+                    trans: mat4x4<f32>,
+                    rot: mat4x4<f32>,
+                    scale: mat4x4<f32>,";
             self.last_cam_size = self.cameras.len();
             self.last_light_size = self.lights.len();
             self.rec_pipeline = true;

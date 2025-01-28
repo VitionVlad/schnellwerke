@@ -10,7 +10,6 @@ pub struct Object{
     pub render: bool,
     pub uniforms: Vec<Uniformstruct>,
     index: i32,
-    startsize: i32,
     addsize: i32,
     vc: String,
     svc: String,
@@ -73,13 +72,6 @@ impl Object{
         let vc = eng.uniform_beg.to_string() + &material.vertex_shader;
         let fc = eng.uniform_beg.to_string() + &material.fragment_shader;
         let svc = eng.uniform_beg.to_string() + &material.uniend + &eng.shadow_code;
-        let mut smats = 0;
-        for i in 0..eng.last_light_size{
-            if eng.lights[i].shadow {
-                smats+=1;
-            }
-        }
-        let startsize: i32 = (20*eng.last_cam_size+20+smats*16+eng.last_light_size*8) as i32;
         let mut index = -1;
         for i in 0..eng.mindeces.len(){
             if eng.mindeces[i] == false {
@@ -98,7 +90,6 @@ impl Object{
             uniforms: material.uniforms.clone(),
             index: index,
             render: true,
-            startsize: startsize,
             addsize: material.ubo_size,
             vc: material.vertex_shader.to_owned(),
             svc: material.uniend.to_owned() + &eng.shadow_code,
@@ -115,8 +106,7 @@ impl Object{
                 smats+=1;
             }
         }
-        self.ubo.resize(20*eng.last_cam_size+20+smats*16+eng.last_light_size*8 + self.addsize as usize, 0f32);
-        self.startsize = (20*eng.last_cam_size+20+smats*16+eng.last_light_size*8) as i32;
+        self.ubo.resize(20*eng.last_cam_size+52+smats*16+eng.last_light_size*8 + self.addsize as usize, 0f32);
         
         for i in 0..(20*eng.last_cam_size+4+smats*16+eng.last_light_size*8){
             self.ubo[i] = eng.ubo_beg_values[i];
@@ -124,53 +114,60 @@ impl Object{
 
         let mut mmat = Mat4::new();
         mmat.trans(self.physic_object.pos);
-        let mut t: Mat4 = Mat4::new();
-        t.yrot(self.physic_object.rot.y);
-        mmat.mul(&t);
-        t = Mat4::new();
-        t.xrot(self.physic_object.rot.x);
-        mmat.mul(&t);
-        t = Mat4::new();
-        t.zrot(self.physic_object.rot.z);
-        mmat.mul(&t);
-        t = Mat4::new();
-        t.scale(self.physic_object.scale);
-        mmat.mul(&t);
         mmat.transpose();
-
         for i in 0..16{
             self.ubo[20*eng.last_cam_size+4+smats*16+eng.last_light_size*8+i] = mmat.mat[i];
         }
 
+        mmat = Mat4::new();
+        mmat.yrot(-self.physic_object.rot.y);
+        let mut t: Mat4 = Mat4::new();
+        t.xrot(-self.physic_object.rot.x);
+        mmat.mul(&t);
+        t = Mat4::new();
+        t.zrot(-self.physic_object.rot.z);
+        mmat.mul(&t);
+        for i in 0..16{
+            self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i] = mmat.mat[i];
+        }
+
+
+        mmat = Mat4::new();
+        mmat.scale(self.physic_object.scale);
+        mmat.transpose();
+        for i in 0..16{
+            self.ubo[20*eng.last_cam_size+36+smats*16+eng.last_light_size*8+i] = mmat.mat[i];
+        }
+
         let mut es = 0;
         for i in 0..self.uniforms.len(){
-            self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es] = mmat.mat[i];
+            self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es] = mmat.mat[i];
             match self.uniforms[i].usage {
                 Usages::Float => {
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es] = self.uniforms[i].float;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es] = self.uniforms[i].float;
                     es+=1;
                 },
                 Usages::Vec2 => {
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es] = self.uniforms[i].vec2.x;
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es+1] = self.uniforms[i].vec2.y;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es] = self.uniforms[i].vec2.x;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es+1] = self.uniforms[i].vec2.y;
                     es+=2;
                 },
                 Usages::Vec3 => {
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es] = self.uniforms[i].vec3.x;
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es+1] = self.uniforms[i].vec3.y;
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es+3] = self.uniforms[i].vec3.z;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es] = self.uniforms[i].vec3.x;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es+1] = self.uniforms[i].vec3.y;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es+3] = self.uniforms[i].vec3.z;
                     es+=3;
                 },
                 Usages::Vec4 => {
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es] = self.uniforms[i].vec4.x;
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es+1] = self.uniforms[i].vec4.y;
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es+2] = self.uniforms[i].vec4.z;
-                    self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es+3] = self.uniforms[i].vec4.w;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es] = self.uniforms[i].vec4.x;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es+1] = self.uniforms[i].vec4.y;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es+2] = self.uniforms[i].vec4.z;
+                    self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es+3] = self.uniforms[i].vec4.w;
                     es+=4;
                 },
                 Usages::Mat => {
                     for j in 0..16 {
-                        self.ubo[20*eng.last_cam_size+20+smats*16+eng.last_light_size*8+i+es+j] = self.uniforms[i].mat.mat[j];
+                        self.ubo[20*eng.last_cam_size+52+smats*16+eng.last_light_size*8+i+es+j] = self.uniforms[i].mat.mat[j];
                     }
                     es+=16;
                 },
