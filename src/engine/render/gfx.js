@@ -340,7 +340,7 @@ export class Gfxmesh{
         ];
         for(var i = 1; this.mippsres[i-1][0] != 1 || this.mippsres[i-1][1] != 1; i+=1){
             this.mippsres.push(
-                [Math.floor(this.mippsres[i-1][0]/2), Math.floor(this.mippsres[i-1][1]/2)],
+                [Math.max(Math.floor(this.mippsres[i-1][0]/2), 1.0), Math.max(Math.floor(this.mippsres[i-1][1]/2), 1.0)],
             );
             this.mipimages.push(new Uint8Array(this.mippsres[i][0]*this.mippsres[i][1]*4));
             for(var y = 0; y != this.mippsres[i][1]; y+=1){
