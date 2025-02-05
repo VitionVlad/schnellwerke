@@ -233,7 +233,7 @@ dependencies = [
 
 [[package]]
 name = "schnellwerke"
-version = "2.1.208"
+version = "2.2.208"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
