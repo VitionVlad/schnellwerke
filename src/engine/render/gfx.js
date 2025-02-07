@@ -730,7 +730,12 @@ export class Gfxmesh{
                 {
                     binding: 5,
                     resource: device.createSampler({
-                      compare: 'less',
+                        addressModeU: "clamp-to-edge",
+                        addressModeV: "clamp-to-edge",
+                        addressModeW: "clamp-to-edge",
+                        magFilter: "linear",
+                        minFilter: "linear",
+                        compare: 'less',
                     }),
                 },
             ],
@@ -934,7 +939,12 @@ export class Gfxmesh{
                 {
                     binding: 9,
                     resource: device.createSampler({
-                      compare: 'less',
+                        addressModeU: "clamp-to-edge",
+                        addressModeV: "clamp-to-edge",
+                        addressModeW: "clamp-to-edge",
+                        magFilter: "linear",
+                        minFilter: "linear",
+                        compare: 'less',
                     }),
                 },
             ],
@@ -1096,6 +1106,11 @@ export class Gfxmesh{
                 {
                     binding: 9,
                     resource: device.createSampler({
+                      addressModeU: "clamp-to-edge",
+                      addressModeV: "clamp-to-edge",
+                      addressModeW: "clamp-to-edge",
+                      magFilter: "linear",
+                      minFilter: "linear",
                       compare: 'less',
                     }),
                 },
@@ -1133,7 +1148,12 @@ export class Gfxmesh{
                 {
                     binding: 5,
                     resource: device.createSampler({
-                      compare: 'less',
+                        addressModeU: "clamp-to-edge",
+                        addressModeV: "clamp-to-edge",
+                        addressModeW: "clamp-to-edge",
+                        magFilter: "linear",
+                        minFilter: "linear",
+                        compare: 'less',
                     }),
                 },
             ],
