@@ -267,12 +267,12 @@ impl MaterialGenerator{
           for (var y = -1; y <= 1; y++) {
             for (var x = -1; x <= 1; x++) {
               let offset = vec2f(vec2(x, y)) * oneOverShadowDepthTextureSize;
-              visibility += textureSampleCompare(
+              let lv = textureSampleCompare(
                   shadowMap, shadowSampler,
                   proj.xy + offset, i, proj.z - bias
               );
-              if(proj.x > 1.0 || proj.x < 0.0 || proj.y > 1.0 || proj.y < 0.0){
-                visibility = 0.0;
+              if !(proj.x > 1.0 || proj.x < 0.0 || proj.y > 1.0 || proj.y < 0.0 || proj.z > 1.0 || proj.z < -1.0){
+                visibility += lv;
               }
             }
           }
