@@ -9,11 +9,13 @@ pub struct Object{
     pub ubo: Vec<f32>,
     pub render: bool,
     pub uniforms: Vec<Uniformstruct>,
+    pub render_if_far: bool,
     index: i32,
     addsize: i32,
     vc: String,
     svc: String,
     fc: String,
+    usage: MUsages,
 }
 
 impl Object{
@@ -88,17 +90,26 @@ impl Object{
             physic_object: PhysicsObject::new(getpoints(v.to_vec()), is_static),
             ubo: vec![0f32, 0f32, 0f32, 0f32],
             uniforms: material.uniforms.clone(),
+            render_if_far: false,
             index: index,
             render: true,
             addsize: material.ubo_size,
             vc: material.vertex_shader.to_owned(),
             svc: material.uniend.to_owned() + &eng.shadow_code,
             fc: material.fragment_shader.to_owned(),
+            usage: usage,
         }
+    }
+    fn calcrn(&mut self, eng: &mut Engine, dist: f32) -> bool{
+        f32::sqrt(f32::powi(self.physic_object.pos.x - eng.cameras[eng.prefcamera].physic_object.pos.x, 2) + f32::powi(self.physic_object.pos.y - eng.cameras[eng.prefcamera].physic_object.pos.y, 2) + f32::powi(self.physic_object.pos.z - eng.cameras[eng.prefcamera].physic_object.pos.z, 2)) < dist
     }
     #[allow(dead_code)]
     pub fn exec(&mut self, eng: &mut Engine){
-        self.mesh.render = self.render;
+        if !eng.render_far_objects && !self.render_if_far && self.usage != MUsages::PostProcessing{
+            self.mesh.render = self.render && self.calcrn(eng, eng.cameras[eng.prefcamera].zfar);
+        }else{
+            self.mesh.render = self.render
+        }
         let ubeg = eng.uniform_beg.to_owned();
         let mut smats = 0;
         for i in 0..eng.last_light_size{

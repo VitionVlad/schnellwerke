@@ -9,6 +9,8 @@ pub struct Engine{
     pub renderscale: f32,
     pub shadowmap_resolution: i32,
     pub cameras: Vec<Camera>,
+    pub prefcamera: usize,
+    pub render_far_objects: bool,
     pub lights: Vec<Light>,
     pub ubo_beg_values: Vec<f32>,
     pub uniform_beg: String,
@@ -38,6 +40,8 @@ impl Engine {
             renderscale: 1.0f32,
             shadowmap_resolution: 1000,
             cameras: vec![Camera{ physic_object: PhysicsObject::new(vec![Vec3::newdefined(0.1, 0f32, 0.1), Vec3::newdefined(-0.1, -5f32, -0.1)], false), fov: 90f32, znear: 0.1f32, zfar: 100f32, is_orthographic: false, rotation_colision_calc: false }],
+            prefcamera: 0,
+            render_far_objects: false,
             lights: vec![Light::new(LightType::Directional)],
             ubo_beg_values: vec![0f32, 0f32, 0f32, 0f32],
             uniform_beg: "
