@@ -56,6 +56,8 @@ pub struct PhysicsObject{
     oldpos: Vec3,
     oldrot: Vec3,
     oldscale: Vec3,
+    pub savedp1: Vec3,
+    pub savedp2: Vec3,
 }
 
 impl PhysicsObject{
@@ -81,7 +83,9 @@ impl PhysicsObject{
             enable_rotation: true,
             oldpos: Vec3::new(),
             oldrot: Vec3::new(),
-            oldscale: Vec3::newdefined(1f32, 1f32, 1f32),
+            oldscale: Vec3::new(),
+            savedp1: v[0],
+            savedp2: v[1],
         }
     }
     #[allow(dead_code)]
@@ -163,24 +167,71 @@ impl PhysicsObject{
             if self.gravity{
                 self.acceleration.y = -self.mass;
             }
+            let mut mmat = Mat4::new();
+            mmat.trans(self.pos);
+            let mut t: Mat4 = Mat4::new();
+            if self.enable_rotation {
+                t.yrot(self.rot.y);
+                mmat = Self::mat4mat4mulop(mmat, t);
+                t = Mat4::new();
+                t.xrot(self.rot.x);
+                mmat = Self::mat4mat4mulop(mmat, t);
+                t = Mat4::new();
+                t.zrot(self.rot.z);
+                mmat = Self::mat4mat4mulop(mmat, t);
+                t = Mat4::new();
+            }
+            t.scale(self.scale);
+            mmat = Self::mat4mat4mulop(mmat, t);
+            self.mat = mmat;
+            let c1 = [
+                Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v1.y, self.v1.z)),
+                Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v2.y, self.v1.z)),
+                Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v2.y, self.v1.z)),
+                Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v1.y, self.v1.z)),
+                Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v2.y, self.v2.z)),
+                Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v2.y, self.v2.z)),
+                Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v1.y, self.v2.z)),
+                Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v1.y, self.v2.z)),
+            ];
+            self.savedp1 = Self::getbgp(c1.to_vec());
+            self.savedp2 = Self::getbsp(c1.to_vec());
+        }else{
+            if self.pos.x != self.oldpos.x || self.pos.y != self.oldpos.y || self.pos.z != self.oldpos.z || self.rot.x != self.oldrot.x || self.rot.y != self.oldrot.y || self.rot.z != self.oldrot.z || self.scale.x != self.oldscale.x || self.scale.y != self.oldscale.y || self.scale.z != self.oldscale.z{
+                let mut mmat = Mat4::new();
+                mmat.trans(self.pos);
+                let mut t: Mat4 = Mat4::new();
+                if self.enable_rotation {
+                    t.yrot(self.rot.y);
+                    mmat = Self::mat4mat4mulop(mmat, t);
+                    t = Mat4::new();
+                    t.xrot(self.rot.x);
+                    mmat = Self::mat4mat4mulop(mmat, t);
+                    t = Mat4::new();
+                    t.zrot(self.rot.z);
+                    mmat = Self::mat4mat4mulop(mmat, t);
+                    t = Mat4::new();
+                }
+                t.scale(self.scale);
+                mmat = Self::mat4mat4mulop(mmat, t);
+                self.mat = mmat;
+                self.oldpos = self.pos;
+                self.oldrot = self.rot;
+                self.oldscale = self.scale;
+                let c1 = [
+                    Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v1.y, self.v1.z)),
+                    Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v2.y, self.v1.z)),
+                    Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v2.y, self.v1.z)),
+                    Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v1.y, self.v1.z)),
+                    Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v2.y, self.v2.z)),
+                    Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v2.y, self.v2.z)),
+                    Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v1.y, self.v2.z)),
+                    Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v1.y, self.v2.z)),
+                ];
+                self.savedp1 = Self::getbgp(c1.to_vec());
+                self.savedp2 = Self::getbsp(c1.to_vec());
+            }
         }
-        let mut mmat = Mat4::new();
-        mmat.trans(self.pos);
-        let mut t: Mat4 = Mat4::new();
-        if self.enable_rotation {
-            t.yrot(self.rot.y);
-            mmat = Self::mat4mat4mulop(mmat, t);
-            t = Mat4::new();
-            t.xrot(self.rot.x);
-            mmat = Self::mat4mat4mulop(mmat, t);
-            t = Mat4::new();
-            t.zrot(self.rot.z);
-            mmat = Self::mat4mat4mulop(mmat, t);
-            t = Mat4::new();
-        }
-        t.scale(self.scale);
-        mmat = Self::mat4mat4mulop(mmat, t);
-        self.mat = mmat;
     }
     #[allow(dead_code)]
     pub fn reset_states(&mut self){
@@ -188,48 +239,21 @@ impl PhysicsObject{
     }
     #[allow(dead_code)]
     pub fn interact_with_other_object(&mut self, ph2: PhysicsObject){
-        let c1 = [
-            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v1.y, self.v1.z)),
-            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v2.y, self.v1.z)),
-            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v2.y, self.v1.z)),
-            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v1.y, self.v1.z)),
-            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v2.y, self.v2.z)),
-            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v2.y, self.v2.z)),
-            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v1.x, self.v1.y, self.v2.z)),
-            Self::mat4vec3mulop(self.mat, Vec3::newdefined(self.v2.x, self.v1.y, self.v2.z)),
-        ];
-
-        let c2 = [
-            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v1.x, ph2.v1.y, ph2.v1.z)),
-            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v1.x, ph2.v2.y, ph2.v1.z)),
-            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v2.x, ph2.v2.y, ph2.v1.z)),
-            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v2.x, ph2.v1.y, ph2.v1.z)),
-            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v2.x, ph2.v2.y, ph2.v2.z)),
-            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v1.x, ph2.v2.y, ph2.v2.z)),
-            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v1.x, ph2.v1.y, ph2.v2.z)),
-            Self::mat4vec3mulop(ph2.mat, Vec3::newdefined(ph2.v2.x, ph2.v1.y, ph2.v2.z)),
-        ];
-
-        let p1fv1 = Self::getbgp(c1.to_vec());
-        let p1fv2 = Self::getbsp(c1.to_vec());
-        let p2fv1 = Self::getbgp(c2.to_vec());
-        let p2fv2 = Self::getbsp(c2.to_vec());
-
-        if check_for_intersection(p2fv2.y, p2fv1.y, p1fv2.y, p1fv1.y) && 
-            check_for_intersection(p2fv2.x, p2fv1.x, p1fv2.x, p1fv1.x) && 
-            check_for_intersection(p2fv2.z, p2fv1.z, p1fv2.z, p1fv1.z) {
+        if check_for_intersection(ph2.savedp2.y, ph2.savedp1.y, self.savedp2.y, self.savedp1.y) && 
+            check_for_intersection(ph2.savedp2.x, ph2.savedp1.x, self.savedp2.x, self.savedp1.x) && 
+            check_for_intersection(ph2.savedp2.z, ph2.savedp1.z, self.savedp2.z, self.savedp1.z) {
             self.is_interacting = true;
             if self.solid && !self.is_static && ph2.solid{
                 self.acceleration.y = 0f32;
                 self.speed.y = -self.speed.y * self.elasticity;
-                if p1fv2.y + 1f32 <= p2fv1.y{
+                if self.savedp2.y + 1f32 <= ph2.savedp1.y{
                     self.acceleration.x = 0f32;
                     self.speed.x = -self.speed.x * self.elasticity;
                     self.acceleration.z = 0f32;
                     self.speed.z = -self.speed.z * self.elasticity;
                     self.retur = true;
                 }else{
-                    self.pos.y += p2fv1.y - p1fv2.y - 0.01;
+                    self.pos.y += ph2.savedp1.y - self.savedp2.y - 0.01;
                 }
             }
         }
