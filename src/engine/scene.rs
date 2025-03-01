@@ -123,6 +123,7 @@ impl Scene {
         it = 0;
         while it < sdf.mdd.len(){
             if sdf.mdd[it] as i32 == 1{
+                log(&("SDFParser: found object, num=".to_string() + &mt.to_string()));
                 it+=1;
                 let iss = sdf.mdd[it] == 1f32;
                 it+=1;
@@ -136,10 +137,12 @@ impl Scene {
                     rot: Vec3::newdefined(sdf.mdd[it+4], sdf.mdd[it+5], sdf.mdd[it+6]),
                     scale: Vec3::newdefined(sdf.mdd[it+7], sdf.mdd[it+8], sdf.mdd[it+9]),
                 });
-                it+=10;
+                it+=9;
                 mt+=1;
+                log(&("SDFParser: found model, id=".to_string() + &self.objects_to_create[self.objects_to_create.len()-1].md));
             }
             if sdf.mdd[it] as i32 == 2{
+                log(&("SDFParser: found object, num=".to_string() + &mt.to_string()));
                 it+=1;
                 let iss = sdf.mdd[it] == 1f32;
                 it+=1;
@@ -153,10 +156,12 @@ impl Scene {
                     rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
                 });
-                it+=9;
+                it+=8;
                 mt+=1;
+                log(&("SDFParser: found cube".to_string()));
             }
             if sdf.mdd[it] as i32 == 3{
+                log(&("SDFParser: found object, num=".to_string() + &mt.to_string()));
                 it+=1;
                 let iss = sdf.mdd[it] == 1f32;
                 it+=1;
@@ -170,10 +175,12 @@ impl Scene {
                     rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
                 });
-                it+=9;
+                it+=8;
                 mt+=1;
+                log(&("SDFParser: found cubeuv".to_string()));
             }
             if sdf.mdd[it] as i32 == 4{
+                log(&("SDFParser: found object, num=".to_string() + &mt.to_string()));
                 it+=1;
                 let iss = sdf.mdd[it] == 1f32;
                 it+=1;
@@ -187,11 +194,14 @@ impl Scene {
                     rot: Vec3::newdefined(sdf.mdd[it+3], sdf.mdd[it+4], sdf.mdd[it+5]),
                     scale: Vec3::newdefined(sdf.mdd[it+6], sdf.mdd[it+7], sdf.mdd[it+8]),
                 });
-                it+=9;
+                it+=8;
                 mt+=1;
+                log(&("SDFParser: found plane".to_string()));
             }
+            it+=1;
         }
         for i in (0..sdf.light.len()).step_by(10){
+            log(&("SDFParser: Adding a light...".to_string()));
             let ind = eng.lights.len();
             let pos = Vec3::newdefined(sdf.light[i+1], sdf.light[i+2], sdf.light[i+3]);
             let rot = Vec3::newdefined(sdf.light[i+4], sdf.light[i+5], sdf.light[i+6]);
@@ -206,12 +216,14 @@ impl Scene {
             eng.lights[ind].color = col;
         }
         for i in (0..sdf.speakers.len()).step_by(7){
+            log(&("SDFParser: Adding a speaker...".to_string()));
             let spid = "spk".to_string() + &(sdf.speakers[i] as i32).to_string();
             let pw = sdf.speakers[i+1];
             let vl = sdf.speakers[i+2];
             let pos = Vec3::newdefined(sdf.speakers[i+4], sdf.speakers[i+5], sdf.speakers[i+6]);
             self.all_speakers.push(Speaker::new(eng, &spid, pos, pw, vl, sdf.speakers[i+3] == 1f32));
         }
+        log(&("SDFParser: SDF parsed!".to_string()));
     }
     #[allow(dead_code)]
     pub fn exec(&mut self, eng: &mut Engine){
