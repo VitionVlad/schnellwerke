@@ -1,4 +1,0 @@
-output.albedo = textureSample(myTexture, mySampler, in.uv, 0).rgba;
-output.normal = vec4f(in.norm, 1.0);
-output.position = in.vp;
-return output;
