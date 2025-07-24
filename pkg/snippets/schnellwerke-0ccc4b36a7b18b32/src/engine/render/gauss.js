@@ -304,17 +304,19 @@ class Gaussh{
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
         });
 
+        this.rres = [Math.floor(this.canvas.width*this.resolutionScale), Math.floor(this.canvas.width*this.resolutionScale)];
+
         this.deffdepth = device.createTexture({
             label: "depth",
             format: "depth32float",
-            size: [this.canvas.width*this.resolutionScale, this.canvas.height*this.resolutionScale, 2],
+            size: [this.rres[0], this.rres[1], 2],
             usage: GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.RENDER_ATTACHMENT,
         });
 
         this.deffered = device.createTexture({
             label: "deff",
             format: "rgba16float",
-            size: [this.canvas.width*this.resolutionScale, this.canvas.height*this.resolutionScale, this.defferedcnt*4],
+            size: [this.rres[0], this.rres[1], this.defferedcnt*4],
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
         });
 
@@ -357,8 +359,8 @@ class Gaussh{
         this.lastt = performance.now();
         this.totalFrames = 0;
 
-        this.reggr = false;
-        this.sreggr = false;
+        this.reggr = 0;
+        this.sreggr = 0;
     }
     startrender(){
         this.frametime = performance.now() - this.lastt;
@@ -379,15 +381,17 @@ class Gaussh{
             this.maindepth = device.createTexture({
                 label: "depth",
                 format: "depth32float",
-                size: [this.canvas.width, this.canvas.height],
+                size: [this.resx, this.resy],
                 usage: GPUTextureUsage.RENDER_ATTACHMENT,
             });
 
+            this.rres = [Math.max(Math.floor(this.canvas.width*this.resolutionScale), 1.0), Math.max(Math.floor(this.canvas.width*this.resolutionScale), 1.0)];
+
             this.deffdepth.destroy();
             this.deffdepth = device.createTexture({
-                label: "depth",
+                label: "deffdepth",
                 format: "depth32float",
-                size: [this.canvas.width*this.resolutionScale, this.canvas.height*this.resolutionScale, Math.max(this.defferedcnt, 2)],
+                size: [this.rres[0], this.rres[1], Math.max(this.defferedcnt, 2)],
                 usage: GPUTextureUsage.TEXTURE_BINDING |  GPUTextureUsage.RENDER_ATTACHMENT,
             });
 
@@ -395,10 +399,10 @@ class Gaussh{
             this.deffered = device.createTexture({
                 label: "deff",
                 format: "rgba16float",
-                size: [this.canvas.width*this.resolutionScale, this.canvas.height*this.resolutionScale, this.defferedcnt*4],
+                size: [this.rres[0], this.rres[1], this.defferedcnt*4],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             });
-            this.reggr = !this.reggr;
+            this.reggr += 1;
         }
 
         if(this.shadowmapresolution !== this.oshadowmapresolution || this.shadowmapcnt !== this.oshadowmapcnt){
@@ -407,13 +411,13 @@ class Gaussh{
 
             this.shadowdepth.destroy();
             this.shadowdepth = device.createTexture({
-                label: "depth",
+                label: "sh",
                 format: "depth32float",
                 size: [this.oshadowmapresolution, this.oshadowmapresolution, Math.max(this.oshadowmapcnt, 2)],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             });
 
-            this.sreggr = !this.sreggr;
+            this.sreggr += 1;
         }
 
         for(var i = 0; i < 10; i+=1){
@@ -516,8 +520,10 @@ class Gaussh{
         this.pass.end();
     }
     endrender(){
-        const commandBuffer = this.encoder.finish();
-        device.queue.submit([commandBuffer]);
+        if(!(this.oresx !== this.resx || this.oresy !== this.resy || this.resolutionScale !== this.oresolutionScale || this.defferedcnt !== this.odefferedcnt || this.shadowmapresolution !== this.oshadowmapresolution || this.shadowmapcnt !== this.oshadowmapcnt)){
+            const commandBuffer = this.encoder.finish();
+            device.queue.submit([commandBuffer]);
+        }
     }
 }
 
@@ -796,8 +802,8 @@ class Gausmesh{
         this.ubo = new Float32Array(28);
         this.deffbindGroup = [];
         this.shbindGroup = [];
-        this.reggr = false;
-        this.sreggr = false;
+        this.reggr = 0;
+        this.sreggr = 0;
 
         this.uniformBuffer = device.createBuffer({
           size: 28*4,
@@ -1175,7 +1181,7 @@ export function setfullscreen(eh){
     gs.handle[eh].canvas.requestFullscreen();
 }
 export function quitfullscreen(eh){
-    gs.handle[eh].canvas.exitFullscreen();
+    document.exitFullscreen();
 }
 export function getKeyPressed(index){
     return pressedk[index];
