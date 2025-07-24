@@ -1,6 +1,6 @@
 [package]
 name = "schnellwerke"
-version = "2.2.208"
+version = "3.0.209"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
