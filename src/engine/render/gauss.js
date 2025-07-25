@@ -7,7 +7,28 @@ if (!adapter) {
   throw new Error("No appropriate GPUAdapter found.");
 }
 
-const device = await adapter.requestDevice();
+var use_16bit_depth = true;
+
+var deffformat = "rgba32float";
+
+var samplertype = "unfilterable-float";
+
+var samplertextype = "non-filtering";
+
+var mcabps = 64;
+
+if(use_16bit_depth){
+    deffformat = "rgba16float";
+    samplertype = "float";
+    samplertextype = "filtering";
+    mcabps = 32;
+}
+
+const device = await adapter.requestDevice({
+    requiredLimits: {
+        maxColorAttachmentBytesPerSample: mcabps,
+    },
+});
 
 class Gauss{
     constructor(){
@@ -315,7 +336,7 @@ class Gaussh{
 
         this.deffered = device.createTexture({
             label: "deff",
-            format: "rgba16float",
+            format: deffformat,
             size: [this.rres[0], this.rres[1], this.defferedcnt*4],
             usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
         });
@@ -398,7 +419,7 @@ class Gaussh{
             this.deffered.destroy();
             this.deffered = device.createTexture({
                 label: "deff",
-                format: "rgba16float",
+                format: deffformat,
                 size: [this.rres[0], this.rres[1], this.defferedcnt*4],
                 usage: GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.RENDER_ATTACHMENT,
             });
@@ -739,16 +760,16 @@ class Gausmesh{
             module: gs.shaders[es].fragshadermodule,
             entryPoint: "main",
             targets: [{
-              format: "rgba16float",
+              format: deffformat,
             },
             {
-              format: "rgba16float",
+              format: deffformat,
             },
             {
-              format: "rgba16float",
+              format: deffformat,
             },
             {
-              format: "rgba16float",
+              format: deffformat,
             }]
           },
           depthStencil: {
@@ -943,6 +964,7 @@ class Gausmesh{
                   visibility: GPUShaderStage.FRAGMENT,
                   texture: {
                       viewDimension: "2d-array",
+                      sampleType: samplertype,
                   },
                 },
                 {
@@ -971,6 +993,13 @@ class Gausmesh{
                   visibility: GPUShaderStage.FRAGMENT,
                   sampler: {
                       type: 'comparison',
+                  },
+                },
+                {
+                  binding: 9,
+                  visibility: GPUShaderStage.FRAGMENT,
+                  sampler: {
+                    type: samplertextype,
                   },
                 },
               ],
@@ -1033,6 +1062,16 @@ class Gausmesh{
                             magFilter: "linear",
                             minFilter: "linear",
                             compare: 'less',
+                        }),
+                    },
+                    {
+                        binding: 9,
+                        resource: device.createSampler({
+                            magFilter: "nearest",
+                            minFilter: "nearest",
+                            addressModeU: "repeat",
+                            addressModeV: "repeat",
+                            addressModeW: "repeat",
                         }),
                     },
                 ],
@@ -1134,6 +1173,17 @@ class Gausmesh{
                             magFilter: "linear",
                             minFilter: "linear",
                             compare: 'less',
+                        }),
+                    },
+                    {
+                        binding: 9,
+                        resource: device.createSampler({
+                            magFilter: "nearest",
+                            minFilter: "nearest",
+                            mipmapFilter: "nearest",
+                            addressModeU: "repeat",
+                            addressModeV: "repeat",
+                            addressModeW: "repeat",
                         }),
                     },
                 ],

@@ -24,8 +24,9 @@ struct DefferedMatricesInput {
 @group(0) @binding(4) var defferedSampler: texture_2d_array<f32>;
 @group(0) @binding(5) var defferedDepthSampler: texture_depth_2d_array;
 @group(0) @binding(6) var shadowSampler: texture_depth_2d_array;
-@group(0) @binding(7) var colorSampler: sampler;
+@group(0) @binding(7) var textureSampler: sampler;
 @group(0) @binding(8) var shadowComparisonSampler: sampler_comparison;
+@group(0) @binding(9) var colorSampler: sampler;
 
 const PI: f32 = 3.14159265359;
 
@@ -120,35 +121,33 @@ fn PBR(norm: vec3<f32>, albedo: vec3<f32>, shadow: f32, metallic: f32, roughness
         let NdotL = max(dot(N, L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
-    let ambient = vec3<f32>(0.0025) * albedo * ao;
+    let ambient = vec3<f32>(0.005) * albedo * ao;
     var color = ambient + shadow * Lo;
     color = color / (color + vec3<f32>(1.0));
     color = pow(color, vec3<f32>(1.0 / 2.2));
     return color;
 }
 
-fn getCameraBasis(eulerAngles: vec3<f32>, forward: ptr<function, vec3<f32>>, right: ptr<function, vec3<f32>>, up: ptr<function, vec3<f32>>) {
-    let pitch = -eulerAngles.x;
-    let yaw = -eulerAngles.y;
-    let roll = eulerAngles.z;
-    *forward = normalize(vec3<f32>(
-        cos(pitch) * sin(yaw),
-        sin(pitch),
-        cos(pitch) * cos(yaw)
-    ));
-    *right = normalize(vec3<f32>(
-        sin(yaw - 1.5708),
-        0.0,
-        cos(yaw - 1.5708)
-    ));
-    *up = normalize(cross(*right, *forward));
-}
-
 fn nightSkyFog(uv: vec2<f32>, cameraPos: vec3<f32>, cameraEuler: vec3<f32>, time: f32, rng: bool) -> vec3<f32> {
     var forward: vec3<f32>;
     var right: vec3<f32>;
     var up: vec3<f32>;
-    getCameraBasis(cameraEuler, &forward, &right, &up);
+
+    let pitch = -cameraEuler.x;
+    let yaw = -cameraEuler.y;
+    let roll = cameraEuler.z;
+    forward = normalize(vec3<f32>(
+        cos(pitch) * sin(yaw),
+        sin(pitch),
+        cos(pitch) * cos(yaw)
+    ));
+    right = normalize(vec3<f32>(
+        sin(yaw - 1.5708),
+        0.0,
+        cos(yaw - 1.5708)
+    ));
+    up = normalize(cross(right, forward));
+
     let ndc = uv * 2.0 - 1.0;
     let fovScale = 1.0;
     let rayDir = normalize(
@@ -164,8 +163,8 @@ fn nightSkyFog(uv: vec2<f32>, cameraPos: vec3<f32>, cameraEuler: vec3<f32>, time
     let heightFog = smoothstep(50.0, 0.0, samplePos.y);
     let distFog = smoothstep(5.0, 30.0, length(samplePos - cameraPos));
     let fogAmount = noise * heightFog * distFog * 0.5;
-    let colmx1 = vec3<f32>(0.002, 0.002, 0.005);
-    let colmx2 = vec3<f32>(0.005, 0.005, 0.01);
+    let colmx1 = vec3<f32>(0.02, 0.02, 0.05);
+    let colmx2 = vec3<f32>(0.05, 0.05, 0.1);
     var fogColor = mix(colmx1, colmx2, noise);
 
     let tGround = -(cameraPos.y) / rayDir.y;
@@ -179,8 +178,8 @@ fn nightSkyFog(uv: vec2<f32>, cameraPos: vec3<f32>, cameraEuler: vec3<f32>, time
             var groundPattern = cos(groundUV.y) * 0.5 + 0.5;
             groundPattern = pow(groundPattern, 3.0);
             let groundColor = mix(
-                vec3<f32>(0.01, 0.03, 0.01),
-                vec3<f32>(0.035, 0.025, 0.02),
+                vec3<f32>(0.1, 0.3, 0.1),
+                vec3<f32>(0.35, 0.25, 0.2),
                 min(max(groundPattern, 0.0), 1.0)
             );
             let groundFogFactor = smoothstep(10.0, 0.0, groundDist);
@@ -208,19 +207,18 @@ fn main(@location(0) fuv: vec2<f32>) -> @location(0) vec4<f32> {
     let shd = shcalc(wrldpos, 0.0);
     let shdgl = shcalc(glps, 0.0);
 
-    let fogSkyColor = nightSkyFog(uv, dmi.deffpos[0].xyz, dmi.deffrot[0].xyz, time, rma.b == 0.0);
+    let fogSkyColor = nightSkyFog(fuv, vec3f(dmi.deffpos[0].x, dmi.deffpos[0].y, dmi.deffpos[0].z), dmi.deffrot[0].xyz, time, rma.b == 0.0);
 
     var op = vec4<f32>(PBR(normal, albedo, shd, rma.y, rma.x, 1.0, wrldpos), 1.0);
 
-    //let depth0 = textureSampleCompare(defferedDepthSampler, shadowComparisonSampler, uv, 0, 0.999);
-    //if depth0 > 0.0{
-    //    op = vec4<f32>(fogSkyColor, 1.0);
-    //}
+    if rma.b == 0.0{
+        op = vec4<f32>(fogSkyColor, 1.0);
+    }
 
     let mxpw = smoothstep(10.0, 5.0, distance(dmi.deffpos[0].xyz, wrldpos));
     op = mix(vec4<f32>(fogSkyColor, 1.0), op, mxpw);
 
-    if albedo.r == 0.0 && albedo.g == 0.0 && albedo.b == 0.0 {
+    if rma.b == 0.0 {
         let gf = vec4<f32>(PBR(lt, vec3<f32>(0.1), shdgl, 0.1, 0.1, 1.0, glps), 1.0);
         let glmxpw = smoothstep(10.0, 5.0, distance(dmi.deffpos[0].xyz, glps));
         let fgf = mix(vec4<f32>(fogSkyColor, 1.0), gf, glmxpw);

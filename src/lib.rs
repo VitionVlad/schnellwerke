@@ -883,10 +883,10 @@ pub async fn main() {
             text[4].size.y = 40.0;
             text[4].pos.x = eng.render.resolution_x as f32 / 2.0 - text[4].size.x * 2.0;
             text[4].pos.y = eng.render.resolution_y as f32 / 2.0 + text[4].size.y * 3.5;
-            text[4].draw = true;
+            text[4].draw = false;
             text[4].signal = true;
             text[4].per_symbol = false;
-            if text[4].exec(&mut eng, "Quit") && eng.control.mousebtn[2]{
+            if text[4].exec(&mut eng, " ") && eng.control.mousebtn[2]{
             }
           },
           1 => {
