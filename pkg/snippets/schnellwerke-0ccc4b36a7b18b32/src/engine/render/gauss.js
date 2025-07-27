@@ -223,7 +223,8 @@ function key_to_code(key){
     }
 }
 
-addEventListener("keypress", (event) => { 
+addEventListener("keydown", (event) => { 
+    console.log(event.key);
     pressedk[key_to_code(event.key)] = true;
 })
 
@@ -1258,7 +1259,7 @@ export function req_mouse_lock(eh){
     gs.handle[eh].canvas.requestPointerLock();
 }
 export function req_mouse_unlock(eh){
-    gs.handle[eh].canvas.exitPointerLock();
+    document.exitPointerLock();
 }
 export function modifyshadowdata(eh, ncnt, nres){
     gs.handle[eh].shadowmapcnt = ncnt;

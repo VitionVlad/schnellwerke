@@ -138,8 +138,10 @@ impl Control{
                 true => req_mouse_lock(self.euclid),
                 false => req_mouse_unlock(self.euclid),
             }
+        }else{
+            self.mouse_lock = get_mouse_stat();
         }
-        self.mouse_lock = get_mouse_stat();
+        self.old_mouse_lock = self.mouse_lock;
         self.xpos = get_mouse_posx();
         self.ypos = get_mouse_posy();
         self.mousebtn = [ getmr(), getmm(), getml()];
