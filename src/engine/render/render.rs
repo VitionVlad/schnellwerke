@@ -18,6 +18,7 @@ unsafe extern "C"{
     fn getmr() -> bool;
     fn getml() -> bool;
     fn getmm() -> bool;
+    fn touch_control() -> bool;
     fn get_mouse_posx()  -> f32;
     fn get_mouse_posy()  -> f32;
     fn get_mouse_stat()  -> bool;
@@ -116,6 +117,7 @@ pub struct Control{
     pub mouse_lock: bool,
     old_mouse_lock: bool,
     pub mousebtn: [bool; 3],
+    pub touch: bool,
 }
 
 impl Control{
@@ -127,12 +129,14 @@ impl Control{
             mouse_lock: false,
             old_mouse_lock: false,
             mousebtn: [false, false, false],
+            touch: false,
         }
     }
     pub fn get_key_state(&self, keyindex: u32) -> bool{
         return getKeyPressed(keyindex);
     }
     pub fn get_mouse_pos(&mut self){
+        self.touch = touch_control();
         if self.mouse_lock != self.old_mouse_lock{
             match self.mouse_lock {
                 true => req_mouse_lock(self.euclid),

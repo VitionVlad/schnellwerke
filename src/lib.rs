@@ -321,6 +321,8 @@ pub async fn main() {
     
     let mut inspecting: bool = false;
 
+    let mut itt = false;
+
     let mut qa = -1;
 
     let mut enpsc: [char; 5] = ['-'; 5];
@@ -338,6 +340,8 @@ pub async fn main() {
     let mut resmod = 0;
 
     let mut locsv = 0;
+
+    let mut ps = false;
 
     for i in 0..traindr.objects.len(){
       if ldpsz >= traindr.objects[i].physic_object.v2.z{
@@ -465,7 +469,7 @@ pub async fn main() {
           if trainqo.objects[i].is_looking_at{
             intspr.object.draw = true;
           }
-          if trainqo.objects[i].is_looking_at && eng.control.mousebtn[2]{
+          if trainqo.objects[i].is_looking_at && ((eng.control.mousebtn[2] && !eng.control.touch) || (eng.control.touch && eng.control.mousebtn[2] && itt)){
             intspr.object.draw = false;
             inspecting = true;
           }
@@ -516,6 +520,7 @@ pub async fn main() {
 
       if eng.control.get_key_state(49) && tm <= 0{
         eng.control.mouse_lock = !eng.control.mouse_lock;
+        ps = true;
         qa = -1;
         tm = 100;
         menusel = 0;
@@ -616,6 +621,7 @@ pub async fn main() {
         }
 
         eng.control.mouse_lock = false;
+        ps = true;
         text[1].draw = true;
         text[1].pos.y = eng.render.resolution_y as f32 / 4.0;
         text[1].pos.x = eng.render.resolution_x as f32 / 2.0 - text[1].size.x*8.0;
@@ -663,6 +669,7 @@ pub async fn main() {
         }
 
         eng.control.mouse_lock = false;
+        ps = true;
         text[1].draw = true;
         text[1].pos.y = eng.render.resolution_y as f32 / 4.0;
         text[1].pos.x = eng.render.resolution_x as f32 / 2.0 - text[1].size.x*8.0;
@@ -709,6 +716,7 @@ pub async fn main() {
         }
 
         eng.control.mouse_lock = false;
+        ps = true;
         text[1].draw = true;
         text[1].pos.y = eng.render.resolution_y as f32 / 4.0;
         text[1].pos.x = eng.render.resolution_x as f32 / 2.0 - text[1].size.x*8.0;
@@ -796,7 +804,11 @@ pub async fn main() {
       intspr.object.physic_object.scale.y = 32.0;
       intspr.object.physic_object.pos.x = eng.render.resolution_x as f32/2.0 - 16.0;
       intspr.object.physic_object.pos.y = eng.render.resolution_y as f32 * 0.75 - 16.0;
-      intspr.exec(&mut eng);
+      if intspr.exec(&mut eng){
+        itt = true;
+      }else{
+        itt = false;
+      }
 
       //text[0].pos.y = eng.render.resolution_y as f32 - text[0].size.y;
       //text[0].pos.x = 0.0;
@@ -810,7 +822,7 @@ pub async fn main() {
       mwk.exec(&mut eng);
       gr.exec(&mut eng);
 
-      if !eng.control.mouse_lock && qa == -1{
+      if (!eng.control.mouse_lock && qa == -1 && !eng.control.touch) || (ps && eng.control.touch && qa == -1){
         match menusel {
           0 => {
             text[0].size.x = 40.0;
@@ -830,6 +842,7 @@ pub async fn main() {
             text[1].per_symbol = false;
             if text[1].exec(&mut eng, "Continue") && eng.control.mousebtn[2] && tm <= 0{
               eng.control.mouse_lock = true;
+              ps = false;
               gr.play = true;
               tm = 100;
             }
@@ -846,6 +859,7 @@ pub async fn main() {
               traindr.objects[6].physic_object.solid = false;
               traindr.objects[6].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
               eng.control.mouse_lock = true;
+              ps = false;
               qa = -1;
               for i in 0..traindr.objects.len(){
                 traindr.objects[i].draw = true;
@@ -1106,5 +1120,9 @@ pub async fn main() {
       }
 
       inspecting = false;
+
+      //if eng.control.touch{
+      //  eng.control.mouse_lock = false;
+      //}
     }));
 }

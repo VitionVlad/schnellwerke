@@ -223,8 +223,7 @@ function key_to_code(key){
     }
 }
 
-addEventListener("keydown", (event) => { 
-    console.log(event.key);
+addEventListener("keydown", (event) => {  
     pressedk[key_to_code(event.key)] = true;
 })
 
@@ -232,7 +231,10 @@ addEventListener("keyup", (event) => {
     pressedk[key_to_code(event.key)] = false;
 })
 
+var msb = [false, false, false, false];
+
 document.addEventListener('mousemove', function(event) {
+    msb[3] = false;
     if(document.pointerLockElement != null){
         mpos[0] += event.movementX;
         mpos[1] += event.movementY;
@@ -243,35 +245,34 @@ document.addEventListener('mousemove', function(event) {
 });
 
 document.addEventListener('touchmove', function(e) {
-  e.preventDefault(); 
-  var touch = e.touches[0]; 
-  mpos[0] = touch.clientX;
-  mpos[1] = touch.clientY;
+    msb[3] = true;
+    mpos[0] = e.touches[0].clientX;
+    mpos[1] = e.touches[0].clientY;
 });
 
-var msb = [false, false, false];
-
 document.addEventListener("mousedown", (e) => {
-  switch (e.button) {
-    case 0:
-      msb[0] = true;
-      break;
-    case 1:
-      msb[1] = true;
-      break;
-    case 2:
-      msb[2] = true;
-      break;
-    default:
-  }
+    switch (e.button) {
+      case 0:
+        msb[0] = true;
+        break;
+      case 1:
+        msb[1] = true;
+        break;
+      case 2:
+        msb[2] = true;
+        break;
+      default:
+    }
 });
 
 document.addEventListener("touchstart", (e) => {
-  msb[0] = true;
+    mpos[0] = e.touches[0].clientX;
+    mpos[1] = e.touches[0].clientY;
+    msb[0] = true;
 });
 
 document.addEventListener("touchend", (e) => {
-  msb[0] = false;
+    msb[0] = false;
 });
 
 document.addEventListener("mouseup", (e) => {
@@ -1254,6 +1255,9 @@ export function get_mouse_posy() {
 }
 export function get_mouse_stat() {
     return document.pointerLockElement != null;
+}
+export function touch_control() {
+    return msb[3];
 }
 export function req_mouse_lock(eh){
     gs.handle[eh].canvas.requestPointerLock();
