@@ -233,9 +233,12 @@ addEventListener("keyup", (event) => {
 
 var msb = [false, false, false, false];
 
+var jt = false;
+
 document.addEventListener('mousemove', function(event) {
-    msb[3] = false;
-    console.log("mm");
+    if(jt == false){
+        msb[3] = false;
+    }
     if(document.pointerLockElement != null){
         mpos[0] += event.movementX;
         mpos[1] += event.movementY;
@@ -243,17 +246,17 @@ document.addEventListener('mousemove', function(event) {
         mpos[0] = event.clientX;
         mpos[1] = event.clientY;
     }
+    jt = false;
 });
 
 document.addEventListener('touchmove', function(e) {
     msb[3] = true;
-    console.log("tm");
     mpos[0] = e.touches[0].clientX;
     mpos[1] = e.touches[0].clientY;
+    jt = true;
 });
 
 document.addEventListener("mousedown", (e) => {
-    console.log("md");
     switch (e.button) {
       case 0:
         msb[0] = true;
@@ -271,8 +274,9 @@ document.addEventListener("mousedown", (e) => {
 document.addEventListener("touchstart", (e) => {
     mpos[0] = e.touches[0].clientX;
     mpos[1] = e.touches[0].clientY;
-    console.log("td");
     msb[0] = true;
+    msb[3] = true;
+    jt = true;
 });
 
 document.addEventListener("touchend", (e) => {
@@ -280,18 +284,18 @@ document.addEventListener("touchend", (e) => {
 });
 
 document.addEventListener("mouseup", (e) => {
-  switch (e.button) {
-    case 0:
-      msb[0] = false;
-      break;
-    case 1:
-      msb[1] = false;
-      break;
-    case 2:
-      msb[2] = false;
-      break;
-    default:
-  }
+    switch (e.button) {
+        case 0:
+            msb[0] = false;
+            break;
+        case 1:
+            msb[1] = false;
+            break;
+        case 2:
+            msb[2] = false;
+            break;
+        default:
+    }
 });
 
 class Gaussh{
@@ -1264,7 +1268,9 @@ export function touch_control() {
     return msb[3];
 }
 export function req_mouse_lock(eh){
-    gs.handle[eh].canvas.requestPointerLock();
+    if(!msb[3]){
+        gs.handle[eh].canvas.requestPointerLock();
+    }
 }
 export function req_mouse_unlock(eh){
     document.exitPointerLock();
