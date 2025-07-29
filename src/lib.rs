@@ -274,6 +274,7 @@ pub async fn main() {
     }
 
     let mut intspr = UIplane::new_from_file(&mut eng, mat5, ["assets/interact.tiff".to_string()].to_vec()).await;
+    let mut pb = UIplane::new_from_file(&mut eng, mat5, ["assets/pause.tiff".to_string()].to_vec()).await;
 
     eng.cameras[0].physic_object.gravity = true;
     eng.cameras[0].physic_object.pos.y = 3f32;
@@ -342,6 +343,10 @@ pub async fn main() {
     let mut locsv = 0;
 
     let mut ps = false;
+
+    let mut ign = true;
+
+    let mut touchmv: [f32; 6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
     for i in 0..traindr.objects.len(){
       if ldpsz >= traindr.objects[i].physic_object.v2.z{
@@ -501,6 +506,30 @@ pub async fn main() {
               tm = 50;
             }
           }
+        }
+      }
+
+      if eng.control.touch && !ps{
+        touchmv[1] = ((eng.control.xpos) as f32/eng.render.resolution_x as f32)*4.0 - touchmv[3];
+        touchmv[0] = (eng.control.ypos as f32 * 2.0 - eng.control.ypos as f32 /2.0)/eng.render.resolution_y as f32 - touchmv[2];
+        touchmv[3] = ((eng.control.xpos) as f32/eng.render.resolution_x as f32)*4.0;
+        touchmv[2] = (eng.control.ypos as f32 * 2.0 - eng.control.ypos as f32 /2.0)/eng.render.resolution_y as f32;
+        if eng.control.xpos > eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2]{
+          if !ign{
+            eng.cameras[0].physic_object.rot.y += touchmv[1];
+            eng.cameras[0].physic_object.rot.x += touchmv[0]*2.0;
+
+            if eng.cameras[0].physic_object.rot.x < -1.5 {
+              eng.cameras[0].physic_object.rot.x = -1.5;
+            }
+            if eng.cameras[0].physic_object.rot.x > 1.5 {
+              eng.cameras[0].physic_object.rot.x = 1.5;
+            }
+          }else{
+            ign = false;
+          }
+        }else{
+          ign = true;
         }
       }
 
@@ -808,6 +837,16 @@ pub async fn main() {
         itt = true;
       }else{
         itt = false;
+      }
+
+      pb.object.draw = !ps && eng.control.touch;
+      pb.object.physic_object.pos.z = 0.9;
+      pb.object.physic_object.scale.x = 32.0;
+      pb.object.physic_object.scale.y = 32.0;
+      pb.object.physic_object.pos.x = eng.render.resolution_x as f32/4.0 - 16.0;
+      pb.object.physic_object.pos.y = 16.0;
+      if pb.exec(&mut eng){
+        ps = true;
       }
 
       //text[0].pos.y = eng.render.resolution_y as f32 - text[0].size.y;

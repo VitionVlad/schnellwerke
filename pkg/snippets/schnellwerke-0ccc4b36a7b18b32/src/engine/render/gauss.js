@@ -231,9 +231,9 @@ addEventListener("keyup", (event) => {
     pressedk[key_to_code(event.key)] = false;
 })
 
-var msb = [false, false, false, false];
+var msb = [false, false, false, true];
 
-var jt = false;
+var jt = true;
 
 document.addEventListener('mousemove', function(event) {
     if(jt == false){
