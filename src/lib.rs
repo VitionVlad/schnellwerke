@@ -511,9 +511,9 @@ pub async fn main() {
 
       if eng.control.touch && !ps{
         touchmv[1] = ((eng.control.xpos) as f32/eng.render.resolution_x as f32)*4.0 - touchmv[3];
-        touchmv[0] = (eng.control.ypos as f32 * 2.0 - eng.control.ypos as f32 /2.0)/eng.render.resolution_y as f32 - touchmv[2];
+        touchmv[0] = (eng.control.ypos as f32 * 2.0 -eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32 - touchmv[2];
         touchmv[3] = ((eng.control.xpos) as f32/eng.render.resolution_x as f32)*4.0;
-        touchmv[2] = (eng.control.ypos as f32 * 2.0 - eng.control.ypos as f32 /2.0)/eng.render.resolution_y as f32;
+        touchmv[2] = (eng.control.ypos as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32;
         if eng.control.xpos > eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2]{
           if !ign{
             eng.cameras[0].physic_object.rot.y += touchmv[1];
@@ -530,6 +530,34 @@ pub async fn main() {
           }
         }else{
           ign = true;
+        }
+        
+        if eng.control.xpos < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos > eng.render.resolution_y as f32 / 2.0{
+          let lyp = eng.control.ypos - eng.render.resolution_y as f32 / 2.0;
+          let zsp = (lyp as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/(eng.render.resolution_y as f32 / 2.0) * SPEED;
+          let xsp = (eng.control.xpos as f32 * 2.0 - eng.render.resolution_x as f32 /2.0)/(eng.render.resolution_x as f32 / 2.0) * SPEED;
+
+          eng.cameras[0].physic_object.acceleration.z += f32::cos(eng.cameras[0].physic_object.rot.y) * zsp * eng.times_to_calculate_physics as f32;
+          eng.cameras[0].physic_object.acceleration.x += f32::sin(eng.cameras[0].physic_object.rot.y) * -zsp * eng.times_to_calculate_physics as f32;
+
+          eng.cameras[0].physic_object.acceleration.x += f32::cos(eng.cameras[0].physic_object.rot.y) * xsp * eng.times_to_calculate_physics as f32;
+          eng.cameras[0].physic_object.acceleration.z += f32::sin(eng.cameras[0].physic_object.rot.y) * xsp * eng.times_to_calculate_physics as f32;
+
+          if trains.volume == 0.5{
+            mwk.play = true;
+          }else{
+            wk.play = true;
+          }
+        }
+
+        for i in 0..trainqo.objects.len(){
+          if trainqo.objects[i].is_looking_at{
+            intspr.object.draw = true;
+          }
+          //if trainqo.objects[i].is_looking_at && ((eng.control.mousebtn[2] && !eng.control.touch) || (eng.control.touch && eng.control.mousebtn[2] && itt)){
+          //  intspr.object.draw = false;
+          //  inspecting = true;
+          //}
         }
       }
 
@@ -833,6 +861,12 @@ pub async fn main() {
       intspr.object.physic_object.scale.y = 32.0;
       intspr.object.physic_object.pos.x = eng.render.resolution_x as f32/2.0 - 16.0;
       intspr.object.physic_object.pos.y = eng.render.resolution_y as f32 * 0.75 - 16.0;
+      if eng.control.touch{
+        intspr.object.physic_object.scale.x = 64.0;
+        intspr.object.physic_object.scale.y = 64.0;
+        intspr.object.physic_object.pos.x = eng.render.resolution_x as f32*0.75 - 32.0;
+        intspr.object.physic_object.pos.y = eng.render.resolution_y as f32 * 0.75 - 32.0;
+      }
       if intspr.exec(&mut eng){
         itt = true;
       }else{
