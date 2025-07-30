@@ -319,10 +319,10 @@ pub async fn main() {
     eng.lights[0].color = Vec3::newdefined(10.0, 10.0, 9.0);
     eng.lights[0].pos = Vec3::newdefined(0.0, 4.25, 0.0);
     eng.lights[0].rot = Vec3::newdefined(1.5708, 0.0, 0.0);
-    
-    let mut inspecting: bool = false;
 
     let mut itt = false;
+    
+    let mut inspecting: bool = false;
 
     let mut qa = -1;
 
@@ -474,7 +474,7 @@ pub async fn main() {
           if trainqo.objects[i].is_looking_at{
             intspr.object.draw = true;
           }
-          if trainqo.objects[i].is_looking_at && ((eng.control.mousebtn[2] && !eng.control.touch) || (eng.control.touch && eng.control.mousebtn[2] && itt)){
+          if trainqo.objects[i].is_looking_at && eng.control.mousebtn[2] && !eng.control.touch{
             intspr.object.draw = false;
             inspecting = true;
           }
@@ -509,7 +509,7 @@ pub async fn main() {
         }
       }
 
-      if eng.control.touch && !ps{
+      if eng.control.touch && !ps && tm <= 0 && qa == -1{
         touchmv[1] = ((eng.control.xpos) as f32/eng.render.resolution_x as f32)*4.0 - touchmv[3];
         touchmv[0] = (eng.control.ypos as f32 * 2.0 -eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32 - touchmv[2];
         touchmv[3] = ((eng.control.xpos) as f32/eng.render.resolution_x as f32)*4.0;
@@ -532,16 +532,12 @@ pub async fn main() {
           ign = true;
         }
         
-        if eng.control.xpos < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos > eng.render.resolution_y as f32 / 2.0{
+        if eng.control.xpos < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos > eng.render.resolution_y as f32 * 0.3{
           let lyp = eng.control.ypos - eng.render.resolution_y as f32 / 2.0;
           let zsp = (lyp as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/(eng.render.resolution_y as f32 / 2.0) * SPEED;
-          let xsp = (eng.control.xpos as f32 * 2.0 - eng.render.resolution_x as f32 /2.0)/(eng.render.resolution_x as f32 / 2.0) * SPEED;
 
           eng.cameras[0].physic_object.acceleration.z += f32::cos(eng.cameras[0].physic_object.rot.y) * zsp * eng.times_to_calculate_physics as f32;
           eng.cameras[0].physic_object.acceleration.x += f32::sin(eng.cameras[0].physic_object.rot.y) * -zsp * eng.times_to_calculate_physics as f32;
-
-          eng.cameras[0].physic_object.acceleration.x += f32::cos(eng.cameras[0].physic_object.rot.y) * xsp * eng.times_to_calculate_physics as f32;
-          eng.cameras[0].physic_object.acceleration.z += f32::sin(eng.cameras[0].physic_object.rot.y) * xsp * eng.times_to_calculate_physics as f32;
 
           if trains.volume == 0.5{
             mwk.play = true;
@@ -551,13 +547,43 @@ pub async fn main() {
         }
 
         for i in 0..trainqo.objects.len(){
-          if trainqo.objects[i].is_looking_at{
+          if trainqo.objects[i].is_looking_at && !inspecting{
             intspr.object.draw = true;
           }
-          //if trainqo.objects[i].is_looking_at && ((eng.control.mousebtn[2] && !eng.control.touch) || (eng.control.touch && eng.control.mousebtn[2] && itt)){
-          //  intspr.object.draw = false;
-          //  inspecting = true;
-          //}
+          if trainqo.objects[i].is_looking_at && eng.control.mousebtn[2] && itt{
+            intspr.object.draw = false;
+            inspecting = true;
+            itt = true;
+          }
+        }
+
+        for i in 0..traindr.objects.len(){
+          if traindr.objects[i].physic_object.pos.x != 0.0{
+            traindr.objects[i].physic_object.solid = false;
+            traindr.objects[i].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
+            if traindr.objects[i].physic_object.pos.x < -1.725{
+              traindr.objects[i].physic_object.pos.x = -1.725;
+              traindr.objects[i].draw = false;
+              traindr.objects[i].draw_shadow = false;
+              traindr.objects[i].physic_object.solid = false;
+            }
+          }
+          if traindr.objects[i].is_looking_at && traindr.objects[i].physic_object.solid && qa == -1{
+            intspr.object.draw = true;
+            if eng.control.mousebtn[2] && i != 0 && i != 2 && i != 4 && i != 6 && itt{
+              traindr.objects[i].physic_object.solid = false;
+              traindr.objects[i].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
+            }
+            if eng.control.mousebtn[2] && (i == 0 || i == 2 || i == 4 || i == 6) && itt && tm <= 0{
+              enpsc[0] = '-';
+              enpsc[1] = '-';
+              enpsc[2] = '-';
+              enpsc[3] = '-';
+              enpsc[4] = '-';
+              qa = i as i32 /2;
+              tm = 100;
+            }
+          }
         }
       }
 
@@ -662,7 +688,9 @@ pub async fn main() {
         if enpsc[0] == '2' && enpsc[1] == '8' && tm <= 0{
           traindr.objects[0].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
           traindr.objects[0].physic_object.solid = false;
-          eng.control.mouse_lock = true;
+          if !eng.control.touch{
+            eng.control.mouse_lock = true;
+          }
           qa = -1;
         }
 
@@ -708,7 +736,9 @@ pub async fn main() {
         if enpsc[0] == '1' && enpsc[1] == '9' && enpsc[2] == '1' && enpsc[3] == '6' && tm <= 0{
           traindr.objects[2].physic_object.solid = false;
           traindr.objects[2].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
-          eng.control.mouse_lock = true;
+          if !eng.control.touch{
+            eng.control.mouse_lock = true;
+          }
           qa = -1;
         }
 
@@ -756,7 +786,9 @@ pub async fn main() {
         if enpsc[0] == 'E' && enpsc[1] == 'N' && enpsc[2] == 'D' && tm <= 0{
           traindr.objects[4].physic_object.solid = false;
           traindr.objects[4].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
-          eng.control.mouse_lock = true;
+          if !eng.control.touch{
+            eng.control.mouse_lock = true;
+          }
           qa = -1;
         }
 
@@ -804,7 +836,9 @@ pub async fn main() {
           wkfc = 10f32;
           traindr.objects[6].physic_object.solid = false;
           traindr.objects[6].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
-          eng.control.mouse_lock = true;
+          if !eng.control.touch{
+            eng.control.mouse_lock = true;
+          }
           qa = -1;
           for i in 0..traindr.objects.len(){
             traindr.objects[i].draw = true;
@@ -867,10 +901,9 @@ pub async fn main() {
         intspr.object.physic_object.pos.x = eng.render.resolution_x as f32*0.75 - 32.0;
         intspr.object.physic_object.pos.y = eng.render.resolution_y as f32 * 0.75 - 32.0;
       }
-      if intspr.exec(&mut eng){
+      itt = intspr.exec(&mut eng);
+      if inspecting{
         itt = true;
-      }else{
-        itt = false;
       }
 
       pb.object.draw = !ps && eng.control.touch;
@@ -879,8 +912,13 @@ pub async fn main() {
       pb.object.physic_object.scale.y = 32.0;
       pb.object.physic_object.pos.x = eng.render.resolution_x as f32/4.0 - 16.0;
       pb.object.physic_object.pos.y = 16.0;
-      if pb.exec(&mut eng){
+      let pbint = pb.exec(&mut eng);
+      if pbint && tm <= 0 && qa == -1 && eng.control.mousebtn[2] && !ps{
         ps = true;
+        tm = 100;
+      }else if pbint && tm <= 0 && qa != -1 && eng.control.mousebtn[2] && !ps{
+        qa = -1;
+        tm = 100;
       }
 
       //text[0].pos.y = eng.render.resolution_y as f32 - text[0].size.y;
@@ -914,9 +952,12 @@ pub async fn main() {
             text[1].signal = true;
             text[1].per_symbol = false;
             if text[1].exec(&mut eng, "Continue") && eng.control.mousebtn[2] && tm <= 0{
-              eng.control.mouse_lock = true;
+              if !eng.control.touch{
+                eng.control.mouse_lock = true;
+              }
               ps = false;
               gr.play = true;
+              qa = -1;
               tm = 100;
             }
 
@@ -931,7 +972,9 @@ pub async fn main() {
               wkfc = 2f32;
               traindr.objects[6].physic_object.solid = false;
               traindr.objects[6].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
-              eng.control.mouse_lock = true;
+              if !eng.control.touch{
+                eng.control.mouse_lock = true;
+              }
               ps = false;
               qa = -1;
               for i in 0..traindr.objects.len(){
