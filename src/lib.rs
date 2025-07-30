@@ -692,6 +692,7 @@ pub async fn main() {
             eng.control.mouse_lock = true;
           }
           qa = -1;
+          tm = 100;
         }
 
         if (enpsc[0] != '2' || enpsc[1] != '8') && enpsc[1] != '-'{
@@ -740,6 +741,7 @@ pub async fn main() {
             eng.control.mouse_lock = true;
           }
           qa = -1;
+          tm = 100;
         }
 
         if (enpsc[0] != '1' || enpsc[1] != '9' || enpsc[2] != '1' || enpsc[3] != '6') && enpsc[3] != '-'{
@@ -790,6 +792,7 @@ pub async fn main() {
             eng.control.mouse_lock = true;
           }
           qa = -1;
+          tm = 100;
         }
 
         if (enpsc[0] != 'E' || enpsc[1] != 'N' || enpsc[2] != 'D') && enpsc[2] != '-'{
@@ -851,6 +854,7 @@ pub async fn main() {
           eng.cameras[0].physic_object.pos.z = -8.0;
           locsv = 0;
           ldpsz = -8.0;
+          tm = 100;
           //savepos(&mut eng, &mut file);
         }
 
@@ -896,10 +900,10 @@ pub async fn main() {
       intspr.object.physic_object.pos.x = eng.render.resolution_x as f32/2.0 - 16.0;
       intspr.object.physic_object.pos.y = eng.render.resolution_y as f32 * 0.75 - 16.0;
       if eng.control.touch{
-        intspr.object.physic_object.scale.x = 64.0;
-        intspr.object.physic_object.scale.y = 64.0;
-        intspr.object.physic_object.pos.x = eng.render.resolution_x as f32*0.75 - 32.0;
-        intspr.object.physic_object.pos.y = eng.render.resolution_y as f32 * 0.75 - 32.0;
+        intspr.object.physic_object.scale.x = 32.0;
+        intspr.object.physic_object.scale.y = 32.0;
+        intspr.object.physic_object.pos.x = eng.render.resolution_x as f32*0.75 - 16.0;
+        intspr.object.physic_object.pos.y = eng.render.resolution_y as f32 * 0.75 - 16.0;
       }
       itt = intspr.exec(&mut eng);
       if inspecting{
