@@ -1,237 +1,209 @@
 # <p align="center"> <img src="https://github.com/VitionVlad/schnellwerke/blob/main/assets/logo_long.png"> </p>
-Writing advanced 3D or 2D applications can be an exciting challenge, but it often becomes complex when dealing with the details of porting or ensuring the application works seamlessly on the web. To address these challenges, I developed my own 3D graphics engine, Schnellwerke, designed specifically for the web.  
+Writing advanced 3D or 2D applications can be an exciting challenge, but it often becomes complex when dealing with the details of porting or ensuring the application works seamlessly on the web. To address these challenges, I developed my own 3D graphics engine, Schnellwerke, designed specifically for the web, and later for native apps, Schnellwerke native.  
 The core idea behind Schnellwerke is to maximize performance by leveraging WebAssembly and WebGPU technologies while optimizing the engine’s internal architecture for efficiency. It takes into account various crucial details to ensure high performance and smooth functionality across platforms.  
 ⚠️ The engine requires WebGPU and WebAssembly support to function!  
-![image](https://github.com/user-attachments/assets/b304d9b0-a353-4ba1-b987-e47910f605a0)
-# <p align="center"> Internal structure </p>  
-Since the first versions, I’ve made several changes to the internal structure. The engine now operates using two asynchronous loops: one managed by requestAnimationFrame and the other by a timer. This approach achieves two key goals:  
-1. It decouples app logic and physics from the renderer, ensuring independence between them.  
-2. Theoretically, it allows the browser to run these two tasks on different threads.  
-
-Additionally, the entire rendering process is handled in JavaScript, which is faster since it avoids Rust-to-JavaScript calls. This is important because rendering cannot be done directly from Rust.  
-![image](https://github.com/user-attachments/assets/f95a01ae-7d87-44e3-ba83-228db0d2b574)  
-
-# <p align="center"> Initialization </p>  
-
-Initialization is a fairly simple task. It only requires creating an engine handle and then starting the loop.  
+<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/0b09f2d3-6be1-4af0-a8e5-b9d0c9047d9e" />
+# <p align="center"> Structure  </p>
+Version 3.0 introduced a restructured system focused on more efficient resource usage. Now, textures, shaders, and models are no longer bound to individual objects—they can be shared across multiple objects.  
+This is especially useful for textures, as it eliminates unnecessary duplication. Instead of loading the same texture for each object (which leads to increased memory consumption), a single shared texture is used, significantly reducing memory usage.  
+For example, the demo game ZUG runs with a scene containing over 100 objects—many of which reuse the same materials — and it consumes only about 300 MB of RAM.  
+The engine and object structure hasn’t changed much, remaining mostly the same. The only notable difference is the controls, which are now part of the engine structure, as shown in this diagram.  
+<p align="center"><img width="602" height="622" alt="Diagramă fără titlu-Pagină-1 drawio" src="https://github.com/user-attachments/assets/3e6b3ecf-67af-4a25-8325-e272f89e98dd" /> </p>
+and the strucutre itself:  
 
 ```rust
-let mut eng: Engine = Engine::new("render");
+pub struct Engine{
+    pub render: Render,
+    pub audio: AudioEngine,
+    pub control: Control,
+    pub cameras: [Camera; 10],
+    pub used_camera_count: u32,
+    pub lights: [Light; 100],
+    pub used_light_count: u32,
+    pub physics_tick: u32,
+    pub times_to_calculate_physics: u32,
+    pub obj_ph: Vec<PhysicsObject>,
+    pub fps: u32,
+    pub primary_camera: usize,
+}
+```
+
+Engine handle creation and render loop handling is also quiet simple:  
+
+```rust
+let mut eng = Engine::new();
+
 ...
-logic_loop(Closure::new(move || {
+
+while eng.work(){
+
 ...
-}), 4);
-```  
 
-To create an engine handle, you only need the ID of a canvas HTML element.  
-
-```rust
-new(canvasid: &str) -> Engine
-```  
-
-To start a loop, you need a function to execute and a timeout to set. This loop runs asynchronously from the render loop, so the timeout value does not affect render time. However, it does influence the application's speed and responsiveness. A lower timeout value results in faster input response and overall execution but consumes more resources.  
-
-```rust
-logic_loop(fun: Closure<dyn FnMut()>, to: u32)
-```  
-
-# <p align="center"> Render </p>  
-
-Since its initial versions, the renderer has undergone several changes. Firstly, it now supports multiple cameras and shadow maps, made possible by layered framebuffers. The only limits to the number of light sources in a scene are your imagination and available memory.  
-The rendering method has also evolved, transitioning from the older forward rendering approach to a modern deferred renderer. This switch enables the use of significantly more lights and improves overall performance. As a result, the engine can achieve relatively good performance even on older hardware, such as Haswell iGPUs.  
-Additionally, you can adjust the render resolution, shadow map resolution, and the number of cameras and shadow maps in real time. The engine automatically manages the generation of uniform buffers, processes them across all cameras, and handles other tasks seamlessly. 
-<p align="center"> <img src="https://github.com/user-attachments/assets/cf1c680b-a74a-4fe0-af21-f5172281333f"> </p>  
-<p align="center"> <img src="https://github.com/user-attachments/assets/2d19e8f7-dcfe-45db-9133-91c943194405"> </p>  
-
-# <p align="center"> Lighting </p>  
-
-Since the first versions of the engine, alongside the use of deferred rendering instead of forward rendering, another new feature introduced is PBR (Physically Based Rendering), which is currently used for lighting. It is predefined in the shader code, and you only need to call it within the shader to utilize it.  
-
-```rust  
-let mut matgen = MaterialGenerator::new(vec![]);  
-matgen.gen_post_vertex();  
-matgen.gen_fragpost_beg();  
-matgen.fragment_shader += "  
-let albedo = pow(textureSample(mainMap, mySampler, in.uv, 0).rgb, vec3f(2.2));  
-let WorldPos = textureSample(positionMap, mySampler, in.uv, 0).rgb;  
-let norm = textureSample(normalMap, mySampler, in.uv, 0).rgb;  
-let mat = textureSample(matMap, mySampler, in.uv, 0).rgb;  
-  
-let shadow = shcalc(WorldPos, 0.0);  
-let metallic = mat.g;  
-let roughness = mat.r;   
-let ao = mat.b;  
-  
-let color = PBR(norm, albedo, shadow, metallic, roughness, ao, WorldPos);  
-  
-return vec4f(color, 1.0);";  
-matgen.gen_frag_end();  
-```
-
-It automatically handles many tasks, such as shadow mapping and others.
-
-Light sources may or may not cast shadows, and the two main types of light sources are directional lights and spotlights.
-
-```rust
-pub enum LightType{
-    Directional,
-    Spot,
 }
 
-pub struct Light{
-    pub light_type: LightType,
-    pub pos: Vec3,
-    pub rot: Vec3,
-    pub color: Vec3,
-    pub shadow: bool,
-}
+eng.end();
 ```
 
-# <p align="center"> Objects and scenes </p>  
-
-Objects are actually created from two other structures: a renderable mesh and a physics object. Additionally, they include a UBO, which is managed automatically. Most of the properties, such as position and rotation, are controlled through the physics object field.
+Objects as was earlier mentioned didnt change that much, as shown in this diagram:  
+<p align="center"><img width="621" height="382" alt="Diagramă fără titlu-Pagină-2 drawio" src="https://github.com/user-attachments/assets/3104494d-1da7-40af-9cfe-adc1047312b2" /></p>
+and objects structure itself:  
 
 ```rust
-new(eng: &mut Engine, vertex_data: Vec<f32>, material: &Material, usage: MUsages, is_static: bool) -> Object
-```
-
-Vertex data can be loaded, and materials are generated using the material generator structure. The usage specifies whether the object is used for rendering in both the shadow and color passes or only in one of them.
-
-```rust
-pub struct Objreader{
-    pub arr: Vec<f32>,
-}
-...
-pub fn new(id: &str) -> Objreader
-```
-
-Here is the structure for reading an object file, or more accurately, parsing it. The files are opened in the browser through an iframe element, so the ID corresponds to an iframe element with the loaded file. The same approach applies to the rest of the files, except for images, which should be loaded using an <img> element.  
-Some basic shapes are also predefined, namely a cube and a plane.  
-A better approach, rather than creating and handling all these objects manually, is to create a scene. Scenes provide a more efficient way to manage various elements. Firstly, they can be loaded from a file. Secondly, they also manage interactions between objects, allowing one object to fall on top of another or enabling other types of interactions. Additionally, scenes handle lighting and audio management.  
-
-```rust
-pub enum ObjectType{
-    Model,
-    Cube,
-    CubeUV,
-    Plane,
-}
-pub struct ObjectCreateInfo{
-    pub md: String,
-    pub mat: Material,
-    pub usage: MUsages,
-    pub object_type: ObjectType,
-    pub is_static: bool,
-    pub pos: Vec3,
-    pub rot: Vec3,
-    pub scale: Vec3,
-}
-pub struct Scene{
-    pub material_gen: MaterialGenerator,
-    pub objects_to_create: Vec<ObjectCreateInfo>,
-    pub all_objects: Vec<Object>,
-    pub all_speakers: Vec<Speaker>,
-}
-```
-
-So this is structure for scene, and other structures related to it.
-
-Here’s how to create a scene: First, the scene is created, with no additional uniform buffer values specified. The second function loads a Scene Description File (SDF), which represents all the objects, lights, and speakers in the scene, taking some of their parameters into account. The third function creates all objects based on those loaded from the SDF, along with any user-defined objects.  
-
-```rust
-let mut scn = Scene::new(vec![]);
-scn.load_objects(&mut eng, "charliesdf");
-scn.create_objects(&mut eng);
-```
-
-And the SDF file itself:
-
-```
-md 1 1 0 0 0 0 0 0 1 1 1
-//model is_static model_id positionX positionY positionZ RotationX Y Z ScaleX Y Z 
-mat 1 2 0 1 4 1 2 3 4
-//material normal_culling_mode shadow_culling_mode vertex_shader_id(0 for standart) fragment_shader number_of_textures tex0 tex1 tex2 texn 
-cs 1 0 2 0 0 0 0 1 1 1
-//cs is for cube, same as with model, but withouth model_id
-mat 1 2 0 2 1 37
-cu 1 3 1 0 0 0 0 1 1 1
-//cu is for cube with all faces having same uv, same as with model, but withouth model_id
-mat 1 2 0 2 1 38
-pl 1 -2 2 0 1.57079633 0 0 1 1 1
-//pl is for plane, same as with model, but withouth model_id
-mat 1 2 0 2 1 39
-lt 0 25.739145 5.14 -10.085049 -0.16399525 -2.5740542 0 10 10 9.9
-//light type(0 for spot) PositionX Y Z RotationX Y Z ColorR G B
-sp 1 50 0.25 1 0 0 0
-//speaker audio_id power volume PositionX Y Z
-```
-
-I tried to describe all the commands currently available. The main purpose here is to outline the minimal properties required for each object to create a scene. The only remaining question might be how to handle different object IDs. All objects are loaded within an HTML file, and every element should have an ID. Additionally, since we know each object's type, this allows us to implement something like this:  
-
-```html
-<iframe src="assets/charlie/ground/model1.txt" type="text/plain" id="md1" style="display: none;"></iframe>
-<img src="assets/charlie/ground/albedo.jpg" id="tex1" style="display: none;"/>
-<audio src="assets/charlie/sample.mp3" id="spk1"></audio>
-...
-```
-
-While loading a model, the parser will simply take the type (in our case, "md") and the model ID, which will be 1 in the first instance. As a result, we will get an ID like "md1." The same logic applies to audio, images, and everything else loaded from a file.  
-
-# <p align="center"> Physics </p>  
-
-It is quite simple but may be sufficient for many purposes. Since the first versions, new properties have been added alongside speed. One of these properties is acceleration, which describes changes in speed. Starting from now, processes like falling will be more realistic. The same applies to objects with physics within a scene, as the scene enables objects to calculate interactions between them.  
-Another significant change is that many properties are now managed by the physics object, such as position—for example, the camera's position:  
-
-```rust
-eng.cameras[0].physic_object.rot.x += eng.mouse.get_y_coords() as f32/eng.render.get_canvas_size_y()as f32;
-eng.cameras[0].physic_object.rot.y += eng.mouse.get_x_coords() as f32/eng.render.get_canvas_size_x()as f32;
-...
-if eng.keyboard.is_key_pressed(11){
-  eng.cameras[0].physic_object.speed.z += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::cos(eng.cameras[0].physic_object.rot.y) * SPEED;
-  eng.cameras[0].physic_object.speed.x += f32::cos(eng.cameras[0].physic_object.rot.x) * f32::sin(eng.cameras[0].physic_object.rot.y) * -SPEED;
-}
-```
-
-To make everything more logical, even the camera has a physics object, allowing it to collide with other objects.
-
-To calculate physics, I am using the AABB algorithm because it is simple and fast. This time, I am avoiding my previous mistake of putting everything related to physics on the GPU. Instead, there are fewer calculations, and they are performed on the CPU.  
-
-To get this algorithm working, you need two vectors: one indicating the smallest and lowest point, and the other indicating the highest and biggest point of the model. You can either define them manually or let the system calculate them automatically for objects.
-
-```rust
-PhysicsObject::new(vec![Vec3::newdefined(0.1, 0f32, 0.1), Vec3::newdefined(-0.1, -5f32, -0.1)], false)
-...
-PhysicsObject::new(getpoints(v.to_vec()), is_static)
-```
-
-# <p align="center"> Camera </p>  
-
-As previously mentioned, the engine supports multiple cameras. Furthermore, if a light source has shadows, it calculates a projection based on a camera. Cameras have various properties, which can be seen in the struct:  
-
-```rust
-pub struct Camera{
+pub struct Object{
+    pub mesh: Mesh,
     pub physic_object: PhysicsObject,
-    pub fov: f32,
-    pub znear: f32,
-    pub zfar: f32,
-    pub is_orthographic: bool,
+    pub is_looking_at: bool,
+    pub draw: bool,
+    pub draw_shadow: bool,
+    pub draw_distance: f32,
+    pub view_reaction_distance: f32,
+    pub render_in_behind: bool,
 }
 ```
 
-*If is_orthographic is true, then fov will act as a size modifier for the clip space.:
+But now creation an object is much more tricky, as it requires to load in a separate structure model, images, and shaders:  
 
 ```rust
-ubm.orthographic(self.fov, -self.fov, self.fov, -self.fov, self.znear, self.zfar);
-```
+let dvert = fs::read("shaders/vdeffered").unwrap();
+let dfragem = fs::read("shaders/fdeffem").unwrap();
+let shadow = fs::read("shaders/shadow").unwrap();
+let mat4 = Material::new(&eng, dvert, dfragem, shadow, [engine::render::render::CullMode::CullModeBackBit, engine::render::render::CullMode::CullModeFrontBit]);
+let image = Image::new_color(&eng, [i8::MAX, i8::MAX, i8::MAX, i8::MAX]);//can also be loaded from file
+let mut vrt1 = ModelAsset::load_obj("assets/train_em.obj");
+let md1 = Model::new(&mut eng, vrt1.vertices[0].clone());
+let mut trainem = Object::new(&mut eng, md1, mat4, image, engine::render::render::MeshUsage::DefferedPass, true);
 
-# <p align="center"> Audio </p>  
-
-Audio in the engine is represented through a speaker object. Speaker objects handle all aspects related to audio management. Technically, an audio context is created by the engine during initialization, but it is not directly visible or accessible to the programmer/user. Speakers have attributes such as position, power, and volume. Additionally, the engine itself has a master volume setting, which affects the overall audio output.  
-
-```rust
-new(eng: &mut Engine, id: &str, pos: Vec3, power: f32, volume: f32, pan: bool) -> Speaker
+while eng.work(){
 ...
-play(&mut self, eng: &mut Engine)
+//but executing them is still simple
+trainem.exec(&mut eng);
+...
+}
 ```
 
-If pan is set to true, the audio from the speaker will be heard more distinctly in different ears depending on its position. The id refers to the HTML audio element containing the required audio.  
+There also are some special objects, which are UItext and UIplane, that are obviosly used for ui, here an example:  
+
+```rust
+let mut viewport = UIplane::new(&mut eng, mat, image);
+let mut text: [UItext; 5] = [
+  UItext::new(&mut eng, matt, ti, "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ0123456789,.;:'+-<>_"),
+  ...
+];
+```
+
+they also can be intractive if you want, this will requiere to change a flag, speaking about this, here is their structure:  
+
+```rust
+pub struct UIplane{
+    pub object: Object,
+    pub clickzone: Clickzone,
+    pub signal: bool,
+    pub allow_when_mouse_locked: bool,
+}
+
+pub struct UItext{
+    pub font: Image,
+    pub symbols: Vec<u8>,
+    pub planes: Vec<Object>,
+    pub symbol_number: u32,
+    pub material: Material,
+    pub size: Vec2,
+    pub pos: Vec3,
+    pub clickzone: Clickzone,
+    pub signal: bool,
+    pub per_symbol: bool,
+    pub allow_when_mouse_locked: bool,
+    pub draw: bool,
+    pub symbol_pressed: u8,
+    pub symbol_index: usize,
+}
+```
+
+Also, Objects can be loaded from file, via scene, in this case, engine will parse also material library, only needed thing along side textures and model itself are shaders, so an example:  
+
+```rust
+let mat2 = Material::new(&eng, dvert.clone(), dfrag, shadow.clone(), [engine::render::render::CullMode::CullModeBackBit, engine::render::render::CullMode::CullModeFrontBit]);
+...
+let mut train = Scene::load_from_obj(&mut eng, "assets/train.obj", mat2);
+```
+
+here is also scene structure:  
+
+```rust
+pub struct Scene{
+    pub objects: Vec<Object>,
+    pub use_global_values: bool,
+    pub pos: Vec3,
+    pub scale: Vec3,
+    pub rot: Vec3,
+    pub render_all_cameras: bool,
+    pub exclude_selected_camera: bool,
+    pub camera_number: i8,
+}
+```
+
+# <p align="center"> Render </p>
+Rendering in Schnellwerke 3 is based on the Gauss component, which handles all interaction with the WebGPU API, as well as managing input and other operations.  
+The main rendering approach is deferred rendering, although you're free to rewrite the shaders yourself and use traditional forward rendering instead.  
+Below is a diagram that represents the entire rendering process.  
+<p align="center"><img width="531" height="1791" alt="Diagramă fără titlu-Pagină-3 drawio" src="https://github.com/user-attachments/assets/6b755df8-e7dc-43e9-949f-8d3db038684d" /> </p>
+This demo also showcase the rendering of transparent objects, which is significantly more difficult in a deferred rendering approach.  
+
+# <p align="center"> Physics </p>
+All physics calculations are not directly exposed to the programmer. They are mostly executed at the start of each new frame, as I chose to use a tick-based approach for physics simulation. This means the physics engine runs at a different tick rate than the game itself—it can be higher or lower. This approach ensures frame rate–independent physics.  
+Currently, physics is calculated only between the player and objects. However, in the future, I may consider enabling physics objects to interact with each other—allowing them to fall, collide, and behave more dynamically. This will largely depend on performance and how efficiently it can be implemented.  
+
+# <p align="center"> Audio </p>
+The native version of the engine uses Audio API for audio handling.  
+It supports all popular audio formats and provides simple yet sufficient functionality—such as setting pan and volume.  
+To create an audio source, the engine uses a Speaker structure, which looks like this:  
+
+```rust
+pub struct Speaker{
+    pub pos: Vec3,
+    pub play: bool,
+    pub power: f32,
+    pub use_pan: bool,
+    pub pos_dependency: bool,
+    pub volume: f32,
+}
+```
+
+and working with this structure looks like this:  
+
+```rust
+let mut trains = Speaker::new(&mut eng, "assets/audio/train.mp3");
+...
+while eng.work(){
+...
+trains.exec(&mut eng);
+...
+}
+```
+
+# <p align="center"> <img width="1599" height="262" alt="image" src="https://github.com/user-attachments/assets/6ba28016-4bf8-437f-9bba-26fa2047faad" /> </p>
+
+ZUG is a demo game created using my new graphics engine. The engine was developed both for debugging and integrating new features, but also as an experiment to create a first-person puzzle experience.  
+  
+So, what is this game about?  
+ZUG is a first-person puzzle game set during the time of the Great War. It aims to recreate the atmosphere of that era and perhaps show or tell something about the war itself—such as the use of ciphers or historical events.  
+  
+The game is quite short, but instead of focusing on length, I put effort into making everything feel realistic. I also used it as a playground to experiment with the engine’s capabilities, shaders, and more.  
+  
+Taken from this repository, the game can be compiled without any code modifications for both Windows and Linux.  
+  
+Controls are standard:
+WASD for movement, mouse for looking around, and LMB for interacting with objects. Also touch controls are avaible, game automatically switches to mobile controls.    
+  
+I can’t give specific system requirements, but the main one is a WebGPU GPU, and a browser which supports it. In my case, the game ran at maximum graphics settings on a Ryzen 5 5600G with integrated Vega 7 graphics and 16 GB of RAM—which was more than enough.  
+Demo is also playeble on mobile devices, for example here is a exemple of it running on my Google Pixel 7:  
+
+<img width="1240" height="558" alt="image" src="https://github.com/user-attachments/assets/8e01f911-88f0-42c4-9c37-ccb703928d0c" />
+
+<img width="1600" height="900" alt="Screenshot 2025-07-12 102033" src="https://github.com/user-attachments/assets/06a76a3d-a8c7-4d7d-afc7-3319dc1917c3" />  
+
+<img width="1600" height="900" alt="Screenshot 2025-07-12 102051" src="https://github.com/user-attachments/assets/ebad32b1-5b90-44eb-a7ee-e4532f7e07ed" />
+
+<img width="1600" height="900" alt="Screenshot 2025-07-12 102116" src="https://github.com/user-attachments/assets/ed48a51a-6710-4860-8dfe-2c7eb36c401b" />
+
+<img width="1600" height="900" alt="Screenshot 2025-07-12 102137" src="https://github.com/user-attachments/assets/e8a656ad-0ad5-4030-8793-f95b30062134" />
