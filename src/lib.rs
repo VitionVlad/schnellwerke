@@ -13,10 +13,10 @@ q3s: END
 q4s: PARIS
 */
 
-#[wasm_bindgen]
+#[wasm_bindgen(module = "/src/sav.js")]
 extern {
-  #[wasm_bindgen(js_namespace = console)]
-  fn log(s: &str);
+  fn set_val(str: &str, val: f32);
+  fn get_val(str: &str) -> f32;
 }
 
 #[wasm_bindgen]
@@ -29,103 +29,29 @@ pub async fn main() {
 
     let mut ldpsz = -8.0;
 
-    //let mut file: File = match Path::new("sav").exists() {
-    //    true => {
-    //      let cfg = fileopen("sav").unwrap();
-    //      let mut i = 0;
-    //      while i < cfg.len(){
-    //        if cfg[i] == b'1'{
-    //          i+=1;
-    //          eng.render.resolution_x = u32::from_be_bytes([cfg[i as usize], cfg[i as usize + 1], cfg[i as usize + 2], cfg[i as usize + 3]]);
-    //          i+=4;
-    //          eng.render.resolution_y = u32::from_be_bytes([cfg[i as usize], cfg[i as usize + 1], cfg[i as usize + 2], cfg[i as usize + 3]]);
-    //          eng.render.set_new_resolution(eng.render.resolution_x, eng.render.resolution_y);
-    //          i+=3;
-    //        }
-    //        if cfg[i] == b'2'{
-    //          i+=1;
-    //          if cfg[i] == b'1'{
-    //            eng.render.fullscreen = true;
-    //          }else{
-    //            eng.render.fullscreen = false;
-    //          }
-    //        }
-    //        if cfg[i] == b'3'{
-    //          i+=1;
-    //          eng.render.resolution_scale = f32::from_be_bytes([cfg[i as usize], cfg[i as usize + 1], cfg[i as usize + 2], cfg[i as usize + 3]]);
-    //          i+=3;
-    //        }
-    //        if cfg[i] == b'4'{
-    //          i+=1;
-    //          eng.render.shadow_map_resolution = u32::from_be_bytes([cfg[i as usize], cfg[i as usize + 1], cfg[i as usize + 2], cfg[i as usize + 3]]);
-    //          i+=3;
-    //        }
-    //        if cfg[i] == b'5'{
-    //          i+=1;
-    //          eng.audio.vol = f32::from_be_bytes([cfg[i as usize], cfg[i as usize + 1], cfg[i as usize + 2], cfg[i as usize + 3]]);
-    //          i+=3;
-    //        }
-    //        if cfg[i] == b'6'{
-    //          i+=1;
-    //          ldpsz = f32::from_be_bytes([cfg[i as usize], cfg[i as usize + 1], cfg[i as usize + 2], cfg[i as usize + 3]]);
-    //          i+=3;
-    //        }
-    //        i+=1;
-    //      }
-    //      let _ = fs::remove_file("sav");
-    //      File::create_new("sav").unwrap()
-    //    },
-    //    false => File::create_new("sav").unwrap(),
-    //};
+    eng.render.resolution_scale = get_val("rsc");
 
-    //pub fn saveset(eng: &mut Engine, file: &mut File){
-      //let _ = file.seek(std::io::SeekFrom::Start(0));
-      //let mut stt = vec![];
-      //stt.push(b'1');
-      //let xb = eng.render.resolution_x.to_be_bytes();
-      //let yb = eng.render.resolution_y.to_be_bytes();
-      //for i in 0..4{
-      //  stt.push(xb[i]);
-      //}
-      //for i in 0..4{
-      //  stt.push(yb[i]);
-      //}
-      //stt.push(b'2');
-      //if eng.render.fullscreen{
-      //  stt.push(b'1');
-      //}else{
-      //  stt.push(b'0');
-      //}
-      //stt.push(b'3');
-      //let rscb = eng.render.resolution_scale.to_be_bytes();
-      //for i in 0..4{
-      //  stt.push(rscb[i]);
-      //}
-      //stt.push(b'4');
-      //let rscb = eng.render.shadow_map_resolution.to_be_bytes();
-      //for i in 0..4{
-      //  stt.push(rscb[i]);
-      //}
-      //stt.push(b'5');
-      //let rscb = eng.audio.vol.to_be_bytes();
-      //for i in 0..4{
-      //  stt.push(rscb[i]);
-      //}
-      //let _ = file.write_all(&stt);
-    //}
+    if get_val("shm") > 250.0 {
+      eng.render.shadow_map_resolution = get_val("shm") as u32;
+    }
 
-    //pub fn savepos(eng: &mut Engine, file: &mut File){
-      //let _ = file.seek(std::io::SeekFrom::Start(26));
-      //let mut stt = vec![];
-      //stt.push(b'6');
-      //let rscb = eng.cameras[0].physic_object.pos.z.to_be_bytes();
-      //for i in 0..4{
-      //  stt.push(rscb[i]);
-      //}
-      //let _ = file.write_all(&stt);
-    //}
+    eng.audio.vol = get_val("vol");
 
-    //saveset(&mut eng, &mut file);
+    if get_val("ldpsz") != 1.0 {
+      ldpsz = get_val("ldpsz");
+    }
+
+    pub fn saveset(eng: &mut Engine){
+      set_val("rsc", eng.render.resolution_scale);
+      set_val("shm", eng.render.shadow_map_resolution as f32);
+      set_val("vol", eng.audio.vol);
+    }
+
+    pub fn savepos(val: f32){
+      set_val("ldpsz", val);
+    }
+
+    saveset(&mut eng);
 
     let mut oldr = [eng.render.resolution_x, eng.render.resolution_y];
 
@@ -352,6 +278,8 @@ pub async fn main() {
       if ldpsz >= traindr.objects[i].physic_object.v2.z{
         traindr.objects[i].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
         traindr.objects[i].draw = false;
+        traindr.objects[i].physic_object.solid = false;
+        //traindr.objects[i].physic_object. = false;
       }
     }
 
@@ -375,21 +303,21 @@ pub async fn main() {
         eng.lights[0].pos = Vec3::newdefined(0.0, 4.25, 23.3);
         if locsv < 1{
           locsv+=1;
-          //savepos(&mut eng, &mut file);
+          savepos(eng.cameras[0].physic_object.pos.z);
         }
       }
       if eng.cameras[0].physic_object.pos.z > 35.1{
         eng.lights[0].pos = Vec3::newdefined(0.0, 4.25, 46.606);
         if locsv < 2{
           locsv+=1;
-          //savepos(&mut eng, &mut file);
+          savepos(eng.cameras[0].physic_object.pos.z);
         }
       }
       if eng.cameras[0].physic_object.pos.z > 58.5{
         eng.lights[0].pos = Vec3::newdefined(0.0, 4.25, 69.897);
         if locsv < 3{
           locsv+=1;
-          //savepos(&mut eng, &mut file);
+          savepos(eng.cameras[0].physic_object.pos.z);
         }
       }
 
@@ -856,7 +784,7 @@ pub async fn main() {
           locsv = 0;
           ldpsz = -8.0;
           tm = 100;
-          //savepos(&mut eng, &mut file);
+          savepos(ldpsz);
         }
 
         if (enpsc[0] != 'P' || enpsc[1] != 'A' || enpsc[2] != 'R' || enpsc[3] != 'I' || enpsc[4] != 'S') && enpsc[4] != '-'{
@@ -993,7 +921,7 @@ pub async fn main() {
               eng.cameras[0].physic_object.pos.z = -8.0;
               ldpsz = -8.0;
 
-              //savepos(&mut eng, &mut file);
+              savepos(ldpsz);
 
               locsv = 0;
 
@@ -1100,7 +1028,7 @@ pub async fn main() {
               if eng.render.resolution_scale < 0.2 {
                 eng.render.resolution_scale = 1.0;
               }
-              //saveset(&mut eng, &mut file);
+              saveset(&mut eng);
               gr.play = true;
               tm = 100;
             }
@@ -1139,7 +1067,7 @@ pub async fn main() {
                   },
                   _ => {},
               }
-              //saveset(&mut eng, &mut file);
+              saveset(&mut eng);
               gr.play = true;
               tm = 100;
             }
@@ -1155,7 +1083,7 @@ pub async fn main() {
             if text[3].exec(&mut eng, &format!("Fullscreen {}", match flscr { true => "+", false => "-"})) && eng.control.mousebtn[2] && tm <= 0{
               eng.render.fullscreen = !eng.render.fullscreen;
               gr.play = true;
-              //saveset(&mut eng, &mut file);
+              saveset(&mut eng);
               tm = 100;
             }
 
@@ -1199,7 +1127,7 @@ pub async fn main() {
                 rscale = 100;
               }
               eng.audio.vol = rscale as f32/100f32;
-              //saveset(&mut eng, &mut file);
+              saveset(&mut eng);
               gr.play = true;
               tm = 100;
             }
@@ -1236,7 +1164,7 @@ pub async fn main() {
       }
 
       if oldr[0] != eng.render.resolution_x || oldr[1] != eng.render.resolution_y{
-        //saveset(&mut eng, &mut file);
+        saveset(&mut eng);
         oldr = [eng.render.resolution_x, eng.render.resolution_y];
       }
 

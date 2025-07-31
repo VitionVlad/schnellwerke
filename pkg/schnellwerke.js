@@ -1,6 +1,7 @@
 import { mozartsetvolume, newsound, soundplay, soudstop } from './snippets/schnellwerke-0ccc4b36a7b18b32/src/engine/audio/audio.js';
 import { openfs } from './snippets/schnellwerke-0ccc4b36a7b18b32/src/engine/loader/loader.js';
 import { get_frametime, get_resx, get_resy, settitle, setfullscreen, quitfullscreen, getKeyPressed, req_mouse_lock, req_mouse_unlock, modifyshadowdata, modifydeffereddata, modifyshadowuniform, modifydeffereduniform, neweng, newmaterial, newmodel, setrendercamera, setmeshbuf, setdrawable, newmesh, newtexture, rn, renderloop } from './snippets/schnellwerke-0ccc4b36a7b18b32/src/engine/render/gauss.js';
+import { set_val, get_val } from './snippets/schnellwerke-0ccc4b36a7b18b32/src/sav.js';
 import * as __wbg_star0 from './snippets/schnellwerke-0ccc4b36a7b18b32/src/engine/audio/audio.js';
 import * as __wbg_star1 from './snippets/schnellwerke-0ccc4b36a7b18b32/src/engine/render/gauss.js';
 
@@ -270,7 +271,7 @@ function handleError(f, args) {
         wasm.__wbindgen_exn_store(addHeapObject(e));
     }
 }
-function __wbg_adapter_105(arg0, arg1, arg2, arg3) {
+function __wbg_adapter_109(arg0, arg1, arg2, arg3) {
     _assertNum(arg0);
     _assertNum(arg1);
     wasm.wasm_bindgen__convert__closures__invoke2_mut__h9245587f06e70754(arg0, arg1, addHeapObject(arg2), addHeapObject(arg3));
@@ -400,6 +401,13 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_renderloop_aae06e968c7a40db = function() { return logError(function (arg0) {
         renderloop(getObject(arg0));
     }, arguments) };
+    imports.wbg.__wbg_setval_aba0ae4e743b5275 = function() { return logError(function (arg0, arg1, arg2) {
+        set_val(getStringFromWasm0(arg0, arg1), arg2);
+    }, arguments) };
+    imports.wbg.__wbg_getval_2cdee7be98ae893d = function() { return logError(function (arg0, arg1) {
+        const ret = get_val(getStringFromWasm0(arg0, arg1));
+        return ret;
+    }, arguments) };
     imports.wbg.__wbg_mozartsetvolume_ff3fc81d3cd8e35b = function() { return logError(function (arg0, arg1) {
         mozartsetvolume(arg0 >>> 0, arg1);
     }, arguments) };
@@ -455,7 +463,7 @@ function __wbg_get_imports() {
                 const a = state0.a;
                 state0.a = 0;
                 try {
-                    return __wbg_adapter_105(a, state0.b, arg0, arg1);
+                    return __wbg_adapter_109(a, state0.b, arg0, arg1);
                 } finally {
                     state0.a = a;
                 }
@@ -560,11 +568,11 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper649 = function() { return logError(function (arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper657 = function() { return logError(function (arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 3, __wbg_adapter_18);
         return addHeapObject(ret);
     }, arguments) };
-    imports.wbg.__wbindgen_closure_wrapper675 = function() { return logError(function (arg0, arg1, arg2) {
+    imports.wbg.__wbindgen_closure_wrapper683 = function() { return logError(function (arg0, arg1, arg2) {
         const ret = makeMutClosure(arg0, arg1, 37, __wbg_adapter_21);
         return addHeapObject(ret);
     }, arguments) };
