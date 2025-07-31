@@ -534,10 +534,14 @@ pub async fn main() {
         
         if eng.control.xpos < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos > eng.render.resolution_y as f32 * 0.3{
           let lyp = eng.control.ypos - eng.render.resolution_y as f32 / 2.0;
-          let zsp = (lyp as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/(eng.render.resolution_y as f32 / 2.0) * SPEED;
+          let zsp = (lyp as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/(eng.render.resolution_y as f32 / 2.0) * SPEED / 2.0;
+          let xsp = (eng.control.xpos as f32 * 2.0 - eng.render.resolution_x as f32 /2.0)/(eng.render.resolution_x as f32 / 2.0) * SPEED / 2.0;
 
           eng.cameras[0].physic_object.acceleration.z += f32::cos(eng.cameras[0].physic_object.rot.y) * zsp * eng.times_to_calculate_physics as f32;
           eng.cameras[0].physic_object.acceleration.x += f32::sin(eng.cameras[0].physic_object.rot.y) * -zsp * eng.times_to_calculate_physics as f32;
+
+          eng.cameras[0].physic_object.acceleration.x += f32::cos(eng.cameras[0].physic_object.rot.y) * xsp * eng.times_to_calculate_physics as f32;
+          eng.cameras[0].physic_object.acceleration.z += f32::sin(eng.cameras[0].physic_object.rot.y) * xsp * eng.times_to_calculate_physics as f32;
 
           if trains.volume == 0.5{
             mwk.play = true;
@@ -707,7 +711,6 @@ pub async fn main() {
         }
 
         eng.control.mouse_lock = false;
-        ps = true;
         text[1].draw = true;
         text[1].pos.y = eng.render.resolution_y as f32 / 4.0;
         text[1].pos.x = eng.render.resolution_x as f32 / 2.0 - text[1].size.x*8.0;
@@ -758,7 +761,6 @@ pub async fn main() {
         }
 
         eng.control.mouse_lock = false;
-        ps = true;
         text[1].draw = true;
         text[1].pos.y = eng.render.resolution_y as f32 / 4.0;
         text[1].pos.x = eng.render.resolution_x as f32 / 2.0 - text[1].size.x*8.0;
@@ -808,7 +810,6 @@ pub async fn main() {
         }
 
         eng.control.mouse_lock = false;
-        ps = true;
         text[1].draw = true;
         text[1].pos.y = eng.render.resolution_y as f32 / 4.0;
         text[1].pos.x = eng.render.resolution_x as f32 / 2.0 - text[1].size.x*8.0;
