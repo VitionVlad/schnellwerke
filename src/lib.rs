@@ -272,6 +272,10 @@ pub async fn main() {
 
     let mut ign = true;
 
+    let mut stilltc = false;
+
+    let mut orc: [f32; 2] = [0.0, 0.0];
+
     let mut touchmv: [f32; 6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
     for i in 0..traindr.objects.len(){
@@ -461,21 +465,28 @@ pub async fn main() {
         }
         
         if eng.control.xpos < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos > eng.render.resolution_y as f32 * 0.3{
-          let lyp = eng.control.ypos - eng.render.resolution_y as f32 / 2.0;
-          let zsp = (lyp as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/(eng.render.resolution_y as f32 / 2.0) * SPEED / 2.0;
-          let xsp = (eng.control.xpos as f32 * 2.0 - eng.render.resolution_x as f32 /2.0)/(eng.render.resolution_x as f32 / 2.0) * SPEED / 2.0;
+          if !stilltc {
+            orc[0] = eng.control.xpos * 2.0 - eng.render.resolution_x as f32 / 2.0;
+            orc[1] = eng.control.ypos * 2.0 - eng.render.resolution_y as f32 / 2.0;
+            stilltc = true;
+          }
 
-          eng.cameras[0].physic_object.acceleration.z += f32::cos(eng.cameras[0].physic_object.rot.y) * zsp * eng.times_to_calculate_physics as f32;
-          eng.cameras[0].physic_object.acceleration.x += f32::sin(eng.cameras[0].physic_object.rot.y) * -zsp * eng.times_to_calculate_physics as f32;
+          let vertsp = ((eng.control.ypos * 2.0 - eng.render.resolution_y as f32 / 2.0) - orc[1])*SPEED/500.0;
+          let horsp = ((eng.control.xpos * 2.0 - eng.render.resolution_x as f32 / 2.0) - orc[0])*SPEED/500.0;
+          
+          eng.cameras[0].physic_object.acceleration.z += f32::cos(eng.cameras[0].physic_object.rot.y) * vertsp * eng.times_to_calculate_physics as f32;
+          eng.cameras[0].physic_object.acceleration.x += f32::sin(eng.cameras[0].physic_object.rot.y) * -vertsp * eng.times_to_calculate_physics as f32;
 
-          eng.cameras[0].physic_object.acceleration.x += f32::cos(eng.cameras[0].physic_object.rot.y) * xsp * eng.times_to_calculate_physics as f32;
-          eng.cameras[0].physic_object.acceleration.z += f32::sin(eng.cameras[0].physic_object.rot.y) * xsp * eng.times_to_calculate_physics as f32;
+          eng.cameras[0].physic_object.acceleration.x += f32::cos(eng.cameras[0].physic_object.rot.y) * horsp * eng.times_to_calculate_physics as f32;
+          eng.cameras[0].physic_object.acceleration.z += f32::sin(eng.cameras[0].physic_object.rot.y) * horsp * eng.times_to_calculate_physics as f32;
 
           if trains.volume == 0.5{
             mwk.play = true;
           }else{
             wk.play = true;
           }
+        }else{
+          stilltc = false;
         }
 
         for i in 0..trainqo.objects.len(){
