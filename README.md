@@ -35,13 +35,12 @@ let mut eng = Engine::new();
 
 ...
 
-while eng.work(){
+render_loop(Closure::new(move || {
+eng.work();
 
 ...
 
-}
-
-eng.end();
+}));
 ```
 
 Objects as was earlier mentioned didnt change that much, as shown in this diagram:  
@@ -73,12 +72,13 @@ let mut vrt1 = ModelAsset::load_obj("assets/train_em.obj");
 let md1 = Model::new(&mut eng, vrt1.vertices[0].clone());
 let mut trainem = Object::new(&mut eng, md1, mat4, image, engine::render::render::MeshUsage::DefferedPass, true);
 
-while eng.work(){
+render_loop(Closure::new(move || {
+eng.work();
 ...
 //but executing them is still simple
 trainem.exec(&mut eng);
 ...
-}
+}));
 ```
 
 There also are some special objects, which are UItext and UIplane, that are obviosly used for ui, here an example:  
@@ -174,11 +174,12 @@ and working with this structure looks like this:
 ```rust
 let mut trains = Speaker::new(&mut eng, "assets/audio/train.mp3");
 ...
-while eng.work(){
+render_loop(Closure::new(move || {
+eng.work();
 ...
 trains.exec(&mut eng);
 ...
-}
+}));
 ```
 
 # <p align="center"> <img width="1599" height="262" alt="image" src="https://github.com/user-attachments/assets/6ba28016-4bf8-437f-9bba-26fa2047faad" /> </p>
