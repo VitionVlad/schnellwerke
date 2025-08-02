@@ -467,7 +467,7 @@ pub async fn main() {
           }else{
             ign = false;
           }
-        }else if eng.control.xpos[1] > eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[1]{
+        }else if eng.control.xpos[1] > eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2]{
           if !ign{
             eng.cameras[0].physic_object.rot.y += touchmvl[1];
             eng.cameras[0].physic_object.rot.x += touchmvl[0]*2.0;
