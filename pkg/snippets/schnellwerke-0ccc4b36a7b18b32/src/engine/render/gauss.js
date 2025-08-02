@@ -44,7 +44,7 @@ var gs = new Gauss();
 
 var pressedk = new Array(100).fill(false);
 
-var mpos = [0, 0];
+var mpos = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 function key_to_code(key){
     switch(key){
@@ -251,8 +251,10 @@ document.addEventListener('mousemove', function(event) {
 
 document.addEventListener('touchmove', function(e) {
     msb[3] = true;
-    mpos[0] = e.touches[0].clientX;
-    mpos[1] = e.touches[0].clientY;
+    for(var i = 0; i < Math.min(e.touches.length, 10); i+=2){
+        mpos[i] = e.touches[i/2].clientX;
+        mpos[i+1] = e.touches[i/2].clientY;
+    }
     jt = true;
 });
 
@@ -272,8 +274,10 @@ document.addEventListener("mousedown", (e) => {
 });
 
 document.addEventListener("touchstart", (e) => {
-    mpos[0] = e.touches[0].clientX;
-    mpos[1] = e.touches[0].clientY;
+    for(var i = 0; i < Math.min(e.touches.length, 10); i+=2){
+        mpos[i] = e.touches[i/2].clientX;
+        mpos[i+1] = e.touches[i/2].clientY;
+    }
     msb[0] = true;
     msb[3] = true;
     jt = true;
@@ -1255,11 +1259,11 @@ export function getml(){
 export function getmm(){
     return msb[1];
 }
-export function get_mouse_posx() {
-    return mpos[0];
+export function get_mouse_posx(i) {
+    return mpos[i*2];
 }
-export function get_mouse_posy() {
-    return mpos[1];
+export function get_mouse_posy(i) {
+    return mpos[i*2+1];
 }
 export function get_mouse_stat() {
     return document.pointerLockElement != null;

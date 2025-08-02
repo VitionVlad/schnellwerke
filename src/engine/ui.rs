@@ -60,7 +60,13 @@ impl UIplane {
         self.clickzone.pos1.y = self.object.physic_object.pos.y;
         self.clickzone.pos2.x = self.object.physic_object.pos.x + self.object.physic_object.scale.x;
         self.clickzone.pos2.y = self.object.physic_object.pos.y + self.object.physic_object.scale.y;
-        let btst = self.clickzone.check(Vec2::newdefined(eng.control.xpos as f32, eng.control.ypos as f32));
+        let mut btst = false;
+            for i in 0..10{
+                if self.clickzone.check(Vec2::newdefined(eng.control.xpos[i] as f32, eng.control.ypos[i] as f32)){
+                    btst = true;
+                    break;
+                }
+            }
         if self.signal && btst && (self.allow_when_mouse_locked || (!self.allow_when_mouse_locked && !eng.control.mouse_lock)){
             self.object.mesh.ubo[18] = 1.0;
         }else{
@@ -176,7 +182,13 @@ impl UItext {
             self.clickzone.pos1.y = self.pos.y;
             self.clickzone.pos2.x = self.pos.x + self.size.x*(mx as f32 + 1.0);
             self.clickzone.pos2.y = self.pos.y + self.size.y*(my as f32);
-            let mut btst = self.clickzone.check(Vec2::newdefined(eng.control.xpos as f32, eng.control.ypos as f32));
+            let mut btst = false;
+            for i in 0..10{
+                if self.clickzone.check(Vec2::newdefined(eng.control.xpos[i] as f32, eng.control.ypos[i] as f32)){
+                    btst = true;
+                    break;
+                }
+            }
             let mut lbtst = btst;
             if self.planes.len() < bt.len() {
                 for i in  self.planes.len()..bt.len(){
@@ -208,7 +220,13 @@ impl UItext {
                                 self.clickzone.pos1.y = self.planes[i].physic_object.pos.y;
                                 self.clickzone.pos2.x = self.planes[i].physic_object.pos.x + self.size.x;
                                 self.clickzone.pos2.y = self.planes[i].physic_object.pos.y + self.size.y;
-                                lbtst = self.clickzone.check(Vec2::newdefined(eng.control.xpos as f32, eng.control.ypos as f32));
+                                lbtst = false;
+                                for i in 0..10{
+                                    if self.clickzone.check(Vec2::newdefined(eng.control.xpos[i] as f32, eng.control.ypos[i] as f32)){
+                                        lbtst = true;
+                                        break;
+                                    }
+                                }
                                 if lbtst{
                                     self.symbol_pressed = self.symbols[j];
                                     self.symbol_index = i;

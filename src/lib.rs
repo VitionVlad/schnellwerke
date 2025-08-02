@@ -278,6 +278,8 @@ pub async fn main() {
 
     let mut touchmv: [f32; 6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 
+    let mut touchmvl: [f32; 6] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+
     for i in 0..traindr.objects.len(){
       if ldpsz >= traindr.objects[i].physic_object.v2.z{
         traindr.objects[i].physic_object.pos.x -= TICKSZ*10.0*eng.times_to_calculate_physics as f32;
@@ -291,9 +293,9 @@ pub async fn main() {
 
     render_loop(Closure::new(move || {
       eng.work();
-      if !eng.control.mouse_lock {
-        relpos.x = (eng.control.ypos) as f32/eng.render.resolution_y as f32 - savpos.x;
-        relpos.y = (eng.control.xpos) as f32/eng.render.resolution_x as f32 - savpos.y;
+      if !eng.control.mouse_lock && !eng.control.touch{
+        relpos.x = (eng.control.ypos[0]) as f32/eng.render.resolution_y as f32 - savpos.x;
+        relpos.y = (eng.control.xpos[0]) as f32/eng.render.resolution_x as f32 - savpos.y;
         relposx = 0.0;
       }
 
@@ -349,18 +351,18 @@ pub async fn main() {
       }
 
       if eng.control.mouse_lock{
-        eng.cameras[0].physic_object.rot.x = (eng.control.ypos) as f32/eng.render.resolution_y as f32 - relpos.x - relposx;
-        eng.cameras[0].physic_object.rot.y = (eng.control.xpos) as f32/eng.render.resolution_x as f32 - relpos.y;
+        eng.cameras[0].physic_object.rot.x = (eng.control.ypos[0]) as f32/eng.render.resolution_y as f32 - relpos.x - relposx;
+        eng.cameras[0].physic_object.rot.y = (eng.control.xpos[0]) as f32/eng.render.resolution_x as f32 - relpos.y;
         savpos.x = eng.cameras[0].physic_object.rot.x;
         savpos.y = eng.cameras[0].physic_object.rot.y;
 
         if eng.cameras[0].physic_object.rot.x < -1.5 {
-          relposx = (eng.control.ypos) as f32/eng.render.resolution_y as f32 - relpos.x + 1.5;
-          eng.cameras[0].physic_object.rot.x = (eng.control.ypos) as f32/eng.render.resolution_y as f32 - relpos.x - relposx;
+          relposx = (eng.control.ypos[0]) as f32/eng.render.resolution_y as f32 - relpos.x + 1.5;
+          eng.cameras[0].physic_object.rot.x = (eng.control.ypos[0]) as f32/eng.render.resolution_y as f32 - relpos.x - relposx;
         }
         if eng.cameras[0].physic_object.rot.x > 1.5 {
-          relposx = (eng.control.ypos) as f32/eng.render.resolution_y as f32 - relpos.x - 1.5;
-          eng.cameras[0].physic_object.rot.x = (eng.control.ypos) as f32/eng.render.resolution_y as f32 - relpos.x - relposx;
+          relposx = (eng.control.ypos[0]) as f32/eng.render.resolution_y as f32 - relpos.x - 1.5;
+          eng.cameras[0].physic_object.rot.x = (eng.control.ypos[0]) as f32/eng.render.resolution_y as f32 - relpos.x - relposx;
         }
 
         if wkfc <= 0.0{
@@ -442,14 +444,33 @@ pub async fn main() {
       }
 
       if eng.control.touch && !ps && tm <= 0 && qa == -1{
-        touchmv[1] = ((eng.control.xpos) as f32/eng.render.resolution_x as f32)*4.0 - touchmv[3];
-        touchmv[0] = (eng.control.ypos as f32 * 2.0 -eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32 - touchmv[2];
-        touchmv[3] = ((eng.control.xpos) as f32/eng.render.resolution_x as f32)*4.0;
-        touchmv[2] = (eng.control.ypos as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32;
-        if eng.control.xpos > eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2]{
+        touchmv[1] = ((eng.control.xpos[0]) as f32/eng.render.resolution_x as f32)*4.0 - touchmv[3];
+        touchmv[0] = (eng.control.ypos[0] as f32 * 2.0 -eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32 - touchmv[2];
+        touchmv[3] = ((eng.control.xpos[0]) as f32/eng.render.resolution_x as f32)*4.0;
+        touchmv[2] = (eng.control.ypos[0] as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32;
+
+        touchmvl[1] = ((eng.control.xpos[1]) as f32/eng.render.resolution_x as f32)*4.0 - touchmvl[3];
+        touchmvl[0] = (eng.control.ypos[1] as f32 * 2.0 -eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32 - touchmvl[2];
+        touchmvl[3] = ((eng.control.xpos[1]) as f32/eng.render.resolution_x as f32)*4.0;
+        touchmvl[2] = (eng.control.ypos[1] as f32 * 2.0 - eng.render.resolution_y as f32 /2.0)/eng.render.resolution_y as f32;
+        if eng.control.xpos[0] > eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2]{
           if !ign{
             eng.cameras[0].physic_object.rot.y += touchmv[1];
             eng.cameras[0].physic_object.rot.x += touchmv[0]*2.0;
+
+            if eng.cameras[0].physic_object.rot.x < -1.5 {
+              eng.cameras[0].physic_object.rot.x = -1.5;
+            }
+            if eng.cameras[0].physic_object.rot.x > 1.5 {
+              eng.cameras[0].physic_object.rot.x = 1.5;
+            }
+          }else{
+            ign = false;
+          }
+        }else if eng.control.xpos[1] > eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[1]{
+          if !ign{
+            eng.cameras[0].physic_object.rot.y += touchmvl[1];
+            eng.cameras[0].physic_object.rot.x += touchmvl[0]*2.0;
 
             if eng.cameras[0].physic_object.rot.x < -1.5 {
               eng.cameras[0].physic_object.rot.x = -1.5;
@@ -464,15 +485,36 @@ pub async fn main() {
           ign = true;
         }
         
-        if eng.control.xpos < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos > eng.render.resolution_y as f32 * 0.3{
+        if eng.control.xpos[0] < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos[0] > eng.render.resolution_y as f32 * 0.3{
           if !stilltc {
-            orc[0] = eng.control.xpos * 2.0 - eng.render.resolution_x as f32 / 2.0;
-            orc[1] = eng.control.ypos * 2.0 - eng.render.resolution_y as f32 / 2.0;
+            orc[0] = eng.control.xpos[0];
+            orc[1] = eng.control.ypos[0];
             stilltc = true;
           }
 
-          let vertsp = ((eng.control.ypos * 2.0 - eng.render.resolution_y as f32 / 2.0) - orc[1])*SPEED/500.0;
-          let horsp = ((eng.control.xpos * 2.0 - eng.render.resolution_x as f32 / 2.0) - orc[0])*SPEED/500.0;
+          let vertsp = (eng.control.ypos[0] - orc[1])*SPEED/500.0;
+          let horsp = (eng.control.xpos[0] - orc[0])*SPEED/500.0;
+          
+          eng.cameras[0].physic_object.acceleration.z += f32::cos(eng.cameras[0].physic_object.rot.y) * vertsp * eng.times_to_calculate_physics as f32;
+          eng.cameras[0].physic_object.acceleration.x += f32::sin(eng.cameras[0].physic_object.rot.y) * -vertsp * eng.times_to_calculate_physics as f32;
+
+          eng.cameras[0].physic_object.acceleration.x += f32::cos(eng.cameras[0].physic_object.rot.y) * horsp * eng.times_to_calculate_physics as f32;
+          eng.cameras[0].physic_object.acceleration.z += f32::sin(eng.cameras[0].physic_object.rot.y) * horsp * eng.times_to_calculate_physics as f32;
+
+          if trains.volume == 0.5{
+            mwk.play = true;
+          }else{
+            wk.play = true;
+          }
+        }else if eng.control.xpos[1] < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos[1] > eng.render.resolution_y as f32 * 0.3{
+          if !stilltc {
+            orc[0] = eng.control.xpos[1];
+            orc[1] = eng.control.ypos[1];
+            stilltc = true;
+          }
+
+          let vertsp = (eng.control.ypos[1] - orc[1])*SPEED/500.0;
+          let horsp = (eng.control.xpos[1] - orc[0])*SPEED/500.0;
           
           eng.cameras[0].physic_object.acceleration.z += f32::cos(eng.cameras[0].physic_object.rot.y) * vertsp * eng.times_to_calculate_physics as f32;
           eng.cameras[0].physic_object.acceleration.x += f32::sin(eng.cameras[0].physic_object.rot.y) * -vertsp * eng.times_to_calculate_physics as f32;
@@ -533,8 +575,8 @@ pub async fn main() {
       if wkfc >= 0.0{
         wkfc -= (TICKSZ/5.0)*eng.times_to_calculate_physics as f32;
         viewport.object.mesh.ubo[16] = wkfc;
-        relpos.x = (eng.control.ypos) as f32/eng.render.resolution_y as f32;
-        relpos.y = (eng.control.xpos) as f32/eng.render.resolution_x as f32 - 3.14;
+        relpos.x = (eng.control.ypos[0]) as f32/eng.render.resolution_y as f32;
+        relpos.y = (eng.control.xpos[0]) as f32/eng.render.resolution_x as f32 - 3.14;
         eng.cameras[0].physic_object.rot.x = 0.0;
         eng.cameras[0].physic_object.rot.y = 3.14;
         eng.cameras[0].physic_object.pos.x = 0.0;

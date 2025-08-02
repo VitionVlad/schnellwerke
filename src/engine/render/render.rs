@@ -1,6 +1,8 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
+use std::u32;
+
 use js_sys::{Float32Array, Uint8Array};
 use wasm_bindgen::prelude::{wasm_bindgen, Closure};
 
@@ -19,8 +21,8 @@ unsafe extern "C"{
     fn getml() -> bool;
     fn getmm() -> bool;
     fn touch_control() -> bool;
-    fn get_mouse_posx()  -> f32;
-    fn get_mouse_posy()  -> f32;
+    fn get_mouse_posx(i: u32)  -> f32;
+    fn get_mouse_posy(i: u32)  -> f32;
     fn get_mouse_stat()  -> bool;
     fn req_mouse_lock(eh: u32);
     fn req_mouse_unlock(eh: u32);
@@ -112,8 +114,8 @@ impl Render{
 #[derive(Copy, Clone)]
 pub struct Control{
     euclid: u32,
-    pub xpos: f32,
-    pub ypos: f32,
+    pub xpos: [f32; 10],
+    pub ypos: [f32; 10],
     pub mouse_lock: bool,
     old_mouse_lock: bool,
     pub mousebtn: [bool; 3],
@@ -124,8 +126,8 @@ impl Control{
     pub fn new(render: Render) -> Control{
         Control {
             euclid: render.euclid,
-            xpos: 0.0f32,
-            ypos: 0.0f32,
+            xpos: [0.0f32; 10],
+            ypos: [0.0f32; 10],
             mouse_lock: false,
             old_mouse_lock: false,
             mousebtn: [false, false, false],
@@ -146,8 +148,10 @@ impl Control{
             self.mouse_lock = get_mouse_stat();
         }
         self.old_mouse_lock = self.mouse_lock;
-        self.xpos = get_mouse_posx();
-        self.ypos = get_mouse_posy();
+        for i in 0..10{
+            self.xpos[i]= get_mouse_posx(i as u32);
+            self.ypos[i]= get_mouse_posy(i as u32);
+        }
         self.mousebtn = [ getmr(), getmm(), getml()];
     }
 }
