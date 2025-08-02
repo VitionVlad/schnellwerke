@@ -149,8 +149,8 @@ impl Control{
         }
         self.old_mouse_lock = self.mouse_lock;
         for i in 0..10{
-            self.xpos[i]= get_mouse_posx(i as u32);
-            self.ypos[i]= get_mouse_posy(i as u32);
+            self.xpos[i] = get_mouse_posx(i as u32);
+            self.ypos[i] = get_mouse_posy(i as u32);
         }
         self.mousebtn = [ getmr(), getmm(), getml()];
     }

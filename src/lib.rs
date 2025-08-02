@@ -485,15 +485,15 @@ pub async fn main() {
           ign = true;
         }
         
-        if eng.control.xpos[0] < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos[0] > eng.render.resolution_y as f32 * 0.3{
+        if eng.control.xpos[0] < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2]{
           if !stilltc {
             orc[0] = eng.control.xpos[0];
             orc[1] = eng.control.ypos[0];
             stilltc = true;
           }
 
-          let vertsp = (eng.control.ypos[0] - orc[1])*SPEED/500.0;
-          let horsp = (eng.control.xpos[0] - orc[0])*SPEED/500.0;
+          let vertsp = (eng.control.ypos[0] - orc[1])*SPEED/250.0;
+          let horsp = (eng.control.xpos[0] - orc[0])*SPEED/250.0;
           
           eng.cameras[0].physic_object.acceleration.z += f32::cos(eng.cameras[0].physic_object.rot.y) * vertsp * eng.times_to_calculate_physics as f32;
           eng.cameras[0].physic_object.acceleration.x += f32::sin(eng.cameras[0].physic_object.rot.y) * -vertsp * eng.times_to_calculate_physics as f32;
@@ -506,7 +506,7 @@ pub async fn main() {
           }else{
             wk.play = true;
           }
-        }else if eng.control.xpos[1] < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2] && eng.control.ypos[1] > eng.render.resolution_y as f32 * 0.3{
+        }else if eng.control.xpos[1] < eng.render.resolution_x as f32 / 2.0 && eng.control.mousebtn[2]{
           if !stilltc {
             orc[0] = eng.control.xpos[1];
             orc[1] = eng.control.ypos[1];
