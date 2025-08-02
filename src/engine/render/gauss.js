@@ -251,9 +251,9 @@ document.addEventListener('mousemove', function(event) {
 
 document.addEventListener('touchmove', function(e) {
     msb[3] = true;
-    for(var i = 0; i < Math.min(e.touches.length, 10); i+=2){
-        mpos[i] = e.touches[i/2].clientX;
-        mpos[i+1] = e.touches[i/2].clientY;
+    for(var i = 0; i < Math.min(e.touches.length, 10); i+=1){
+        mpos[i*2] = e.touches[i].clientX;
+        mpos[i*2+1] = e.touches[i].clientY;
     }
     jt = true;
 });
@@ -274,9 +274,9 @@ document.addEventListener("mousedown", (e) => {
 });
 
 document.addEventListener("touchstart", (e) => {
-    for(var i = 0; i < Math.min(e.touches.length, 10); i+=2){
-        mpos[i] = e.touches[i/2].clientX;
-        mpos[i+1] = e.touches[i/2].clientY;
+    for(var i = 0; i < Math.min(e.touches.length, 10); i+=1){
+        mpos[i*2] = e.touches[i].clientX;
+        mpos[i*2+1] = e.touches[i].clientY;
     }
     msb[0] = true;
     msb[3] = true;
