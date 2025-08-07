@@ -1,10 +1,12 @@
 if (!navigator.gpu) {
+    alert("WebGPU not supported on this device.");
     throw new Error("WebGPU not supported on this browser.");
 }
 
 const adapter = await navigator.gpu.requestAdapter();
 if (!adapter) {
-  throw new Error("No appropriate GPUAdapter found.");
+    alert("WebGPU not supported on this device.");
+    throw new Error("No appropriate GPUAdapter found.");
 }
 
 var use_16bit_depth = true;
@@ -45,6 +47,8 @@ var gs = new Gauss();
 var pressedk = new Array(100).fill(false);
 
 var mpos = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+var lasttoucham = 0;
 
 function key_to_code(key){
     switch(key){
@@ -251,6 +255,7 @@ document.addEventListener('mousemove', function(event) {
 
 document.addEventListener('touchmove', function(e) {
     msb[3] = true;
+    lasttoucham = Math.min(e.touches.length, 10);
     for(var i = 0; i < Math.min(e.touches.length, 10); i+=1){
         mpos[i*2] = e.touches[i].clientX;
         mpos[i*2+1] = e.touches[i].clientY;
@@ -274,6 +279,7 @@ document.addEventListener("mousedown", (e) => {
 });
 
 document.addEventListener("touchstart", (e) => {
+    lasttoucham = Math.min(e.touches.length, 10);
     for(var i = 0; i < Math.min(e.touches.length, 10); i+=1){
         mpos[i*2] = e.touches[i].clientX;
         mpos[i*2+1] = e.touches[i].clientY;
@@ -284,6 +290,7 @@ document.addEventListener("touchstart", (e) => {
 });
 
 document.addEventListener("touchend", (e) => {
+    lasttoucham = Math.min(e.touches.length, 10);
     msb[0] = false;
 });
 
@@ -1270,6 +1277,9 @@ export function get_mouse_stat() {
 }
 export function touch_control() {
     return msb[3];
+}
+export function touch_numb() {
+    return lasttoucham;
 }
 export function req_mouse_lock(eh){
     if(!msb[3]){
