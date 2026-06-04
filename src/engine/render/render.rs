@@ -1,51 +1,46 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use std::u32;
+use std::ffi::CString;
 
-use js_sys::{Float32Array, Uint8Array};
-use wasm_bindgen::prelude::{wasm_bindgen, Closure};
+use cty::{uint8_t, uint32_t};
 
-#[wasm_bindgen(module = "/src/engine/render/gauss.js")]
 unsafe extern "C"{
-    fn get_frametime(eh: u32) -> f32;
-    fn get_resx(eh: u32) -> u32;
-    fn get_resy(eh: u32) -> u32;
-    fn setresolution(eh: u32, xs: u32, ys: u32);
-    fn seticon(eh: u32, xs: u32, ys: u32, pixels: Uint8Array);
-    fn settitle(title: &str);
-    fn setfullscreen(eh: u32);
-    fn quitfullscreen(eh: u32);
-    fn getKeyPressed(index: u32) -> bool;
-    fn getmr() -> bool;
-    fn getml() -> bool;
-    fn getmm() -> bool;
-    fn touch_control() -> bool;
-    fn get_mouse_posx(i: u32)  -> f32;
-    fn get_mouse_posy(i: u32)  -> f32;
-    fn get_mouse_stat()  -> bool;
-    fn req_mouse_lock(eh: u32);
-    fn req_mouse_unlock(eh: u32);
-    fn modifyshadowdata(eh: u32, ncnt: u32, nres: u32);
-    fn modifydeffereddata(eh: u32, ncnt: u32, nres: f32);
-    fn modifyshadowuniform(eh: u32, pos: u32, value: f32);
-    fn modifydeffereduniform(eh: u32, pos: u32, value: f32);
-    fn neweng(canvasid: &str) -> u32;
-    fn destroy(eh: u32);
-    fn newmaterial(vert: &str, frag: &str, shadow: &str, cullmode: u32, scullmode: u32) -> u32;
-    fn newmodel(vert: Float32Array, uv: Float32Array, normals: Float32Array, tan: Float32Array, ctan: Float32Array) -> u32;
-    fn setrendercamera(eme: u32, val: i8);
-    fn setmeshbuf(eme: u32, i: u32, val: f32);
-    fn setdrawable(eme: u32, val: i8);
-    fn newmesh(eh: u32, es: u32, em: u32, te: u32, usage: u32) -> u32;
-    fn newtexture(xsize: u32, ysize: u32, zsize: u32, pixels: Uint8Array) -> u32;
-    fn rn(eh: u32);
-    fn renderloop(fun: &Closure<dyn FnMut()>);
-}
-
-pub fn render_loop(fun: Closure<dyn FnMut()>){
-    renderloop(&fun);
-    fun.forget();
+    fn get_frametime(eh: cty::uint32_t) -> cty::c_float;
+    fn get_resx(eh: cty::uint32_t) -> cty::uint32_t;
+    fn get_resy(eh: cty::uint32_t) -> cty::uint32_t;
+    fn setresolution(eh: cty::uint32_t, xs: cty::uint32_t, ys: cty::uint32_t);
+    fn seticon(eh: cty::uint32_t, xs: cty::uint32_t, ys: cty::uint32_t, pixels: *mut cty::c_char);
+    fn settitle(eh: cty::uint32_t, title: *const cty::c_char);
+    fn setfullscreen(eh: cty::uint32_t);
+    fn quitfullscreen(eh: cty::uint32_t);
+    fn getKeyPressed(eh: cty::uint32_t, index: cty::uint32_t) -> cty::uint8_t;
+    fn getmr(eh: cty::uint32_t) -> cty::uint8_t;
+    fn getml(eh: cty::uint32_t) -> cty::uint8_t;
+    fn getmm(eh: cty::uint32_t) -> cty::uint8_t;
+    fn get_mouse_posx(eh: cty::uint32_t)  -> cty::c_double;
+    fn get_mouse_posy(eh: cty::uint32_t)  -> cty::c_double;
+    fn req_mouse_lock(eh: cty::uint32_t);
+    fn req_mouse_unlock(eh: cty::uint32_t);
+    fn get_axis(eh: cty::uint32_t, n: cty::uint8_t) -> cty::c_float;
+    fn get_button(eh: cty::uint32_t, n: cty::uint8_t) -> cty::c_uchar;
+    fn gamepad_con(eh: cty::uint32_t) -> cty::uint8_t;
+    fn gamepad_axisnm(eh: cty::uint32_t) -> cty::uint8_t;
+    fn gamepad_buttonnm(eh: cty::uint32_t) -> cty::uint8_t;
+    fn modifyshadowdata(eh: cty::uint32_t, ncnt: cty::uint32_t, nres: cty::uint32_t, lcnt: cty::uint32_t);
+    fn modifydeffereddata(eh: cty::uint32_t, ncnt: cty::uint32_t, nres: cty::c_float);
+    fn modifyshadowuniform(eh: cty::uint32_t, pos: cty::uint32_t, value: cty::c_float);
+    fn modifydeffereduniform(eh: cty::uint32_t, pos: cty::uint32_t, value: cty::c_float);
+    fn neweng(shadowMapResolution: cty::uint32_t) -> cty::uint32_t;
+    fn destroy(eh: cty::uint32_t);
+    fn newmaterial(eh: cty::uint32_t, vert: *mut cty::uint32_t, frag: *mut cty::uint32_t, shadow: *mut cty::uint32_t, svert: cty::uint32_t, sfrag: cty::uint32_t, sshadow: cty::uint32_t, cullmode: cty::uint32_t, scullmode: cty::uint32_t) -> cty::uint32_t;
+    fn newmodel(eh: cty::uint32_t, vert: *mut cty::c_float, uv: *mut cty::c_float, normals: *mut cty::c_float, size: cty::uint32_t) -> cty::uint32_t;
+    fn setrendercamera(eme: cty::uint32_t, val: cty::int8_t);
+    fn setmeshbuf(eme: cty::uint32_t, i: cty::uint32_t, val: cty::c_float);
+    fn setdrawable(eme: cty::uint32_t, val: cty::uint8_t);
+    fn newmesh(eh: cty::uint32_t, es: cty::uint32_t, em: cty::uint32_t, te: cty::uint32_t, usage: cty::uint32_t) -> cty::uint32_t;
+    fn newtexture(eh: cty::uint32_t, xsize: cty::uint32_t, ysize: cty::uint32_t, zsize: cty::uint32_t, pixels: *mut cty::c_char) -> cty::uint32_t;
+    fn loopcont(eh: cty::uint32_t) -> cty::uint32_t;
 }
 
 #[derive(Copy, Clone)]
@@ -59,13 +54,16 @@ pub struct Render{
     pub resolution_y: u32,
     pub fullscreen: bool,
     pub frametime: f32,
+    pub lights_count: u32,
     fullscreeno: bool,
 }
 
 impl Render{
-    pub fn new(canvasid: &str) -> Render{
+    pub fn new() -> Render{
         Render { 
-            euclid: neweng(canvasid),
+            euclid: unsafe {
+                neweng(1000)
+            },
             shadow_map_count: 1,
             shadow_map_resolution: 1000,
             camera_count: 1,
@@ -75,84 +73,98 @@ impl Render{
             fullscreen: false,
             fullscreeno: false,
             frametime: 0.0,
+            lights_count: 1,
         }
     }
-    pub fn exec(&mut self){
-        rn(self.euclid);
-        self.resolution_x = get_resx(self.euclid);
-        self.resolution_y = get_resy(self.euclid);
-        if self.fullscreen != self.fullscreeno {
-            match self.fullscreen{
-                true => setfullscreen(self.euclid),
-                false => quitfullscreen(self.euclid),
+    pub fn continue_loop(&mut self) -> bool{
+        unsafe{ 
+            self.resolution_x = get_resx(self.euclid);
+            self.resolution_y = get_resy(self.euclid);
+            if self.fullscreen != self.fullscreeno {
+                match self.fullscreen{
+                    true => setfullscreen(self.euclid),
+                    false => quitfullscreen(self.euclid),
+                }
+                self.fullscreeno = self.fullscreen;
             }
-            self.fullscreeno = self.fullscreen;
-        }
-        modifyshadowdata(self.euclid, self.shadow_map_count, self.shadow_map_resolution);
-        modifydeffereddata(self.euclid, self.camera_count, self.resolution_scale);
-        self.frametime = get_frametime(self.euclid);
+            modifyshadowdata(self.euclid, self.shadow_map_count, self.shadow_map_resolution, self.lights_count);
+            modifydeffereddata(self.euclid, self.camera_count, self.resolution_scale);
+            self.frametime = get_frametime(self.euclid)
+        };
+        return unsafe { loopcont(self.euclid) } == 1;
     }
     pub fn set_shadow_uniform_data(&self, i: u32, value: f32){
-        modifyshadowuniform(self.euclid, i, value);
+        unsafe{ modifyshadowuniform(self.euclid, i, value); }
     }
     pub fn set_deffered_uniform_data(&self, i: u32, value: f32){
-        modifydeffereduniform(self.euclid, i, value);
+        unsafe{ modifydeffereduniform(self.euclid, i, value); }
     }
     pub fn set_new_resolution(&self, resx: u32, resy: u32){
-        setresolution(self.euclid, resx, resy);
+        unsafe { setresolution(self.euclid, resx, resy); }
     }
-    pub fn set_icon(&self, resx: u32, resy: u32, data: Vec<i8>){
+    pub fn set_icon(&mut self, resx: u32, resy: u32, data: Vec<i8>){
+        unsafe { seticon(self.euclid, resx, resy, data.as_ptr() as *mut i8) }
     }
     pub fn set_title(&self, title: &str){
-        settitle(title);
+        unsafe { settitle(self.euclid, CString::new(title).unwrap().as_ptr()); }
     }
     pub fn destroy(&self){
-        destroy(self.euclid);
+        unsafe{
+            destroy(self.euclid);
+        }
     }
 }
 
 #[derive(Copy, Clone)]
 pub struct Control{
     euclid: u32,
-    pub xpos: [f32; 10],
-    pub ypos: [f32; 10],
+    pub xpos: f64,
+    pub ypos: f64,
     pub mouse_lock: bool,
     old_mouse_lock: bool,
     pub mousebtn: [bool; 3],
-    pub touch: bool,
+    pub gamepad_connected: bool,
+    pub gamepad_axis_count: u8,
+    pub gamepad_button_count: u8,
 }
 
 impl Control{
     pub fn new(render: Render) -> Control{
         Control {
             euclid: render.euclid,
-            xpos: [0.0f32; 10],
-            ypos: [0.0f32; 10],
+            xpos: 0.0f64,
+            ypos: 0.0f64,
             mouse_lock: false,
             old_mouse_lock: false,
             mousebtn: [false, false, false],
-            touch: false,
+            gamepad_connected: false,
+            gamepad_axis_count: 0,
+            gamepad_button_count: 0,
         }
     }
-    pub fn get_key_state(&self, keyindex: u32) -> bool{
-        return getKeyPressed(keyindex);
+    pub fn get_key_state(&self, keyindex: uint32_t) -> bool{
+        return unsafe { getKeyPressed(self.euclid, keyindex) != 0 };
+    }
+    pub fn get_gamepad_button_state(&self, button_index: uint8_t) -> bool{
+        return unsafe { get_button(self.euclid, button_index) != 0 };
+    }
+    pub fn get_gamepad_axis_state(&self, axis_index: uint8_t) -> f32{
+        return unsafe { get_axis(self.euclid, axis_index) };
     }
     pub fn get_mouse_pos(&mut self){
-        self.touch = touch_control();
+        self.gamepad_connected = unsafe{gamepad_con(self.euclid)} == 1;
+        self.gamepad_axis_count = unsafe{gamepad_axisnm(self.euclid)};
+        self.gamepad_button_count = unsafe{gamepad_buttonnm(self.euclid)};
         if self.mouse_lock != self.old_mouse_lock{
             match self.mouse_lock {
-                true => req_mouse_lock(self.euclid),
-                false => req_mouse_unlock(self.euclid),
+                true => unsafe { req_mouse_lock(self.euclid) },
+                false => unsafe { req_mouse_unlock(self.euclid) },
             }
-        }else{
-            self.mouse_lock = get_mouse_stat();
+            self.old_mouse_lock = self.mouse_lock;
         }
-        self.old_mouse_lock = self.mouse_lock;
-        for i in 0..10{
-            self.xpos[i] = get_mouse_posx(i as u32);
-            self.ypos[i] = get_mouse_posy(i as u32);
-        }
-        self.mousebtn = [ getmr(), getmm(), getml()];
+        self.xpos = unsafe{ get_mouse_posx(self.euclid) };
+        self.ypos = unsafe{ get_mouse_posy(self.euclid) };
+        self.mousebtn = [ unsafe { getmr(self.euclid) } == 1, unsafe { getmm(self.euclid) } == 1, unsafe { getml(self.euclid) } == 1];
     }
 }
 
@@ -172,7 +184,9 @@ pub struct MaterialShaders{
 impl MaterialShaders{
     pub fn new(ren: Render, vert: Vec<u8>, frag: Vec<u8>, shadow: Vec<u8>, cullmode: CullMode, shadow_cullmode: CullMode) -> MaterialShaders{
         MaterialShaders { 
-            materialid: newmaterial(&String::from_utf8(vert).unwrap(), &String::from_utf8(frag).unwrap(), &String::from_utf8(shadow).unwrap(), cullmode as u32, shadow_cullmode as u32)
+            materialid: unsafe{
+                newmaterial(ren.euclid, vert.as_ptr() as *mut u32, frag.as_ptr() as *mut u32, shadow.as_ptr() as *mut u32, vert.len() as u32, frag.len() as u32, shadow.len() as u32, cullmode as u32, shadow_cullmode as u32)
+            }
         }
     }
 }
@@ -186,66 +200,21 @@ impl Vertexes{
     pub fn new(ren: Render, vertices: Vec<f32>) -> Vertexes{
         let size = vertices.len()/8;
         let mut v: Vec<f32> = vec![];
-        let mut uv: Vec<f32> = vec![];
+        let mut u: Vec<f32> = vec![];
         let mut n: Vec<f32> = vec![];
-        let mut tg: Vec<f32> = vec![];
-        let mut ctg: Vec<f32> = vec![];
         for i in 0..size*3 {
             v.push(vertices[i]);
         }
         for i in 0..size*2 {
-            uv.push(vertices[i+size*3]);
+            u.push(vertices[i+size*3]);
         }
         for i in 0..size*3 {
             n.push(vertices[i+size*5]);
         }
-        let mut u = 0;
-        for i in (0..size*3).step_by(9){
-            let v0: [f32; 3] = [ v[i], v[i+1], v[i+2] ];
-            let v1: [f32; 3] = [ v[i+3], v[i+4], v[i+5] ];
-            let v2: [f32; 3] = [ v[i+6], v[i+7], v[i+8] ];
-            let uv0: [f32; 2] = [ uv[u], uv[u+1]+1.0f32 ];
-            let uv1: [f32; 2] = [ uv[u+2], uv[u+3]+1.0f32 ];
-            let uv2: [f32; 2] = [ uv[u+4], uv[u+5]+1.0f32 ];
-            let deltapos1: [f32; 3] = [ v1[0]-v0[0], v1[1]-v0[1], v1[2]-v0[2]];
-            let deltapos2: [f32; 3] = [ v2[0]-v0[0], v2[1]-v0[1], v2[2]-v0[2]];
-            let delta_uv1: [f32; 2] = [uv1[0]-uv0[0], uv1[1]-uv0[1]];
-            let delta_uv2: [f32; 2] = [uv2[0]-uv0[0], uv2[1]-uv0[1]];
-            let r = 1.0 / (delta_uv1[0] * delta_uv2[1] - delta_uv1[1] * delta_uv2[0]);
-            tg.push((deltapos1[0] * delta_uv2[1] - deltapos2[0] * delta_uv1[1])*r);
-            tg.push((deltapos1[1] * delta_uv2[1] - deltapos2[1] * delta_uv1[1])*r);
-            tg.push((deltapos1[2] * delta_uv2[1] - deltapos2[2] * delta_uv1[1])*r);
-            tg.push((deltapos1[0] * delta_uv2[1] - deltapos2[0] * delta_uv1[1])*r);
-            tg.push((deltapos1[1] * delta_uv2[1] - deltapos2[1] * delta_uv1[1])*r);
-            tg.push((deltapos1[2] * delta_uv2[1] - deltapos2[2] * delta_uv1[1])*r);
-            tg.push((deltapos1[0] * delta_uv2[1] - deltapos2[0] * delta_uv1[1])*r);
-            tg.push((deltapos1[1] * delta_uv2[1] - deltapos2[1] * delta_uv1[1])*r);
-            tg.push((deltapos1[2] * delta_uv2[1] - deltapos2[2] * delta_uv1[1])*r);
-            ctg.push((deltapos2[0] * delta_uv1[0] - deltapos1[0] * delta_uv2[0])*r);
-            ctg.push((deltapos2[1] * delta_uv1[0] - deltapos1[1] * delta_uv2[0])*r);
-            ctg.push((deltapos2[2] * delta_uv1[0] - deltapos1[2] * delta_uv2[0])*r);
-            ctg.push((deltapos2[0] * delta_uv1[0] - deltapos1[0] * delta_uv2[0])*r);
-            ctg.push((deltapos2[1] * delta_uv1[0] - deltapos1[1] * delta_uv2[0])*r);
-            ctg.push((deltapos2[2] * delta_uv1[0] - deltapos1[2] * delta_uv2[0])*r);
-            ctg.push((deltapos2[0] * delta_uv1[0] - deltapos1[0] * delta_uv2[0])*r);
-            ctg.push((deltapos2[1] * delta_uv1[0] - deltapos1[1] * delta_uv2[0])*r);
-            ctg.push((deltapos2[2] * delta_uv1[0] - deltapos1[2] * delta_uv2[0])*r);
-            u+=6;
-        }
-
-        let vjs = Float32Array::new_with_length((size*3) as u32);
-        vjs.copy_from(&v);
-        let ujs = Float32Array::new_with_length((size*2) as u32);
-        ujs.copy_from(&uv);
-        let njs = Float32Array::new_with_length((size*3) as u32);
-        njs.copy_from(&n);
-        let tjs = Float32Array::new_with_length((size*3) as u32);
-        tjs.copy_from(&tg);
-        let cjs = Float32Array::new_with_length((size*3) as u32);
-        cjs.copy_from(&ctg);
-
         Vertexes { 
-            modelid: newmodel(vjs, ujs, njs, tjs, cjs),
+            modelid: unsafe{
+                newmodel(ren.euclid, v.as_ptr() as *mut f32, u.as_ptr() as *mut f32, n.as_ptr() as *mut f32, size as u32)
+            }
         }
     }
 }
@@ -256,15 +225,11 @@ pub struct Texture{
 }
 
 impl Texture {
-    pub fn new(render: Render, xs: u32, ys: u32, texnm: u32, data: Vec<i8>) -> Texture{
-        let mut u8d: Vec<u8> = vec![];
-        for i in 0..data.len(){
-            u8d.push(data[i] as u8);
-        }
-        let jsi = Uint8Array::new_with_length(xs*ys*texnm*4);
-        jsi.copy_from(&u8d);
+    pub fn new(render: Render, xs: u32, ys: u32, texnm: u32, data: Vec<u8>) -> Texture{
         Texture { 
-            texid: newtexture(xs, ys, texnm, jsi),
+            texid: unsafe {
+                newtexture(render.euclid, xs, ys, texnm, data.as_ptr() as *mut i8)
+            }
         }
     }
 }
@@ -281,7 +246,7 @@ pub enum MeshUsage {
 #[derive(Copy, Clone)]
 pub struct Mesh{
     pub meshid: u32,
-    pub ubo: [f32; 20],
+    pub ubo: [f32; 52],
     pub draw: bool,
     pub draw_shadow: bool,
     pub keep_shadow: bool,
@@ -293,8 +258,10 @@ pub struct Mesh{
 impl Mesh{
     pub fn new(ren: Render, model: Vertexes, material: MaterialShaders, texture: Texture, usage: MeshUsage) -> Mesh{
         Mesh { 
-            meshid: newmesh(ren.euclid, material.materialid, model.modelid, texture.texid, usage as u32),
-            ubo: [1.0; 20],
+            meshid: unsafe{
+                newmesh(ren.euclid, material.materialid, model.modelid, texture.texid,usage as u32)
+            },
+            ubo: [1.0; 52],
             draw: true,
             draw_shadow: true,
             keep_shadow: true,
@@ -305,28 +272,32 @@ impl Mesh{
     }
 
     pub fn exec(&self){
-        for i in 0..20{
-            setmeshbuf(self.meshid, i, self.ubo[i as usize]);
+        for i in 0..self.ubo.len(){
+            unsafe {
+                setmeshbuf(self.meshid, i as u32, self.ubo[i]);
+            };
         }
-        setdrawable(self.meshid, match self.draw {
-            true => match self.draw_shadow {
-                true => 1,
-                false => 3,
-            },
-            false => match self.keep_shadow {
-                true => 2,
-                false => 0,
-            },
-        });
-        setrendercamera(self.meshid, match self.render_all_cameras{
-            true => -1,
-            false => {
-                if self.exclude_selected_camera {
-                    self.camera_number + 10
-                }else{
-                    self.camera_number
+        unsafe {
+            setdrawable(self.meshid, match self.draw {
+                true => match self.draw_shadow {
+                    true => 1,
+                    false => 3,
+                },
+                false => match self.keep_shadow {
+                    true => 2,
+                    false => 0,
+                },
+            });
+            setrendercamera(self.meshid, match self.render_all_cameras{
+                true => -1,
+                false => {
+                    if self.exclude_selected_camera {
+                        self.camera_number + 10
+                    }else{
+                        self.camera_number
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 }

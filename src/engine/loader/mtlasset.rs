@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use crate::engine::loader::imageasset::fileopen;
+use std::{fs::File, io::{BufRead, BufReader}};
 
 pub struct MtlAsset{
     pub matinfo: Vec<Vec<String>>,
@@ -9,13 +9,13 @@ pub struct MtlAsset{
 }
 
 impl MtlAsset{
-    pub async fn load_mtl(path: &str) -> MtlAsset{
-        let file = String::from_utf8(fileopen(path).await).unwrap();
-        let reader: Vec<&str> = file.split('\n').collect();
+    pub fn load_mtl(path: &str) -> MtlAsset{
+        let file = File::open(path).unwrap();
+        let reader = BufReader::new(file);
         let mut fmat: Vec<Vec<String>> = vec![];
         let mut fnv: Vec<String> = vec![];
-        for i in 0..reader.len() {
-            let va = reader[i];
+        for line in reader.lines(){
+            let va= line.unwrap_or_default();
             let spl: Vec<&str> = va.split(' ').collect();
             if spl[0] == "newmtl"{
                 fnv.push(spl[1].to_string());

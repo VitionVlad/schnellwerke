@@ -1,16 +1,18 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use wasm_bindgen::prelude::wasm_bindgen;
+use std::ffi::CString;
 
-#[wasm_bindgen(module = "/src/engine/audio/audio.js")]
 unsafe extern "C"{
-    fn newmozart() -> u32;
-    fn mozartsetvolume(mhi: u32, vol: f32);
-    fn newsound(mhi: u32, path: &str) -> u32;
-    fn soundplay(msn: u32, pan: f32, vol: f32);
-    fn soudstop(msn: u32);
-    fn destroymozart(mhi: u32);
+    fn newmozart() -> cty::uint32_t;
+    fn mozartsetvolume(mhi: cty::uint32_t, vol: cty::c_float);
+    fn newsound(mhi: cty::uint32_t, path: *const cty::c_char) -> cty::uint32_t;
+    fn soundplay(msn: cty::uint32_t, pan: cty::c_float, vol: cty::c_float);
+    fn soundstop(msn: cty::uint32_t);
+    fn soundsetloop(msn: cty::uint32_t, val: cty::uint8_t);
+    fn soundsetpos(msn: cty::uint32_t, val: cty::c_float);
+    fn cend(msn: cty::uint32_t) -> cty::uint8_t;
+    fn destroymozart(mhi: cty::uint32_t);
 }
 
 #[derive(Copy, Clone)]
@@ -23,16 +25,16 @@ pub struct AudioEngine{
 impl AudioEngine{
     pub fn new() -> AudioEngine{
         AudioEngine{
-            index: newmozart(),
+            index: unsafe{ newmozart() },
             vol: 1.0f32,
             spacial: true,
         }
     }
     pub fn exec(&mut self){
-        mozartsetvolume(self.index, self.vol);
+        unsafe{ mozartsetvolume(self.index, self.vol) };
     }
     pub fn destroy(&mut self){
-        destroymozart(self.index);
+        unsafe{ destroymozart(self.index) };
     }
 }
 
@@ -40,20 +42,39 @@ pub struct Sound{
     index: u32,
     pub vol: f32,
     pub pan: f32,
+    pub loopsound: bool,
 }
 
 impl Sound{
     pub fn new(ae: AudioEngine, path: &str) -> Sound{
         Sound { 
-            index: newsound(ae.index, path), 
+            index: unsafe {
+                newsound(ae.index, CString::new(path).unwrap().as_ptr())
+            }, 
             vol: 1.0, 
-            pan: 0.0
+            pan: 0.0,
+            loopsound: true,
         }
     }
     pub fn play(&mut self){
-        soundplay(self.index, self.pan, self.vol);
+        unsafe {
+            soundsetloop(self.index, self.loopsound as u8);
+            soundplay(self.index, self.pan, self.vol);
+        }
+    }
+    pub fn check_end(&mut self) -> bool{
+        unsafe {
+            cend(self.index) == 1
+        }
+    }
+    pub fn set_new_pos(&mut self, newpos: f32){
+        unsafe {
+            soundsetpos(self.index, newpos);
+        }
     }
     pub fn stop(&mut self){
-        soudstop(self.index)
+        unsafe {
+            soundstop(self.index);
+        }
     }
 }

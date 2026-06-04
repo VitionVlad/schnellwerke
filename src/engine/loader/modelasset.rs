@@ -1,28 +1,73 @@
 #![allow(dead_code)]
 #![allow(unused_variables)]
 
-use wasm_bindgen::prelude::wasm_bindgen;
+use std::{fs::File, io::{BufRead, BufReader}};
 
-use crate::engine::loader::imageasset::fileopen;
+use crate::engine::math::{vec2::Vec2, vec3::Vec3, vec4::Vec4};
 
 use super::mtlasset::MtlAsset;
 
-#[wasm_bindgen]
-extern {
-  #[wasm_bindgen(js_namespace = console)]
-  fn log(s: &str);
+#[derive(Clone)]
+#[derive(PartialEq)]
+enum Rdbft{
+  SCALAR,
+  VEC2,
+  VEC3,
+  VEC4
+}
+
+#[derive(Clone)]
+#[derive(PartialEq)]
+enum Aus{
+  POSITION,
+  NORMAL,
+  UV,
+  INDICES,
+  OTHER,
+}
+
+struct Rdbf{
+  tp: Rdbft,
+  mu: Aus,
+  scalar: Vec<u32>,
+  vec2: Vec<Vec2>,
+  vec3: Vec<Vec3>,
+  vec4: Vec<Vec4>,
+}
+
+fn quat_to_euler(q: Vec4) -> Vec3 {
+    let sinr_cosp = 2.0 * (q.w * q.x + q.y * q.z);
+    let cosr_cosp = 1.0 - 2.0 * (q.x * q.x + q.y * q.y);
+    let roll = sinr_cosp.atan2(cosr_cosp);
+
+    let sinp = 2.0 * (q.w * q.y - q.z * q.x);
+    let pitch = if sinp.abs() >= 1.0 {
+        std::f32::consts::FRAC_PI_2.copysign(sinp)
+    } else {
+        sinp.asin()
+    };
+
+    let siny_cosp = 2.0 * (q.w * q.z + q.x * q.y);
+    let cosy_cosp = 1.0 - 2.0 * (q.y * q.y + q.z * q.z);
+    let yaw = siny_cosp.atan2(cosy_cosp);
+
+    Vec3 { x: roll, y: pitch, z: yaw }
 }
 
 pub struct ModelAsset{
     pub vertices: Vec<Vec<f32>>,
     pub matnam: Vec<String>,
+    pub objpos: Vec<Vec3>,
+    pub objrot: Vec<Vec3>,
+    pub objscale: Vec<Vec3>,
+    pub obn: Vec<String>,
     pub mtl: MtlAsset,
 }
 
 impl ModelAsset{
-    pub async fn load_obj(path: &str) -> ModelAsset{
-        let file = String::from_utf8(fileopen(path).await).unwrap();
-        let reader: Vec<&str> = file.split('\n').collect();
+    pub fn load_obj(path: &str) -> ModelAsset{
+        let file = File::open(path).unwrap();
+        let reader = BufReader::new(file);
         let mut vert: Vec<[f32; 3]> = vec![];
         let mut uv: Vec<[f32; 2]> = vec![];
         let mut norm: Vec<[f32; 3]> = vec![];
@@ -40,8 +85,12 @@ impl ModelAsset{
         let mut mtl: MtlAsset = MtlAsset { matinfo: vec![], matnam: vec![] };
 
         let mut mtsl: Vec<String> = vec![];
-        for i in 0..reader.len() {
-            let va = reader[i];
+        let mut obn: Vec<String> = vec![];
+        for line in reader.lines() {
+            let va = line.unwrap_or_default();
+            if va.clone().chars().next().unwrap_or_default() == '#' {
+                continue;
+            }
             let spl: Vec<&str> = va.split(' ').collect();
             if spl[0] == "mtllib"{
                 let pspl: Vec<&str> = path.split('/').collect();
@@ -51,37 +100,38 @@ impl ModelAsset{
                     mtlp += "/";
                 }
                 mtlp += &spl[1].to_string();
-                mtl = MtlAsset::load_mtl(&mtlp).await;
+                mtl = MtlAsset::load_mtl(&mtlp);
                 continue;
             }
             if spl[0] == "usemtl"{
                 mtsl.push(spl[1].to_owned());
                 continue;
             }
-            if spl[0] == "o"{
+            if va.clone().as_bytes()[0] == b'o' && va.clone().as_bytes()[1] == b' '{
+                obn.push(spl[1].to_string());
                 objcnt += 1usize;
                 objbegind.push([ivert.len(), iuv.len(), inorm.len()]);
                 continue;
             }
-            if spl[0] == "v"{
+            if va.clone().as_bytes()[0] == b'v' && va.clone().as_bytes()[1] == b' '{
                 let spl: Vec<&str> = va.split(' ').collect();
                 let pos: [f32; 3] = [spl[1].parse::<f32>().unwrap(), spl[2].parse::<f32>().unwrap(), spl[3].parse::<f32>().unwrap()];
                 vert.push(pos);
                 continue;
             }
-            if spl[0] == "vt"{
+            if va.clone().as_bytes()[0] == b'v' && va.clone().as_bytes()[1] == b't'{
                 let spl: Vec<&str> = va.split(' ').collect();
                 let uvc: [f32; 2] = [spl[1].parse::<f32>().unwrap(), spl[2].parse::<f32>().unwrap()];
                 uv.push(uvc);
                 continue;
             }
-            if spl[0] == "vn"{
+            if va.clone().as_bytes()[0] == b'v' && va.clone().as_bytes()[1] == b'n'{
                 let spl: Vec<&str> = va.split(' ').collect();
                 let normal: [f32; 3] = [spl[1].parse::<f32>().unwrap(), spl[2].parse::<f32>().unwrap(), spl[3].parse::<f32>().unwrap()];
                 norm.push(normal);
                 continue;
             }
-            if spl[0] == "f"{
+            if va.clone().as_bytes()[0] == b'f' && va.clone().as_bytes()[1] == b' '{
                 let spl: Vec<&str> = va.split(' ').collect();
                 let spl3: [Vec<&str>; 3] = [spl[1].split('/').collect(), spl[2].split('/').collect(), spl[3].split('/').collect()];
                 let posi: [u32; 3] = [spl3[0][0].parse::<u32>().unwrap(), spl3[1][0].parse::<u32>().unwrap(), spl3[2][0].parse::<u32>().unwrap()];
@@ -117,12 +167,16 @@ impl ModelAsset{
                 fnvrt.push(norm[inorm[i] as usize - 1][1]);
                 fnvrt.push(norm[inorm[i] as usize - 1][2]);
             }
-            fnobj.push(fnvrt);
+            fnobj.push(fnvrt.clone());
             fnvrt = vec![];
         }
         ModelAsset { 
             vertices: fnobj, 
             matnam: mtsl,
+            obn: obn,
+            objpos: vec![],
+            objrot: vec![],
+            objscale: vec![],
             mtl: mtl,
         }
     }
