@@ -1,0 +1,15 @@
+{
+  "name": "schnellwerke",
+  "type": "module",
+  "version": "3.5.0",
+  "files": [
+    "schnellwerke_bg.wasm",
+    "schnellwerke.js",
+    "schnellwerke.d.ts"
+  ],
+  "main": "schnellwerke.js",
+  "types": "schnellwerke.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

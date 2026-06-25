@@ -2,11 +2,11 @@
 <html lang="en-US">
   <head>
     <meta charset="utf-8" />
-    <title>demo</title>
+    <title>hello-wasm example</title>
   </head>
-  <body id="b">
+  <body>
     <canvas style="
-      background-color: #000;
+      background-color: #ffffff;
       display: block;
       position: absolute;
       top: 0;
@@ -16,24 +16,12 @@
       height: 100%;
       width: 100%;
       " id="render"></canvas>
-      
     <script type="module">
       import init, { main } from "./pkg/schnellwerke.js";
-      console.log("Loading assets...");
-      if (document.readyState === "complete"){
-        console.log("Already loaded...");
-        init().then(() => {
-          main();
-        });
-      }else{
-        console.log("Still Loading...");
-        window.addEventListener("load", (event) => {
-          console.log("Already loaded...");
-          init().then(() => {
-            main();
-          });
-        });
-      }
+
+      init().then(() => {
+        main();
+      });
     </script>
   </body>
 </html>
