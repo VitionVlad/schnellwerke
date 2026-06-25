@@ -2,12 +2,10 @@
 Writing advanced 3D or 2D applications can be an exciting challenge, but it often becomes complex when dealing with the details of porting or ensuring the application works seamlessly on the web. To address these challenges, I developed my own 3D graphics engine, Schnellwerke, designed specifically for the web, and later for native apps, Schnellwerke native.  
 The core idea behind Schnellwerke is to maximize performance by leveraging WebAssembly and WebGPU technologies while optimizing the engine’s internal architecture for efficiency. It takes into account various crucial details to ensure high performance and smooth functionality across platforms.  
 ⚠️ The engine requires WebGPU and WebAssembly support to function!  
-<img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/0b09f2d3-6be1-4af0-a8e5-b9d0c9047d9e" />
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/f56b7883-3ece-4b4e-a722-f2f78edd268a" />
 # <p align="center"> Structure  </p>
-Version 3.0 introduced a restructured system focused on more efficient resource usage. Now, textures, shaders, and models are no longer bound to individual objects—they can be shared across multiple objects.  
+Version 3.5 introduced a restructured system focused on more efficient resource usage. Now, textures, shaders, and models are no longer bound to individual objects—they can be shared across multiple objects.
 This is especially useful for textures, as it eliminates unnecessary duplication. Instead of loading the same texture for each object (which leads to increased memory consumption), a single shared texture is used, significantly reducing memory usage.  
-For example, the demo game ZUG runs with a scene containing over 100 objects—many of which reuse the same materials — and it consumes only about 300 MB of RAM.  
-The engine and object structure hasn’t changed much, remaining mostly the same. The only notable difference is the controls, which are now part of the engine structure, as shown in this diagram.  
 <p align="center"><img width="602" height="622" alt="Diagramă fără titlu-Pagină-1 drawio" src="https://github.com/user-attachments/assets/3e6b3ecf-67af-4a25-8325-e272f89e98dd" /> </p>
 and the strucutre itself:  
 
@@ -141,12 +139,13 @@ pub struct Scene{
     pub camera_number: i8,
 }
 ```
+Also it is possible now to load whole scene from a GLTF (or binary GLB) file.  
 
 # <p align="center"> Render </p>
 Rendering in Schnellwerke 3 is based on the Gauss component, which handles all interaction with the WebGPU API, as well as managing input and other operations.  
 The main rendering approach is deferred rendering, although you're free to rewrite the shaders yourself and use traditional forward rendering instead.  
 Below is a diagram that represents the entire rendering process.  
-<p align="center"><img width="531" height="1791" alt="Diagramă fără titlu-Pagină-3 drawio" src="https://github.com/user-attachments/assets/6b755df8-e7dc-43e9-949f-8d3db038684d" /> </p>
+<p align="center"><img width="1577" height="2421" alt="image" src="https://github.com/user-attachments/assets/4be25bfc-fdc7-47ee-9496-b21be07c792c" /></p>  
 This demo also showcase the rendering of transparent objects, which is significantly more difficult in a deferred rendering approach.  
 
 # <p align="center"> Physics </p>
@@ -181,30 +180,11 @@ trains.exec(&mut eng);
 ...
 }));
 ```
+# <p align="center"> <img width="1536" height="512" alt="image" src="https://github.com/user-attachments/assets/7cedc6d2-764f-47a9-a814-973258ede4bc" /> </p>
+35mm is a demo project written to showcase the capabilities of a new version of the game engine. It is a short game set in a 1980s Soviet city where an unexpected incident has occurred, and your sole goal is to escape—if that is even still possible. As a puzzle game, you should get ready to solve various quests to complete the demo.
+It is available in three languages: English, Romanian, and Russian. It can be played using a keyboard and mouse, a gamepad, or touch controls. Have fun!
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/1aa74bd7-31b8-4ddf-99f6-7ad1d8012c1f" />
+<img width="1600" height="720" alt="image" src="https://github.com/user-attachments/assets/045e489a-5e2c-4508-9756-82937bb9588e" />
+<img width="1600" height="720" alt="image" src="https://github.com/user-attachments/assets/37a6e200-c05a-41a7-92ef-8dc17275af7e" />  
+Last 2 photos were taken from my phone, phone in case is google pixel 8a
 
-# <p align="center"> <img width="1599" height="262" alt="image" src="https://github.com/user-attachments/assets/6ba28016-4bf8-437f-9bba-26fa2047faad" /> </p>
-
-ZUG is a demo game created using my new graphics engine. The engine was developed both for debugging and integrating new features, but also as an experiment to create a first-person puzzle experience.  
-  
-So, what is this game about?  
-ZUG is a first-person puzzle game set during the time of the Great War. It aims to recreate the atmosphere of that era and perhaps show or tell something about the war itself—such as the use of ciphers or historical events.  
-  
-The game is quite short, but instead of focusing on length, I put effort into making everything feel realistic. I also used it as a playground to experiment with the engine’s capabilities, shaders, and more.  
-  
-Taken from this repository, the game can be compiled without any code modifications for both Windows and Linux.  
-  
-Controls are standard:
-WASD for movement, mouse for looking around, and LMB for interacting with objects. Also touch controls are avaible, game automatically switches to mobile controls.    
-  
-I can’t give specific system requirements, but the main one is a WebGPU GPU, and a browser which supports it. In my case, the game ran at maximum graphics settings on a Ryzen 5 5600G with integrated Vega 7 graphics and 16 GB of RAM—which was more than enough.  
-Demo is also playeble on mobile devices, for example here is a exemple of it running on my Google Pixel 7:  
-
-<img width="1240" height="558" alt="image" src="https://github.com/user-attachments/assets/8e01f911-88f0-42c4-9c37-ccb703928d0c" />
-
-<img width="1600" height="900" alt="Screenshot 2025-07-12 102033" src="https://github.com/user-attachments/assets/06a76a3d-a8c7-4d7d-afc7-3319dc1917c3" />  
-
-<img width="1600" height="900" alt="Screenshot 2025-07-12 102051" src="https://github.com/user-attachments/assets/ebad32b1-5b90-44eb-a7ee-e4532f7e07ed" />
-
-<img width="1600" height="900" alt="Screenshot 2025-07-12 102116" src="https://github.com/user-attachments/assets/ed48a51a-6710-4860-8dfe-2c7eb36c401b" />
-
-<img width="1600" height="900" alt="Screenshot 2025-07-12 102137" src="https://github.com/user-attachments/assets/e8a656ad-0ad5-4030-8793-f95b30062134" />
